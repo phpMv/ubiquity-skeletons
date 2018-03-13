@@ -10,19 +10,20 @@ return array(
 				"password"=>"",
 				"cache"=>false
 		],
+		"sessionName"=>"%base_url%",
 		"namespaces"=>[],
 		"templateEngine"=>'Ubiquity\\views\\engine\\Twig',
 		"templateEngineOptions"=>array("cache"=>false),
 		"test"=>false,
 		"debug"=>false,
 		"di"=>["jquery"=>function(){
-							$jquery=new Ajax\php\ubiquity\JsUtils(["defer"=>true]);
-							$jquery->semantic(new Ajax\Semantic());
+							$jquery=new \Ajax\php\ubiquity\JsUtils(["defer"=>true]);
+							$jquery->semantic(new \Ajax\Semantic());
 							return $jquery;
 						}],
 		"cache"=>["directory"=>"cache/","system"=>"Ubiquity\\cache\\system\\ArrayCache","params"=>[]],
 		"mvcNS"=>["models"=>"models","controllers"=>"controllers","rest"=>"rest"],
 		"isRest"=>function(){
-			return Ubiquity\utils\RequestUtils::getUrlParts()[0]==="rest";
+			return \Ubiquity\utils\http\URequest::getUrlParts()[0]==="rest";
 		}
 );

@@ -8,8 +8,7 @@ use Ubiquity\orm\OrmUtils;
 use Ubiquity\cache\ClassUtils;
 use Ubiquity\orm\reverse\DatabaseReversor;
 use Ubiquity\db\reverse\DbGenerator;
-use Ubiquity\utils\RequestUtils;
-use Ajax\semantic\html\elements\HtmlButtonGroups;
+use Ubiquity\utils\http\URequest;
 use Ubiquity\orm\DAO;
 use Ubiquity\db\export\DbExport;
 
@@ -40,7 +39,7 @@ trait DatabaseTrait{
 	}
 
 	public function createSQLScript(){
-		if(RequestUtils::isPost()){
+		if(URequest::isPost()){
 			$db=$_POST["dbName"];
 			if(DAO::isConnected()){
 				$actualDb=DAO::$db->getDbName();

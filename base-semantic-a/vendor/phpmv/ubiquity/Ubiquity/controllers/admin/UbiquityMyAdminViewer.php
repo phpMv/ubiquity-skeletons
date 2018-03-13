@@ -14,7 +14,6 @@ use Ajax\common\html\BaseHtml;
 use Ubiquity\cache\CacheManager;
 use Ajax\semantic\html\elements\HtmlIcon;
 use Ajax\semantic\html\base\constants\TextAlignment;
-use Ubiquity\controllers\admin\popo\ControllerAction;
 use Ajax\semantic\html\elements\HtmlLabel;
 use Ajax\semantic\html\base\HtmlSemDoubleElement;
 use Ajax\semantic\widgets\dataelement\DataElement;
@@ -25,15 +24,16 @@ use Ajax\semantic\widgets\datatable\DataTable;
 use Ajax\service\JString;
 use Ajax\semantic\html\elements\HtmlList;
 use Ubiquity\controllers\admin\popo\Route;
-use Ubiquity\utils\StrUtils;
+use Ubiquity\utils\base\UString;
 use Ajax\semantic\html\elements\HtmlIconGroups;
 use Ajax\semantic\html\collections\HtmlMessage;
 use Ubiquity\annotations\parser\DocParser;
 use Ubiquity\cache\ClassUtils;
 use Ajax\semantic\html\collections\form\HtmlFormCheckbox;
 use Ajax\semantic\html\elements\HtmlLabelGroups;
-use Ubiquity\utils\FsUtils;
-use Ubiquity\utils\Introspection;
+use Ubiquity\utils\base\UIntrospection;
+use Ajax\semantic\html\content\view\HtmlItem;
+use Ajax\semantic\html\views\HtmlItems;
 
 /**
  *
@@ -85,13 +85,55 @@ class UbiquityMyAdminViewer {
 				case "integer":
 					$form->fieldAsInput($property, [ "inputType" => "number" ]);
 					break;
+				case "date":
+					$form->fieldAsInput($property, [ "inputType" => "date" ]);
+					break;
+				case "datetime":
+					$form->fieldAsInput($property, [ "inputType" => "datetime-local" ]);
+					break;
 			}
 		}
 		$this->relationMembersInForm($form, $instance, $className);
 		$form->setCaptions($this->getFormCaptions($form->getInstanceViewer()->getVisibleProperties(), $className, $instance));
 		$form->setCaption("_message", $message["message"]);
-		$form->setSubmitParams($this->controller->_getAdminFiles()->getAdminBaseRoute() . "/update", "#table-details");
+		$form->setSubmitParams($this->controller->_getAdminFiles()->getAdminBaseRoute() . "/update", "#frm-add-update");
 		return $form;
+	}
+
+	/**
+	 * Returns the dataTable responsible for displaying instances of the model
+	 * @param array $instances objects to display
+	 * @param string $model model class name (long name)
+	 * @return DataTable
+	 */
+	public function getModelDataTable($instances, $model) {
+		$adminRoute=$this->controller->_getAdminFiles()->getAdminBaseRoute();
+		$semantic=$this->jquery->semantic();
+
+		$modal=($this->isModal($instances, $model) ? "modal" : "no");
+		$lv=$semantic->dataTable("lv", $model, $instances);
+		$attributes=$this->controller->getFieldNames($model);
+
+		$lv->setCaptions($this->getCaptions($attributes, $model));
+		$lv->setFields($attributes);
+		$lv->onPreCompile(function () use ($attributes, &$lv) {
+			$lv->getHtmlComponent()->colRight(\count($attributes));
+		});
+
+		$lv->setIdentifierFunction($this->controller->getIdentifierFunction($model));
+		$lv->getOnRow("click", $adminRoute . "/showDetail", "#table-details", [ "attr" => "data-ajax" ]);
+		$lv->setUrls([ "delete" => $adminRoute . "/delete","edit" => $adminRoute . "/edit/" . $modal ]);
+		$lv->setTargetSelector([ "delete" => "#table-messages","edit" => "#frm-add-update" ]);
+		$lv->addClass("small very compact");
+		$lv->addEditDeleteButtons(false, [ "ajaxTransition" => "random" ], function ($bt) {
+			$bt->addClass("circular");
+		}, function ($bt) {
+			$bt->addClass("circular");
+		});
+		$lv->setActiveRowSelector("error");
+		$this->jquery->getOnClick("#btAddNew", $adminRoute . "/newModel/" . $modal, "#frm-add-update");
+		$this->jquery->click("_.edit", "console.log($(this).closest('.ui.button'));");
+		return $lv;
 	}
 
 	/**
@@ -101,7 +143,7 @@ class UbiquityMyAdminViewer {
 	 * @return boolean
 	 */
 	public function isModal($objects, $model) {
-		return \count($objects) > 20;
+		return \count($objects) > 5;
 	}
 
 	/**
@@ -157,7 +199,7 @@ class UbiquityMyAdminViewer {
 	}
 
 	public function getMainMenuElements() {
-		return [ "models" => [ "Models","sticky note","Used to perform CRUD operations on data." ],"routes" => [ "Routes","car","Displays defined routes with annotations" ],"controllers" => [ "Controllers","heartbeat","Displays controllers and actions" ],"cache" => [ "Cache","lightning","Annotations, models, router and controller cache" ],"rest" => [ "Rest","server","Restfull web service" ],"config" => [ "Config","settings","Configuration variables" ],"logs" => [ "Logs","bug","Log files" ] ];
+		return [ "models" => [ "Models","sticky note","Used to perform CRUD operations on data." ],"routes" => [ "Routes","car","Displays defined routes with annotations" ],"controllers" => [ "Controllers","heartbeat","Displays controllers and actions" ],"cache" => [ "Cache","lightning","Annotations, models, router and controller cache" ],"rest" => [ "Rest","server","Restfull web service" ],"config" => [ "Config","settings","Configuration variables" ],"seo" => [ "Seo","google","Search Engine Optimization" ],"logs" => [ "Logs","bug","Log files" ] ];
 	}
 
 	public function getRoutesDataTable($routes, $dtName="dtRoutes") {
@@ -250,7 +292,7 @@ class UbiquityMyAdminViewer {
 
 	public function getActionViews($controllerFullname, $controller, $action, \ReflectionMethod $r, $lines) {
 		$result=[ ];
-		$loadedViews=Introspection::getLoadedViews($r, $lines);
+		$loadedViews=UIntrospection::getLoadedViews($r, $lines);
 		foreach ( $loadedViews as $view ) {
 			if (\file_exists(ROOT . DS . "views" . DS . $view)) {
 				$lbl=new HtmlLabel("lbl-view-" . $controller . $action . $view, $view, "browser", "span");
@@ -436,7 +478,7 @@ class UbiquityMyAdminViewer {
 	protected function _dtMethods(DataTable $dt) {
 		$dt->setValueFunction("methods", function ($v) {
 			$result="";
-			if (StrUtils::isNotNull($v)) {
+			if (UString::isNotNull($v)) {
 				if (!\is_array($v)) {
 					$v=[ $v ];
 				}
@@ -449,7 +491,7 @@ class UbiquityMyAdminViewer {
 	protected function _dtCache(DataTable $dt) {
 		$dt->setValueFunction("cache", function ($v, $instance) {
 			$ck=new HtmlFormCheckbox("ck-" . $instance->getPath(), $instance->getDuration() . "");
-			$ck->setChecked(StrUtils::isBooleanTrue($v));
+			$ck->setChecked(UString::isBooleanTrue($v));
 			$ck->setDisabled();
 			return $ck;
 		});
@@ -519,7 +561,7 @@ class UbiquityMyAdminViewer {
 				$diDe->setValueFunction($key, function ($value) use ($config, $key) {
 					$r=$config['di'][$key];
 					if (\is_callable($r))
-						return \nl2br(\htmlentities(Introspection::closure_dump($r)));
+						return \nl2br(\htmlentities(UIntrospection::closure_dump($r)));
 					return $value;
 				});
 			}
@@ -528,7 +570,7 @@ class UbiquityMyAdminViewer {
 		$de->setValueFunction("isRest", function ($v) use ($config) {
 			$r=$config["isRest"];
 			if (\is_callable($r))
-				return \nl2br(\htmlentities(Introspection::closure_dump($r)));
+				return \nl2br(\htmlentities(UIntrospection::closure_dump($r)));
 			return $v;
 		});
 		$de->fieldAsCheckbox("test", [ "class" => "ui checkbox slider" ]);
@@ -608,5 +650,19 @@ class UbiquityMyAdminViewer {
 			$elm->getField()->asSearch();
 		} ]);
 		$form->setCaption($newField, \ucfirst($member));
+	}
+
+	public function getMainIndexItems($identifier,$array):HtmlItems{
+		$items=$this->jquery->semantic()->htmlItems($identifier);
+
+		$items->fromDatabaseObjects($array, function ($e) {
+			$item=new HtmlItem("");
+			$item->addIcon($e[1] . " bordered circular")->setSize("big");
+			$item->addItemHeaderContent($e[0], [ ], $e[2]);
+			$item->setProperty("data-ajax", \strtolower($e[0]));
+			return $item;
+		});
+			$items->getOnClick($this->controller->_getAdminFiles()->getAdminBaseRoute(), "#main-content", [ "attr" => "data-ajax" ]);
+		return $items->addClass("divided relaxed link");
 	}
 }

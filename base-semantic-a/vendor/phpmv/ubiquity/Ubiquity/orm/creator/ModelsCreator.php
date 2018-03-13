@@ -1,12 +1,10 @@
 <?php
 namespace Ubiquity\orm\creator;
 
-use Ubiquity\orm\creator\Model;
-use Ubiquity\orm\creator\Member;
 use Ubiquity\annotations\JoinColumnAnnotation;
 use Ubiquity\cache\CacheManager;
 use Ubiquity\controllers\Startup;
-use Ubiquity\utils\FsUtils;
+use Ubiquity\utils\base\UFileSystem;
 
 
 abstract class ModelsCreator {
@@ -21,7 +19,7 @@ abstract class ModelsCreator {
 	public function create($config,$initCache=true,$singleTable=null){
 		$this->init($config);
 		$modelsDir=Startup::getModelsCompletePath();
-		if(FsUtils::safeMkdir($modelsDir)){
+		if(UFileSystem::safeMkdir($modelsDir)){
 			$this->tables=$this->getTablesName();
 			CacheManager::checkCache($config);
 
@@ -125,8 +123,8 @@ abstract class ModelsCreator {
 		$fk=$joinColumn->name;
 		$dFk=$class->getDefaultFk();
 		if($fk!==$dFk){
-			if($pk!==null && $fk!==null && $pk!==null)
-				return ["name"=>$fk, "referencedColumnName"=>$pk];
+			if($pk!==null && $fk!==null)
+				return ["name"=>$fk, "referencedColumnName"=>$pk->getName()];
 		}
 		return [];
 	}

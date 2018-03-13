@@ -6,8 +6,7 @@ use Ubiquity\cache\CacheManager;
 use Ubiquity\controllers\Startup;
 use Ubiquity\cache\ClassUtils;
 use Ubiquity\controllers\Router;
-use Ubiquity\utils\StrUtils;
-use Ubiquity\orm\parser\Reflexion;
+use Ubiquity\utils\base\UString;
 
 class ControllerAction {
 	private $controller;
@@ -15,7 +14,7 @@ class ControllerAction {
 	private $parameters;
 	private $dValues;
 	private $annots;
-	private static $excludeds=[ "__construct","isValid","initialize","finalize","onInvalidControl","loadView","forward" ];
+	private static $excludeds=[ "__construct","isValid","initialize","finalize","onInvalidControl","loadView","forward","redirectToRoute" ];
 
 	public function __construct($controller="", $action="", $parameters=[], $dValues=[], $annots=[]) {
 		$this->controller=$controller;
@@ -35,7 +34,7 @@ class ControllerAction {
 		if (!$url) {
 			$url="_default";
 		}
-		if (StrUtils::endswith($url, "/"))
+		if (UString::endswith($url, "/"))
 			$url=\substr($url, 0, strlen($url) - 1);
 		$u=\explode("/", $url);
 		$u[0]=$ns . $u[0];
@@ -69,7 +68,7 @@ class ControllerAction {
 				$controllerClass=ClassUtils::getClassFullNameFromFile($file);
 				if (isset($restCtrls[$controllerClass]) === false) {
 					$reflect=new \ReflectionClass($controllerClass);
-					if (!$reflect->isAbstract() && $reflect->isSubclassOf("Ubiquity\controllers\Controller")) {
+					if (!$reflect->isAbstract() && $reflect->isSubclassOf("Ubiquity\controllers\Controller") && ! $reflect->isSubclassOf("Ubiquity\controllers\seo\SeoController")) {
 						$methods=$reflect->getMethods(\ReflectionMethod::IS_PUBLIC);
 						foreach ( $methods as $method ) {
 							$r=self::scanMethod($controllerClass, $method);
@@ -85,7 +84,7 @@ class ControllerAction {
 
 	private static function scanMethod($controllerClass, \ReflectionMethod $method) {
 		$result=null;
-		if (\array_search($method->name, self::$excludeds) === false && !StrUtils::startswith($method->name, "_")) {
+		if (\array_search($method->name, self::$excludeds) === false && !UString::startswith($method->name, "_")) {
 			$annots=Router::getAnnotations($controllerClass, $method->name);
 			$parameters=$method->getParameters();
 			$defaults=[ ];

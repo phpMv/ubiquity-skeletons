@@ -4,6 +4,7 @@ namespace Ajax\semantic\widgets\datatable;
 use Ajax\JsUtils;
 use Ajax\semantic\html\modules\checkbox\HtmlCheckbox;
 use Ajax\semantic\html\elements\HtmlLabel;
+use Ajax\service\JArray;
 
 /**
  * used in DataTable
@@ -16,12 +17,13 @@ trait HasCheckboxesTrait{
 	protected $_hasCheckedMessage=false;
 	protected $_checkedMessage;
 	protected $_checkedClass;
+	protected $_checkedCallback;
 
 	abstract public function addInToolbar($element,$callback=NULL);
 
 	protected function _runCheckboxes(JsUtils $js){
 		$js->execOn("change", "#".$this->identifier." [name='selection[]']:not(._jsonArrayChecked)", $this->_getCheckedChange($js));
-		if(\sizeof($this->_compileParts)<3){
+		if(JArray::count($this->_compileParts)<3){
 			$js->trigger("#".$this->identifier." [name='selection[]']","change",true);
 		}
 	}
@@ -121,4 +123,12 @@ trait HasCheckboxesTrait{
 		$this->_checkedClass=$_checkedClass;
 		return $this;
 	}
+	/**
+	 * Set the callback function that determines whether the checkbox should be checked for an object
+	 * @param callable $checkedCallback a callback like function($object) that returns true or false
+	 */
+	public function setCheckedCallback($checkedCallback) {
+		$this->_checkedCallback = $checkedCallback;
+	}
+
 }

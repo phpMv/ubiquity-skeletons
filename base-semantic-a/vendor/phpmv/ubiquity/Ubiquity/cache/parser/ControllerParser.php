@@ -3,7 +3,7 @@
 namespace Ubiquity\cache\parser;
 
 use Ubiquity\orm\parser\Reflexion;
-use Ubiquity\utils\StrUtils;
+use Ubiquity\utils\base\UString;
 use Ubiquity\annotations\router\RouteAnnotation;
 use Ubiquity\cache\ClassUtils;
 
@@ -12,7 +12,7 @@ class ControllerParser {
 	private $mainRouteClass;
 	private $routesMethods=[ ];
 	private $rest=false;
-	private static $excludeds=[ "__construct","isValid","initialize","finalize","onInvalidControl","loadView","forward" ];
+	private static $excludeds=[ "__construct","isValid","initialize","finalize","onInvalidControl","loadView","forward","redirectToRoute" ];
 
 	public function parse($controllerClass) {
 		$automated=false;
@@ -24,18 +24,18 @@ class ControllerParser {
 			$annotsClass=Reflexion::getAnnotationClass($controllerClass, "@route");
 			$restAnnotsClass=Reflexion::getAnnotationClass($controllerClass, "@rest");
 			$this->rest=\sizeof($restAnnotsClass) > 0;
-			if (\sizeof($annotsClass) > 0){
+			if (\sizeof($annotsClass) > 0) {
 				$this->mainRouteClass=$annotsClass[0];
 				$inherited=$this->mainRouteClass->inherited;
 				$automated=$this->mainRouteClass->automated;
 			}
 			$methods=Reflexion::getMethods($instance, \ReflectionMethod::IS_PUBLIC);
 			foreach ( $methods as $method ) {
-				if($method->getDeclaringClass()->getName()===$controllerClass || $inherited){
+				if ($method->getDeclaringClass()->getName() === $controllerClass || $inherited) {
 					$annots=Reflexion::getAnnotationsMethod($controllerClass, $method->name, "@route");
 					if ($annots !== false) {
 						foreach ( $annots as $annot ) {
-							if (StrUtils::isNull($annot->path)) {
+							if (UString::isNull($annot->path)) {
 								$newAnnot=$this->generateRouteAnnotationFromMethod($method);
 								$annot->path=$newAnnot[0]->path;
 							}
@@ -43,7 +43,7 @@ class ControllerParser {
 						$this->routesMethods[$method->name]=[ "annotations" => $annots,"method" => $method ];
 					} else {
 						if ($automated) {
-							if ($method->class !== 'Ubiquity\\controllers\\Controller' && \array_search($method->name, self::$excludeds) === false && !StrUtils::startswith($method->name, "_"))
+							if ($method->class !== 'Ubiquity\\controllers\\Controller' && \array_search($method->name, self::$excludeds) === false && !UString::startswith($method->name, "_"))
 								$this->routesMethods[$method->name]=[ "annotations" => $this->generateRouteAnnotationFromMethod($method),"method" => $method ];
 						}
 					}
@@ -81,12 +81,12 @@ class ControllerParser {
 	}
 
 	private static function cleanpath($prefix, $path="") {
-		if (!StrUtils::endswith($prefix, "/"))
+		if (!UString::endswith($prefix, "/"))
 			$prefix=$prefix . "/";
-		if ($path !== "" && StrUtils::startswith($path, "/"))
+		if ($path !== "" && UString::startswith($path, "/"))
 			$path=\substr($path, 1);
 		$path=$prefix . $path;
-		if (!StrUtils::endswith($path, "/") && !StrUtils::endswith($path, '(.*?)') && !StrUtils::endswith($path, "(index/)?"))
+		if (!UString::endswith($path, "/") && !UString::endswith($path, '(.*?)') && !UString::endswith($path, "(index/)?"))
 			$path=$path . "/";
 		return $path;
 	}
@@ -110,7 +110,7 @@ class ControllerParser {
 			$routeAnnotations=$arrayAnnotsMethod["annotations"];
 
 			foreach ( $routeAnnotations as $routeAnnotation ) {
-				$params=[ "path" => $routeAnnotation->path,"methods" => $routeAnnotation->methods,"name" => $routeAnnotation->name,"cache" => $routeAnnotation->cache,"duration" => $routeAnnotation->duration ];
+				$params=[ "path" => $routeAnnotation->path,"methods" => $routeAnnotation->methods,"name" => $routeAnnotation->name,"cache" => $routeAnnotation->cache,"duration" => $routeAnnotation->duration,"requirements" => $routeAnnotation->requirements ];
 				self::parseRouteArray($result, $this->controllerClass, $params, $arrayAnnotsMethod["method"], $method, $prefix, $httpMethods);
 			}
 		}
@@ -121,8 +121,11 @@ class ControllerParser {
 		if (!isset($routeArray["path"])) {
 			$routeArray["path"]=self::getPathFromMethod($method);
 		}
-		$pathParameters=self::addParamsPath($routeArray["path"], $method);
+		$pathParameters=self::addParamsPath($routeArray["path"], $method, $routeArray["requirements"]);
 		$name=$routeArray["name"];
+		if (!isset($name)) {
+			$name=UString::cleanAttribute(ClassUtils::getClassSimpleName($controllerClass) . "_" . $methodName);
+		}
 		$cache=$routeArray["cache"];
 		$duration=$routeArray["duration"];
 		$path=$pathParameters["path"];
@@ -134,11 +137,11 @@ class ControllerParser {
 		} elseif (\is_array($httpMethods)) {
 			self::createRouteMethod($result, $controllerClass, $path, $httpMethods, $methodName, $parameters, $name, $cache, $duration);
 		} else {
-			$result[$path]=[ "controller" => $controllerClass,"action" => $methodName,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration ];
+			$result[$path]=[ "controller" => $controllerClass,"action" => $methodName,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration];
 		}
 	}
 
-	public static function addParamsPath($path, \ReflectionMethod $method) {
+	public static function addParamsPath($path, \ReflectionMethod $method, $requirements) {
 		$parameters=[ ];
 		$hasOptional=false;
 		preg_match_all('@\{(\.\.\.|\~)?(.+?)\}@s', $path, $matches);
@@ -149,7 +152,11 @@ class ControllerParser {
 			foreach ( $matches[2] as $paramMatch ) {
 				$find=\array_search($paramMatch, $params);
 				if ($find !== false) {
-					self::scanParam($parameters, $hasOptional, $matches, $index, $paramMatch, $find, $path);
+					$requirement='.+?';
+					if (isset($requirements[$paramMatch])) {
+						$requirement=$requirements[$paramMatch];
+					}
+					self::scanParam($parameters, $hasOptional, $matches, $index, $paramMatch, $find, $path, $requirement);
 				} else {
 					throw new \Exception("{$paramMatch} is not a parameter of the method " . $method->name);
 				}
@@ -161,7 +168,7 @@ class ControllerParser {
 		return [ "path" => $path,"parameters" => $parameters ];
 	}
 
-	private static function scanParam(&$parameters, &$hasOptional, $matches, $index, $paramMatch, $find, &$path) {
+	private static function scanParam(&$parameters, &$hasOptional, $matches, $index, $paramMatch, $find, &$path, $requirement) {
 		if (isset($matches[1][$index])) {
 			if ($matches[1][$index] === "...") {
 				$parameters[]="*";
@@ -172,11 +179,11 @@ class ControllerParser {
 				$hasOptional=true;
 			} else {
 				$parameters[]=$find;
-				$path=\str_replace("\{" . $paramMatch . "\}", "(.+?)", $path);
+				$path=\str_replace("\{" . $paramMatch . "\}", "({$requirement})", $path);
 			}
 		} else {
 			$parameters[]=$find;
-			$path=\str_replace("\{" . $paramMatch . "\}", "(.+?)", $path);
+			$path=\str_replace("\{" . $paramMatch . "\}", "({$requirement})", $path);
 		}
 	}
 

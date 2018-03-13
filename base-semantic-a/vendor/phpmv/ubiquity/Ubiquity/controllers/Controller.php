@@ -7,6 +7,7 @@
 namespace Ubiquity\controllers;
 
 use Ubiquity\views\View;
+use Ubiquity\exceptions\RouterException;
 
 /**
  * Base class for controllers
@@ -57,7 +58,7 @@ abstract class Controller {
 	 * @param mixed $pData Variable or associative array to pass to the view <br> If a variable is passed, it will have the name <b> $ data </ b> in the view, <br>
 	 * If an associative array is passed, the view retrieves variables from the table's key names
 	 * @param boolean $asString If true, the view is not displayed but returned as a string (usable in a variable)
-	 * @throws Exception
+	 * @throws \Exception
 	 * @return string
 	 */
 	public function loadView($viewName, $pData=NULL, $asString=false) {
@@ -90,7 +91,7 @@ abstract class Controller {
 	 * @param mixed $params Parameters passed to the $action method
 	 * @param boolean $initialize If true, the controller's initialize method is called before $action
 	 * @param boolean $finalize If true, the controller's finalize method is called after $action
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function forward($controller, $action="index", $params=array(), $initialize=false, $finalize=false) {
 		$u=array ($controller,$action );
@@ -100,5 +101,27 @@ abstract class Controller {
 			$u=\array_merge($u, [ $params ]);
 		}
 		return Startup::runAction($u, $initialize, $finalize);
+	}
+
+	/**
+	 * Redirect to a route by its name
+	 * @param string $routeName
+	 * @param array $parameters
+	 * @param boolean $initialize
+	 * @param boolean $finalize
+	 * @throws RouterException
+	 */
+	public function redirectToRoute($routeName,$parameters=[],$initialize=false,$finalize=false){
+		$path=Router::getRouteByName($routeName,$parameters);
+		if($path!==false){
+			$route=Router::getRoute($path,false);
+			if($route!==false){
+				return $this->forward($route[0],$route[1],\array_slice($route, 2),$initialize,$finalize);
+			}else{
+				throw new RouterException("Route {$routeName} not found",404);
+			}
+		}else{
+			throw new RouterException("Route {$routeName} not found",404);
+		}
 	}
 }

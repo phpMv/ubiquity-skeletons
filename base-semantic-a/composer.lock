@@ -85,12 +85,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/phpMv-UI.git",
-                "reference": "cbb52e1c395fe4b589a243832fdcb39e6d88342e"
+                "reference": "dc691e2d6867fc20b4cac2e753114a002ec92986"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/cbb52e1c395fe4b589a243832fdcb39e6d88342e",
-                "reference": "cbb52e1c395fe4b589a243832fdcb39e6d88342e",
+                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/dc691e2d6867fc20b4cac2e753114a002ec92986",
+                "reference": "dc691e2d6867fc20b4cac2e753114a002ec92986",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "twitter bootstrap",
                 "yii"
             ],
-            "time": "2018-02-07T01:55:49+00:00"
+            "time": "2018-03-10T16:23:05+00:00"
         },
         {
             "name": "phpmv/ubiquity",
@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/ubiquity.git",
-                "reference": "8e43a13f8df12caf082bf3274fd88d55dd246071"
+                "reference": "00c14e87d92b66617e52cc63955b85d61a9c8f03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/8e43a13f8df12caf082bf3274fd88d55dd246071",
-                "reference": "8e43a13f8df12caf082bf3274fd88d55dd246071",
+                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/00c14e87d92b66617e52cc63955b85d61a9c8f03",
+                "reference": "00c14e87d92b66617e52cc63955b85d61a9c8f03",
                 "shasum": ""
             },
             "require": {
@@ -186,20 +186,20 @@
                 "orm",
                 "php"
             ],
-            "time": "2018-02-12T23:44:06+00:00"
+            "time": "2018-03-13T01:58:49+00:00"
         },
         {
             "name": "twig/twig",
-            "version": "v1.35.0",
+            "version": "v1.35.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f"
+                "reference": "9c24f2cd39dc1906b76879e099970b7e53724601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/daa657073e55b0a78cce8fdd22682fddecc6385f",
-                "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/9c24f2cd39dc1906b76879e099970b7e53724601",
+                "reference": "9c24f2cd39dc1906b76879e099970b7e53724601",
                 "shasum": ""
             },
             "require": {
@@ -251,7 +251,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-09-27T18:06:46+00:00"
+            "time": "2018-03-03T16:21:29+00:00"
         }
     ],
     "packages-dev": [],

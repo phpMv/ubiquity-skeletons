@@ -2,8 +2,9 @@
 
 namespace Ubiquity\controllers;
 
-use Ubiquity\utils\StrUtils;
+use Ubiquity\utils\base\UString;
 use Ubiquity\views\engine\TemplateEngine;
+use Ubiquity\utils\http\USession;
 
 class Startup {
 	public static $urlParts;
@@ -15,17 +16,18 @@ class Startup {
 	public static function run(array &$config, $url) {
 		self::$config=$config;
 		self::startTemplateEngine($config);
-		session_start();
+		if (isset($config["sessionName"]))
+			USession::start($config["sessionName"]);
 		self::forward($url);
 	}
 
-	public static function forward($url){
+	public static function forward($url) {
 		$u=self::parseUrl($url);
 		if (($ru=Router::getRoute($url)) !== false) {
 			if (\is_array($ru))
 				self::runAction($ru);
-				else
-					echo $ru;
+			else
+				echo $ru;
 		} else {
 			self::setCtrlNS();
 			$u[0]=self::$ctrlNS . $u[0];
@@ -55,7 +57,7 @@ class Startup {
 		if (!$url) {
 			$url="_default";
 		}
-		if (StrUtils::endswith($url, "/"))
+		if (UString::endswith($url, "/"))
 			$url=\substr($url, 0, strlen($url) - 1);
 		self::$urlParts=\explode("/", $url);
 
@@ -148,7 +150,7 @@ class Startup {
 
 	private static function needsKeyInConfigArray(&$result, $array, $needs) {
 		foreach ( $needs as $need ) {
-			if (!isset($array[$need]) || StrUtils::isNull($array[$need])) {
+			if (!isset($array[$need]) || UString::isNull($array[$need])) {
 				$result[]=$need;
 			}
 		}
@@ -204,5 +206,9 @@ class Startup {
 
 	public static function getFrameworkDir() {
 		return \dirname(__FILE__);
+	}
+
+	public static function getApplicationDir() {
+		return \dirname(ROOT);
 	}
 }

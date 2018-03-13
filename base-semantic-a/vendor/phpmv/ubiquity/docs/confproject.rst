@@ -22,7 +22,7 @@ The main configuration of a project is localised in the ``app/conf/config.php`` 
    				"password"=>"%password%"
    		],
    		"namespaces"=>[],
-   		"templateEngine"=>'micro\views\engine\Twig',
+   		"templateEngine"=>'Ubiquity\views\engine\Twig',
    		"templateEngineOptions"=>array("cache"=>false),
    		"test"=>false,
    		"debug"=>false,
@@ -30,7 +30,6 @@ The main configuration of a project is localised in the ``app/conf/config.php`` 
    		"cacheDirectory"=>"cache/",
    		"mvcNS"=>["models"=>"models","controllers"=>"controllers"]
    );
-
 Services configuration
 ----------------------
 Services loaded on startup are configured in the ``app/conf/services.php`` file.
@@ -44,7 +43,7 @@ Services loaded on startup are configured in the ``app/conf/services.php`` file.
    use Ubiquity\orm\DAO;
    
    /*if($config["test"]){
-   \micro\log\Logger::init();
+   \Ubiquity\log\Logger::init();
    $config["siteUrl"]="http://127.0.0.1:8090/";
    }*/
    
@@ -55,12 +54,11 @@ Services loaded on startup are configured in the ``app/conf/services.php`` file.
    CacheManager::startProd($config);
    Router::start();
    Router::addRoute("_default", "controllers\Main");
-
 Pretty URLs
 -----------
 Apache
 ^^^^^^
-The framework ships with an **.htaccess** file that is used to allow URLs without index.php. If you use Apache to serve your Micro application, be sure to enable the **mod_rewrite** module.
+The framework ships with an **.htaccess** file that is used to allow URLs without index.php. If you use Apache to serve your Ubiquity application, be sure to enable the **mod_rewrite** module.
 
 .. code-block:: bash
    :caption: .htaccess

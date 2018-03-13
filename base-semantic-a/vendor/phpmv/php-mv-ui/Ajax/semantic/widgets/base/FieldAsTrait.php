@@ -21,6 +21,7 @@ use Ajax\common\html\BaseHtml;
 use Ajax\semantic\html\collections\form\HtmlFormField;
 use Ajax\semantic\html\collections\form\HtmlFormRadio;
 use Ajax\semantic\html\base\HtmlSemDoubleElement;
+use Ajax\semantic\html\elements\HtmlIcon;
 
 /**
  * trait used in Widget
@@ -41,11 +42,11 @@ trait FieldAsTrait{
 	 * @param HtmlFormField $element
 	 * @param array $attributes
 	 */
-	protected function _applyAttributes(BaseHtml $element,&$attributes,$index){
+	protected function _applyAttributes(BaseHtml $element,&$attributes,$index,$instance=null){
 		if(isset($attributes["jsCallback"])){
 			$callback=$attributes["jsCallback"];
 			if(\is_callable($callback)){
-				$callback($element,$this->_modelInstance,$index,InstanceViewer::$index);
+				$callback($element,$instance,$index,InstanceViewer::$index);
 				//unset($attributes["jsCallback"]);
 			}
 		}
@@ -91,7 +92,7 @@ trait FieldAsTrait{
 			}
 			$element=$elementCallback($id,$name,$value,$caption);
 			if(\is_array($attributes)){
-				$this->_applyAttributes($element, $attributes,$index);
+				$this->_applyAttributes($element, $attributes,$index,$instance);
 			}
 			$element->setDisabled(!$this->_edition);
 			return $element;
@@ -147,6 +148,14 @@ trait FieldAsTrait{
 		$this->setValueFunction($index,function($flag){
 			$flag=new HtmlFlag($this->_getFieldIdentifier("flag"),$flag);
 			return $flag;
+		});
+			return $this;
+	}
+
+	public function fieldAsIcon($index){
+		$this->setValueFunction($index,function($icon){
+			$icon=new HtmlIcon($this->_getFieldIdentifier("icon"),$icon);
+			return $icon;
 		});
 			return $this;
 	}
