@@ -10,14 +10,14 @@ return array(
 				"password"=>"",
 				"cache"=>false
 		],
-		"sessionName"=>"%base_url%",
+		"sessionName"=>"base-semantic-a",
 		"namespaces"=>[],
 		"templateEngine"=>'Ubiquity\\views\\engine\\Twig',
 		"templateEngineOptions"=>array("cache"=>false),
 		"test"=>false,
 		"debug"=>false,
-		"di"=>["jquery"=>function(){
-							$jquery=new \Ajax\php\ubiquity\JsUtils(["defer"=>true]);
+		"di"=>["jquery"=>function($controller){
+							$jquery=new \Ajax\php\ubiquity\JsUtils(["defer"=>true],$controller);
 							$jquery->semantic(new \Ajax\Semantic());
 							return $jquery;
 						}],

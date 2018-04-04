@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<base href="{{config["siteUrl"]}}">
-<meta charset="UTF-8">
-<title>siteUrl</title>
+{% block header %}
+	<base href="{{config["siteUrl"]}}">
+	<meta charset="UTF-8">
+	<title>base-semantic-a</title>
+{% endblock %}
+{% block css %}
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.0/semantic.min.css">
+{% endblock %}
 </head>
 <body>
-<div class="ui container">
+{% block body %}
+	<div class="ui container">
+{% endblock %}
