@@ -15,7 +15,7 @@ trait JsUtilsInternalTrait{
 	 * @param BaseGui $library
 	 * @param mixed $view
 	 */
-	protected function _compileLibrary(BaseGui $library=NULL, &$view=NULL){
+	protected function _compileLibrary(BaseGui $library, &$view=NULL){
 		if(isset($view))
 			$library->compileHtml($this, $view);
 		if ($library->isAutoCompile()) {
@@ -37,14 +37,14 @@ trait JsUtilsInternalTrait{
 
 	protected function minify($input) {
 		if(trim($input) === "") return $input;
-		return preg_replace(
+		$input= preg_replace(
 				array(
 						// Remove comment(s)
 						'#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
 						// Remove white-space(s) outside the string and regex
 						'#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
 						// Remove the last semicolon
-						'#;+\}#',
+						//'#;+\}#',
 						// Minify object attribute(s) except JSON attribute(s). From `{'foo':'bar'}` to `{foo:'bar'}`
 						'#([\{,])([\'])(\d+|[a-z_][a-z0-9_]*)\2(?=\:)#i',
 						// --ibid. From `foo['bar']` to `foo.bar`
@@ -53,11 +53,13 @@ trait JsUtilsInternalTrait{
 				array(
 						'$1',
 						'$1$2',
-						'}',
+						//'}',
 						'$1$3',
 						'$1.$3'
 				),
 				$input);
+		$input=str_replace("}$", "};$", $input);
+		return $input;
 	}
 
 	/**

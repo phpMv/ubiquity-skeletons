@@ -18,6 +18,7 @@ use Ajax\semantic\components\Tab;
 use Ajax\semantic\components\Shape;
 use Ajax\semantic\components\Form;
 use Ajax\JsUtils;
+use Ajax\semantic\components\SimpleSemExtComponent;
 
 /**
  * @author jc
@@ -29,7 +30,7 @@ trait SemanticComponentsTrait {
 	 * @param SimpleComponent $component
 	 * @param string|null $attachTo $attachTo
 	 * @param array|string|null $params
-	 * @return SimpleComponent
+	 * @return SimpleSemExtComponent
 	 */
 	abstract public function addComponent(SimpleComponent $component, $attachTo, $params);
 
@@ -37,7 +38,7 @@ trait SemanticComponentsTrait {
 	 *
 	 * @param string $attachTo
 	 * @param string|array $params
-	 * @return GenericComponent
+	 * @return SimpleSemExtComponent
 	 */
 	public function generic($attachTo=NULL, $params=NULL) {
 		return $this->addComponent(new GenericComponent($this->js), $attachTo, $params);

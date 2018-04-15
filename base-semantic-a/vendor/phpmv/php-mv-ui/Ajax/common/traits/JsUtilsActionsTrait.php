@@ -16,9 +16,9 @@ trait JsUtilsActionsTrait {
 	 * show or hide with effect
 	 *
 	 * @param string $action
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -162,7 +162,7 @@ trait JsUtilsActionsTrait {
 	 * Outputs a javascript library animate event
 	 *
 	 * @param string $element element
-	 * @param array $params
+	 * @param array|string $params
 	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
 	 * @param string $extra
 	 * @param boolean $immediatly defers the execution if set to false
@@ -220,9 +220,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library hide action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -233,9 +233,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library hide action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -246,9 +246,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library slideUp action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -259,21 +259,21 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library removeClass action
 	 *
-	 * @param string - element
-	 * @param string - Class to add
+	 * @param string $element element
+	 * @param string $class Class to add
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
 	public function removeClass($element='this', $class='', $immediatly=false) {
-		return $this->_genericCall('removeClass',$element, $class, $immediatly);
+		return $this->_genericCallValue('removeClass',$element, $class, $immediatly);
 	}
 
 	/**
 	 * Execute a javascript library slideDown action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -284,9 +284,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library slideToggle action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -297,9 +297,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library hide action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -310,9 +310,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library toggle action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -323,7 +323,8 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library toggle class action
 	 *
-	 * @param string - element
+	 * @param string $element element
+	 * @param string $class
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -349,9 +350,9 @@ trait JsUtilsActionsTrait {
 	/**
 	 * Execute a javascript library show action
 	 *
-	 * @param string - element
-	 * @param string - One of 'slow', 'normal', 'fast', or time in milliseconds
-	 * @param string - Javascript callback function
+	 * @param string $element element
+	 * @param string $speed One of 'slow', 'normal', 'fast', or time in milliseconds
+	 * @param string $callback Javascript callback function
 	 * @param boolean $immediatly defers the execution if set to false
 	 * @return string
 	 */
@@ -364,7 +365,7 @@ trait JsUtilsActionsTrait {
 	 *
 	 * @param string $element
 	 * @param array $options
-	 * @return void
+	 * @return string
 	 */
 	public function sortable($element, $options=array()) {
 		if (count($options)>0) {
@@ -527,6 +528,34 @@ trait JsUtilsActionsTrait {
 		$immediatly=true;
 		extract($parameters);
 		$script=$this->_add_event($element, $this->exec($js), $event, $preventDefault, $stopPropagation,$immediatly);
+		return $script;
+	}
+	
+	/**
+	 * Sets an element draggable (HTML5 drag and drop)
+	 * @param string $element The element selector
+	 * @param array $parameters default : array("attr"=>"id","preventDefault"=>false,"stopPropagation"=>false,"immediatly"=>true)
+	 */
+	public function setDraggable($element,$parameters=[]){
+		$attr="id";
+		extract($parameters);
+		$script=$this->_add_event($element, Javascript::draggable($attr), "dragstart",$parameters);
+		return $script;
+	}
+	
+	/**
+	 * Declares an element as a drop zone (HTML5 drag and drop)
+	 * @param string $element The element selector
+	 * @param array $parameters default : array("attr"=>"id","stopPropagation"=>false,"immediatly"=>true,"jqueryDone"=>"append")
+	 * @param string $jsCallback the js script to call when element is dropped
+	 */
+	public function asDropZone($element,$jsCallback="",$parameters=[]){
+		$stopPropagation=false;
+		$immediatly=true;
+		$jqueryDone="append";
+		$script=$this->_add_event($element, '', "dragover",true,$stopPropagation,$immediatly);
+		extract($parameters);
+		$script.=$this->_add_event($element, Javascript::dropZone($jqueryDone,$jsCallback), "drop",true,$stopPropagation,$immediatly);
 		return $script;
 	}
 }

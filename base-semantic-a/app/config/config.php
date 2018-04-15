@@ -8,9 +8,10 @@ return array(
 				"port"=>"3306",
 				"user"=>"root",
 				"password"=>"",
+				"options"=>[],
 				"cache"=>false
 		],
-		"sessionName"=>"base-semantic-a",
+		"sessionName"=>"%session_name%",
 		"namespaces"=>[],
 		"templateEngine"=>'Ubiquity\\views\\engine\\Twig',
 		"templateEngineOptions"=>array("cache"=>false),

@@ -12,6 +12,7 @@ use Ajax\semantic\html\base\constants\Direction;
 use Ajax\JsUtils;
 use Ajax\semantic\html\base\constants\Side;
 use Ajax\common\html\html5\HtmlList;
+use Ajax\common\html\BaseHtml;
 
 /**
  * Base class for Semantic double elements
@@ -148,8 +149,9 @@ class HtmlSemDoubleElement extends HtmlDoubleElement {
 	 * @see BaseHtml::compile()
 	 */
 	public function compile(JsUtils $js=NULL, &$view=NULL) {
-	if (isset($this->_popup))
+		if (isset($this->_popup)){
 			$this->_popup->compile($js);
+		}
 		return parent::compile($js, $view);
 	}
 

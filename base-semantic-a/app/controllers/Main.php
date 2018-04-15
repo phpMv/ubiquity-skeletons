@@ -12,6 +12,7 @@ class Main extends ControllerBase{
 		$bt->onClick("$('#test').html('It works with Semantic-UI too !');");
 		\Ubiquity\core\postinstall\Display::semanticMenu("menu",$semantic);
 		$this->jquery->compile($this->view);
-		$this->loadView("index.html");}
+		$this->loadView("@framework/index/semantic.html");
+}
 
 }

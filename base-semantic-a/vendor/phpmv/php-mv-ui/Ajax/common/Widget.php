@@ -36,7 +36,7 @@ abstract class Widget extends HtmlDoubleElement {
 	 */
 	protected $_toolbar;
 	/**
-	 * @var PositionInTable
+	 * @var string
 	 */
 	protected $_toolbarPosition;
 
@@ -73,7 +73,7 @@ abstract class Widget extends HtmlDoubleElement {
 
 	/**
 	 * @param int|string $fieldName
-	 * @return int|string
+	 * @return int|string|boolean
 	 */
 	protected function _getIndex($fieldName){
 		$index=$fieldName;
@@ -196,7 +196,7 @@ abstract class Widget extends HtmlDoubleElement {
 
 	/**
 	 * Defines the function which displays the field value
-	 * @param $index index or name of the field to display
+	 * @param int|string $index index or name of the field to display
 	 * @param callable $callback function parameters are : $value : the field value, $instance : the active instance of model, $fieldIndex : the field index, $rowIndex : the row index
 	 * @return Widget
 	 */
@@ -250,7 +250,7 @@ abstract class Widget extends HtmlDoubleElement {
 	 */
 	public function addItemInToolbar($caption,$icon=NULL,$callback=NULL){
 		$result=$this->addInToolbar($caption,$callback);
-		if(isset($icon))
+		if(isset($icon) && method_exists($result, "addIcon"))
 			$result->addIcon($icon);
 		return $result;
 	}
@@ -274,7 +274,7 @@ abstract class Widget extends HtmlDoubleElement {
 	}
 
 	/**
-	 * @param string $value
+	 * @param mixed $value
 	 * @param array $items
 	 * @param callable $callback function($element)
 	 * @return \Ajax\common\html\HtmlDoubleElement
@@ -358,6 +358,13 @@ abstract class Widget extends HtmlDoubleElement {
 		$this->_instanceViewer->setDefaultValueFunction($defaultValueFunction);
 		return $this;
 	}
+	
+	/**
+	 * @return callable
+	 */
+	public function getDefaultValueFunction(){
+		return $this->_instanceViewer->getDefaultValueFunction();
+	}
 
 	/**
 	 * @param string|boolean $disable
@@ -399,11 +406,10 @@ abstract class Widget extends HtmlDoubleElement {
 	}
 
 	public function run(JsUtils $js){
-		$result=parent::run($js);
+		parent::run($js);
 		if(isset($this->_form)){
-			$result=$this->runForm($js);
+			$this->runForm($js);
 		}
-		return $result;
 	}
 
 	protected function runForm(JsUtils $js){

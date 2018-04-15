@@ -10,6 +10,8 @@ use Ajax\semantic\html\modules\checkbox\AbstractCheckbox;
 
 class HtmlList extends HtmlSemCollection {
 	protected $_hasCheckedList;
+	protected $_fireOnInit=true;
+	protected $_ckItemChange="";
 
 	public function __construct($identifier, $items=array()) {
 		parent::__construct($identifier, "div", "ui list");
@@ -47,6 +49,13 @@ class HtmlList extends HtmlSemCollection {
 		$list->setClass("list");
 		return $this->addItem($list);
 	}
+	
+	/**
+	 * @return HtmlListItem
+	 */
+	public function getItem($index){
+		return parent::getItem($index);
+	}
 
 	protected function getItemToAdd($item){
 		$itemO=parent::getItemToAdd($item);
@@ -71,9 +80,22 @@ class HtmlList extends HtmlSemCollection {
 		if ($this->_hasCheckedList === true) {
 			$jsCode=include dirname(__FILE__) . '/../../components/jsTemplates/tplCheckedList.php';
 			$jsCode=\str_replace("%identifier%", "#" . $this->identifier, $jsCode);
+			$jsCode=\str_replace("%fireOnInit%", $this->_fireOnInit, $jsCode);
+			$jsCode=\str_replace("%onChange%", $this->_ckItemChange, $jsCode);
 			$this->executeOnRun($jsCode);
 		}
 		return parent::run($js);
+	}
+	
+	public function onCkItemChange($jsCode){
+		$this->_ckItemChange=$jsCode;
+	}
+
+	/**
+	 * @param boolean $fireOnInit
+	 */
+	public function setFireOnInit($fireOnInit) {
+		$this->_fireOnInit = $fireOnInit;
 	}
 
 	public function setRelaxed() {
@@ -96,7 +118,7 @@ class HtmlList extends HtmlSemCollection {
 	 * Adds a grouped checked box to the list
 	 * @param array $items
 	 * @param string|array|null $masterItem
-	 * @param array|null $values
+	 * @param array $values
 	 * @param string $notAllChecked
 	 * @return HtmlList
 	 */

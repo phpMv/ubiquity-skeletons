@@ -2,7 +2,6 @@
 
 namespace Ajax\semantic\html\collections;
 
-use Ajax\common\html\HtmlCollection;
 use Ajax\semantic\html\content\HtmlGridRow;
 use Ajax\semantic\html\base\constants\Wide;
 use Ajax\semantic\html\base\constants\VerticalAlignment;
@@ -27,9 +26,7 @@ class HtmlGrid extends HtmlSemCollection {
 		$this->_implicitRows=$implicitRows;
 		$this->_createCols=$createCols;
 		if (isset($numCols)) {
-			// if($this->_createCols){
 			$this->_colSizing=false;
-			// }
 			$this->setWide($numCols);
 		}
 		if($createCols)
@@ -162,10 +159,17 @@ class HtmlGrid extends HtmlSemCollection {
 	/**
 	 * return the row at $index
 	 * @param int $index
-	 * @return \Ajax\semantic\html\collections\HtmlGridRow
+	 * @return HtmlGridRow
 	 */
 	public function getRow($index) {
 		return $this->getItem($index);
+	}
+	
+	/**
+	 * @return HtmlGridRow
+	 */
+	public function getItem($index){
+		return parent::getItem($index);
 	}
 
 	/**
@@ -193,19 +197,19 @@ class HtmlGrid extends HtmlSemCollection {
 	}
 
 	/**
-	 * Returns the cell (HtmlGridCol) at position rrow,$col
+	 * Returns the cell (HtmlGridCol) at position $row,$col
 	 * @param int $row
 	 * @param int $col
-	 * @return \Ajax\semantic\html\collections\HtmlGridCol
+	 * @return HtmlGridCol|HtmlGridRow
 	 */
 	public function getCell($row, $col) {
 		if ($row < 2 && $this->hasOnlyCols($this->count()))
 			return $this->getItem($col);
-		$row=$this->getItem($row);
-		if (isset($row)) {
-			$col=$row->getItem($col);
+		$rowO=$this->getItem($row);
+		if (isset($rowO)) {
+			$colO=$rowO->getItem($col);
 		}
-		return $col;
+		return $colO;
 	}
 
 	/**
@@ -315,8 +319,17 @@ class HtmlGrid extends HtmlSemCollection {
 		return $this->addToProperty("class", "stretched");
 	}
 
+	/**
+	 * Adds a divider after the specified col
+	 * @param integer $afterColIndex
+	 * @param boolean $vertical
+	 * @param mixed $content
+	 * @return \Ajax\semantic\html\collections\HtmlGrid
+	 */
 	public function addDivider($afterColIndex, $vertical=true, $content=NULL) {
 		$col=$this->getCell(0, $afterColIndex);
-		return $col->addDivider($vertical, $content);
+		if($col instanceof HtmlGridCol)
+			$col->addDivider($vertical, $content);
+		return $this;
 	}
 }

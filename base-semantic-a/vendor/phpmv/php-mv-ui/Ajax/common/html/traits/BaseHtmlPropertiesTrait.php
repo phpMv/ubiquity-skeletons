@@ -3,7 +3,6 @@ namespace Ajax\common\html\traits;
 
 use Ajax\service\JString;
 use Ajax\common\html\BaseHtml;
-use Ajax\common\html\BaseWidget;
 
 /**
  * @author jc
@@ -21,7 +20,7 @@ trait BaseHtmlPropertiesTrait{
 
 	/**
 	 * @param array $properties
-	 * @return BaseHtml
+	 * @return $this
 	 */
 	public function setProperties($properties) {
 		$this->_self->properties=$properties;
@@ -38,19 +37,27 @@ trait BaseHtmlPropertiesTrait{
 			return $this->_self->properties[$name];
 	}
 
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 * @param string $separator
+	 * @return $this
+	 */
 	public function addToProperty($name, $value, $separator=" ") {
 		if (\is_array($value)) {
 			foreach ( $value as $v ) {
 				$this->_self->addToProperty($name, $v, $separator);
 			}
 		} else if ($value !== "" && $this->_self->propertyContains($name, $value) === false) {
-			$v=@$this->_self->properties[$name];
-			if (isset($v) && $v !== "")
-				$v=$v . $separator . $value;
-				else
-					$v=$value;
-
-					return $this->_self->setProperty($name, $v);
+			if(isset($this->_self->properties[$name])){
+				$v=$this->_self->properties[$name];
+				if (isset($v) && $v !== "")
+					$v=$v . $separator . $value;
+					else
+						$v=$value;
+	
+				return $this->_self->setProperty($name, $v);
+			}
 		}
 		return $this;
 	}
@@ -71,7 +78,7 @@ trait BaseHtmlPropertiesTrait{
 	}
 
 	protected function addToPropertyUnique($name, $value, $typeCtrl) {
-		if (@class_exists($typeCtrl, true))
+		if (is_string($typeCtrl) && @class_exists($typeCtrl, true))
 			$typeCtrl=$typeCtrl::getConstants();
 			if (\is_array($typeCtrl)) {
 				$this->_self->removeOldValues($this->_self->properties[$name], $typeCtrl);

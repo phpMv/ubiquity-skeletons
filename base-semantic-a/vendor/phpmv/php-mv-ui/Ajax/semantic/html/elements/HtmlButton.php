@@ -6,6 +6,7 @@ use Ajax\semantic\html\base\HtmlSemDoubleElement;
 use Ajax\semantic\html\base\traits\LabeledIconTrait;
 use Ajax\semantic\html\base\constants\Emphasis;
 use Ajax\semantic\html\base\constants\Social;
+use Ajax\semantic\html\modules\HtmlDropdown;
 
 /**
  * Semantic Button component
@@ -164,9 +165,9 @@ class HtmlButton extends HtmlSemDoubleElement {
 	 * formatted to toggle on/off
 	 * @return HtmlButton
 	 */
-	public function setToggle() {
+	public function setToggle($active="") {
 		$this->onCreate("$('#".$this->identifier."').state();");
-		return $this->addToProperty("class", "toggle");
+		return $this->addToProperty("class", "toggle ".$active);
 	}
 
 	/**
@@ -254,9 +255,9 @@ class HtmlButton extends HtmlSemDoubleElement {
 	 */
 	public static function dropdown($identifier,$value,$items=[],$asCombo=false,$icon=null){
 		$result=new HtmlButtonGroups($identifier,[$value]);
-		$result->addDropdown($items,$asCombo);
-		if(isset($icon))
-			$result->setIcon($icon);
+		$dd=$result->addDropdown($items,$asCombo);
+		if(isset($icon) && $dd instanceof HtmlDropdown)
+			$dd->setIcon($icon);
 		return $result;
 	}
 }

@@ -15,6 +15,7 @@ use Ubiquity\utils\base\UFileSystem;
 use Ubiquity\cache\system\ArrayCache;
 use Ubiquity\orm\creator\database\DbModelsCreator;
 use Ubiquity\controllers\admin\UbiquityMyAdminFiles;
+use Ajax\semantic\html\collections\HtmlMessage;
 
 /**
  *
@@ -35,7 +36,7 @@ trait CheckTrait{
 
 	abstract protected function displayModelsMessages($type, $messagesToDisplay);
 
-	abstract protected function showSimpleMessage($content, $type, $icon="info", $timeout=NULL, $staticName=null);
+	abstract protected function showSimpleMessage($content, $type, $icon="info", $timeout=NULL, $staticName=null):HtmlMessage;
 
 	abstract public function _isModelsCompleted();
 
@@ -214,8 +215,8 @@ trait CheckTrait{
 		$step=$this->getActiveModelStep();
 		switch($step[1]) {
 			case "Conf":
-				$buttons->addItem("Show config file")->getOnClick($this->_getAdminFiles()->getAdminBaseRoute() . "/config", "#action-response")->addIcon("settings");
-				$buttons->addItem("Edit config file")->addClass("orange")->addIcon("edit");
+				$buttons->addItem("Show config file")->getOnClick($this->_getAdminFiles()->getAdminBaseRoute() . "/_config", "#action-response")->addIcon("settings");
+				$buttons->addItem("Edit config file")->addClass("orange")->getOnClick($this->_getAdminFiles()->getAdminBaseRoute() . "/formConfig", "#action-response")->addIcon("edit");
 				break;
 			case "Connexion":
 			case "Database":

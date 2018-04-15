@@ -110,9 +110,9 @@ class HtmlModal extends BaseHtml {
 	/**
 	 * render the content of an existing view : $controller/$action and set the response to the modal content
 	 * @param JsUtils $js
-	 * @param Controller $initialController
+	 * @param object $initialController
 	 * @param string $viewName
-	 * @param $params The parameters to pass to the view
+	 * @param array $params The parameters to pass to the view
 	 */
 	public function renderView(JsUtils $js,$initialController,$viewName, $params=array()) {
 		$this->content=$js->renderContent($initialController, $viewName,$params);
@@ -121,7 +121,7 @@ class HtmlModal extends BaseHtml {
 	/**
 	 * render the content of $controller::$action and set the response to the modal content
 	 * @param JsUtils $js
-	 * @param Controller $initialControllerInstance
+	 * @param object $initialControllerInstance
 	 * @param string $controllerName the controller name
 	 * @param string $actionName the action name
 	 * @param array $params
@@ -201,6 +201,7 @@ class HtmlModal extends BaseHtml {
 	 * @return HtmlModal
 	 */
 	public function setBackdrop($value) {
-		return $this->backdrop=$value;
+		$this->backdrop=$value;
+		return $this;
 	}
 }

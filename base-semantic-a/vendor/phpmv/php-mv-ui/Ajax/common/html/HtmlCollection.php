@@ -155,8 +155,8 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 	/**
 	 * Sets the values of a property for each item in the collection
 	 * @param string $property
-	 * @param array $values
-	 * @return HtmlCollection
+	 * @param array|mixed $values
+	 * @return $this
 	 */
 	public function setPropertyValues($property,$values){
 		$i=0;
@@ -167,6 +167,29 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 			$c=$this->content[$i++];
 			if(isset($c)){
 				$c->setProperty($property,$value);
+			}
+			else{
+				return $this;
+			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * Adds the values of a property for each item in the collection
+	 * @param string $property
+	 * @param array|mixed $values
+	 * @return $this
+	 */
+	public function addPropertyValues($property,$values){
+		$i=0;
+		if(\is_array($values)===false){
+			$values=\array_fill(0, $this->count(),$values);
+		}
+		foreach ($values as $value){
+			$c=$this->content[$i++];
+			if(isset($c)){
+				$c->addToProperty($property,$value);
 			}
 			else{
 				return $this;

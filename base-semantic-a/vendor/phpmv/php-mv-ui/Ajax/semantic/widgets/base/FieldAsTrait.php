@@ -47,7 +47,6 @@ trait FieldAsTrait{
 			$callback=$attributes["jsCallback"];
 			if(\is_callable($callback)){
 				$callback($element,$instance,$index,InstanceViewer::$index);
-				//unset($attributes["jsCallback"]);
 			}
 		}
 		unset($attributes["rules"]);
@@ -210,6 +209,7 @@ trait FieldAsTrait{
 			$attributes=[];
 		}
 		$attributes["inputType"]="hidden";
+		$attributes["style"]="display:none;";
 		return $this->fieldAsInput($index,$attributes);
 	}
 

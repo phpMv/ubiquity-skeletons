@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08
+class ComposerStaticInitf052d542ae9219f22e06ce5244708ce7
 {
     public static $prefixLengthsPsr4 = array (
         'm' => 
@@ -58,13 +58,20 @@ class ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08
         ),
     );
 
+    public static $classMap = array (
+        'Cz\\Git\\GitException' => __DIR__ . '/..' . '/czproject/git-php/src/IGit.php',
+        'Cz\\Git\\GitRepository' => __DIR__ . '/..' . '/czproject/git-php/src/GitRepository.php',
+        'Cz\\Git\\IGit' => __DIR__ . '/..' . '/czproject/git-php/src/IGit.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08::$prefixDirsPsr4;
-            $loader->fallbackDirsPsr4 = ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08::$fallbackDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit7b739e3dfdfdb36522b04670c5a63d08::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf052d542ae9219f22e06ce5244708ce7::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf052d542ae9219f22e06ce5244708ce7::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInitf052d542ae9219f22e06ce5244708ce7::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitf052d542ae9219f22e06ce5244708ce7::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitf052d542ae9219f22e06ce5244708ce7::$classMap;
 
         }, null, ClassLoader::class);
     }

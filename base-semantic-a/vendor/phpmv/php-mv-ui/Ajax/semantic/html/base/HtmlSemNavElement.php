@@ -3,6 +3,7 @@ namespace Ajax\semantic\html\base;
 
 use Ajax\service\JArray;
 use Ajax\common\html\traits\NavElementTrait;
+use Ajax\bootstrap\html\base\HtmlNavElement;
 /**
  * Sem class for navigation elements : Breadcrumbs and Pagination
  * @author jc
@@ -35,7 +36,7 @@ abstract class HtmlSemNavElement extends HtmlSemCollection {
 	/**
 	 * Associate an ajax get to the elements, displayed in $targetSelector
 	 * @param string $targetSelector the target of the get
-	 * @return HtmlNavElement
+	 * @return HtmlSemNavElement
 	 */
 	public function autoGetOnClick($targetSelector){
 		return $this->getOnClick($this->root, $targetSelector,array("attr"=>$this->attr));

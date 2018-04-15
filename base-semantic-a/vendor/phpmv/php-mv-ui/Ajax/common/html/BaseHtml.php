@@ -7,6 +7,7 @@ use Ajax\common\components\SimpleExtComponent;
 use Ajax\JsUtils;
 use Ajax\common\html\traits\BaseHtmlEventsTrait;
 use Ajax\common\html\traits\BaseHtmlPropertiesTrait;
+use Ajax\service\Javascript;
 
 /**
  * BaseHtml for HTML components
@@ -65,9 +66,8 @@ abstract class BaseHtml extends BaseWidget {
 
 
 	protected function setMemberCtrl(&$name, $value, $typeCtrl) {
-		if ($this->ctrl($name, $value, $typeCtrl) === true) {
-			return $name=$value;
-		}
+		$this->ctrl($name, $value, $typeCtrl);
+		$name=$value;
 		return $this;
 	}
 
@@ -82,12 +82,11 @@ abstract class BaseHtml extends BaseWidget {
 
 
 	protected function addToMemberCtrl(&$name, $value, $typeCtrl, $separator=" ") {
-		if ($this->ctrl($name, $value, $typeCtrl) === true) {
-			if (\is_array($typeCtrl)) {
-				$this->removeOldValues($name, $typeCtrl);
-			}
-			$name.=$separator . $value;
+		$this->ctrl($name, $value, $typeCtrl);
+		if (\is_array($typeCtrl)) {
+			$this->removeOldValues($name, $typeCtrl);
 		}
+		$name.=$separator . $value;
 		return $this;
 	}
 
@@ -233,6 +232,39 @@ abstract class BaseHtml extends BaseWidget {
 			$pc($this);
 		}
 		return $result;
+	}
+	
+	/**
+	 * Sets the element draggable, and eventualy defines the dropzone (HTML5 drag and drop)
+	 * @param string $attr default: "id"
+	 * @param BaseHtml $dropZone the dropzone element
+	 * @param array $parameters default: ["jsCallback"=>"","jqueryDone"=>"append"]
+	 * @return \Ajax\common\html\BaseHtml
+	 */
+	public function setDraggable($attr="id",$dropZone=null,$parameters=[]){
+		$this->setProperty("draggable", "true");
+		$this->addEvent("dragstart",Javascript::draggable($attr));
+		if(isset($dropZone)&& $dropZone instanceof BaseHtml){
+			$jqueryDone="append";$jsCallback="";
+			extract($parameters);
+			$dropZone->asDropZone($jsCallback,$jqueryDone,$parameters);
+		}
+		return $this;
+	}
+	
+	/**
+	 * Declares the element as a drop zone (HTML5 drag and drop)
+	 * @param string $jsCallback
+	 * @param string $jqueryDone
+	 * @param array $parameters
+	 * @return \Ajax\common\html\BaseHtml
+	 */
+	public function asDropZone($jsCallback="",$jqueryDone="append",$parameters=[]){
+		$stopPropagation=false;
+		$this->addEvent("dragover", '', $stopPropagation,true);
+		extract($parameters);
+		$this->addEvent("drop",Javascript::dropZone($jqueryDone,$jsCallback),$stopPropagation,true);
+		return $this;
 	}
 
 	public function __toString() {

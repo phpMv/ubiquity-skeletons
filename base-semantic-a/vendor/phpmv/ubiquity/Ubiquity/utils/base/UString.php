@@ -33,7 +33,7 @@ class UString {
 	}
 
 	public static function isBooleanTrue($s) {
-		return $s === true || $s === "true" || $s === 1 || $s === "1";
+		return filter_var($s, FILTER_VALIDATE_BOOLEAN)===true;
 	}
 
 	public static function isBooleanFalse($s) {
@@ -42,6 +42,10 @@ class UString {
 
 	public static function isBoolean($value) {
 		return \is_bool($value);
+	}
+	
+	public static function isBooleanStr($value) {
+		return \is_bool($value) || $value===0 || $value===1 || $value==="on";
 	}
 
 	/**
@@ -79,6 +83,12 @@ class UString {
 			$result=self::firstReplace($result, $needle, $replace);
 		}
 		return $result;
+	}
+	
+	public static function doubleBackSlashes($value){
+		if(is_string($value))
+			return str_replace("\\", "\\\\", $value);
+		return $value;
 	}
 
 	public static function cleanAttribute($attr, $replacement="_") {

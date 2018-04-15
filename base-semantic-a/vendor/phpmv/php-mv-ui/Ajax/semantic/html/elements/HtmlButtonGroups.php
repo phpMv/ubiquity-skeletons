@@ -29,7 +29,7 @@ class HtmlButtonGroups extends HtmlSemCollection {
 	/**
 	 * @param array $items
 	 * @param boolean $asCombo
-	 * @return HtmlDropdown
+	 * @return HtmlDropdown|HtmlButton
 	 */
 	public function addDropdown($items,$asCombo=false){
 		$dd= new HtmlDropdown("dd-".$this->identifier,null,$items);
@@ -46,11 +46,11 @@ class HtmlButtonGroups extends HtmlSemCollection {
 	/**
 	 * @param mixed $element
 	 * @param boolean $asIcon
-	 * @return HtmlButton
+	 * @return HtmlButton|HtmlDropdown
 	 */
 	public function addElement($element, $asIcon=false) {
 		$item=$this->addItem($element);
-		if($asIcon)
+		if($asIcon && $item instanceof HtmlButton)
 			$item->asIcon($element);
 		return $item;
 	}
@@ -112,7 +112,14 @@ class HtmlButtonGroups extends HtmlSemCollection {
 	 * @return HtmlButton
 	 */
 	public function getElement($index) {
-		return $this->getItem($index);
+		return parent::getItem($index);
+	}
+	
+	/**
+	 * @return HtmlButton
+	 */
+	public function getItem($index) {
+		return parent::getItem($index);
 	}
 
 	public function setElement($index, $button) {

@@ -8,7 +8,6 @@ namespace Ajax\bootstrap\html;
  * @author jc
  * @version 1.001
  */
-use Ajax\bootstrap\html\HtmlButtongroups;
 
 class HtmlButtontoolbar extends HtmlButtongroups {
 
@@ -71,9 +70,9 @@ class HtmlButtontoolbar extends HtmlButtongroups {
 		return $bg;
 	}
 
-	/*
-	 * (non-PHPdoc)
-	 * @see \Ajax\bootstrap\html\HtmlButtongroups::getElement()
+	
+	/**
+	 * @return HtmlButtongroups|HtmlButton
 	 */
 	public function getElement($index) {
 		$element=null;

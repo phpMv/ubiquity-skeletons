@@ -85,11 +85,10 @@ class InstanceViewer {
 
 	protected function _getDefaultValue($name,$value,$index){
 		$func=$this->defaultValueFunction;
-		//TODO Check bug on index
 		return $func($name,$value,$index,$this->instance);
 	}
 
-	protected function _getPropertyValue(\ReflectionProperty $property,$index){
+	protected function _getPropertyValue(\ReflectionProperty $property){
 		$property->setAccessible(true);
 		return $property->getValue($this->instance);
 	}
@@ -98,9 +97,9 @@ class InstanceViewer {
 		$value=null;
 		$propertyName=$property;
 		if($property instanceof \ReflectionProperty){
-			$value=$this->_getPropertyValue($property, $index);
+			$value=$this->_getPropertyValue($property);
 			$propertyName=$property->getName();
-		}elseif(\is_callable($property))
+		}elseif(\is_callable($property) && array_search($property, ["system"])===false)
 			$value=$property($this->instance);
 		elseif(\is_array($property)){
 			$values=\array_map(function($v) use ($index){return $this->_getValue($v, $index);}, $property);
@@ -120,7 +119,7 @@ class InstanceViewer {
 		if(isset($this->values[$index])){
 			$value= $this->values[$index]($value,$this->instance,$index,self::$index);
 		}else{
-			$value=$this->_getDefaultValue($propertyName,$value, $index,self::$index);
+			$value=$this->_getDefaultValue($propertyName,$value, $index);
 		}
 		if(isset($this->afterCompile[$index])){
 			if(\is_callable($this->afterCompile[$index])){
@@ -314,7 +313,7 @@ class InstanceViewer {
 	 * The $callback function can take the following arguments : $field=>the compiled field, $instance : the active instance of the object, $index: the field position
 	 * @param int $index postion of the compiled field
 	 * @param callable $callback function called after the field compilation
-	 * @return \Ajax\semantic\widgets\datatable\InstanceViewer
+	 * @return InstanceViewer
 	 */
 	public function afterCompile($index,$callback){
 		$this->afterCompile[$index]=$callback;
@@ -346,4 +345,10 @@ class InstanceViewer {
 		return $this->visibleProperties;
 	}
 
+	/**
+	 * @return callable
+	 */
+	public function getDefaultValueFunction() {
+		return $this->defaultValueFunction;
+	}
 }
