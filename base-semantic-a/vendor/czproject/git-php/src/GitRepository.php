@@ -356,6 +356,24 @@
 
 
 		/**
+		 * Returns last commit ID on current branch
+		 * `git log --pretty=format:'%H' -n 1`
+		 * @return string|NULL
+		 * @throws GitException
+		 */
+		public function getLastCommitId()
+		{
+			$this->begin();
+			$lastLine = exec('git log --pretty=format:\'%H\' -n 1 2>&1');
+			$this->end();
+			if (preg_match('/^[0-9a-f]{40}$/i', $lastLine)) {
+				return $lastLine;
+			}
+			return NULL;
+		}
+
+
+		/**
 		 * Exists changes?
 		 * `git status` + magic
 		 * @return bool
@@ -368,10 +386,8 @@
 				->run('git update-index -q --refresh')
 				->end();
 
-			$this->begin();
-			$lastLine = exec('git status');
-			$this->end();
-			return (strpos($lastLine, 'nothing to commit')) === FALSE; // FALSE => changes
+			$output = $this->extractFromCommand('git status --porcelain');
+			return !empty($output);
 		}
 
 

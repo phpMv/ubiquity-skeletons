@@ -23,7 +23,7 @@ return array(
 							return $jquery;
 						}],
 		"cache"=>["directory"=>"cache/","system"=>"Ubiquity\\cache\\system\\ArrayCache","params"=>[]],
-		"mvcNS"=>["models"=>"models","controllers"=>"controllers","rest"=>"rest"],
+		"mvcNS"=>["models"=>"models","controllers"=>"controllers","rest"=>""],
 		"isRest"=>function(){
 			return \Ubiquity\utils\http\URequest::getUrlParts()[0]==="rest";
 		}

@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/ubiquity.git",
-                "reference": "6bf584089a57184bb179e08ff13843927682e399"
+                "reference": "e92b4f3251ac1266e68e01427702ed0ff14fe9ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/6bf584089a57184bb179e08ff13843927682e399",
-                "reference": "6bf584089a57184bb179e08ff13843927682e399",
+                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/e92b4f3251ac1266e68e01427702ed0ff14fe9ae",
+                "reference": "e92b4f3251ac1266e68e01427702ed0ff14fe9ae",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +186,7 @@
                 "orm",
                 "php"
             ],
-            "time": "2018-04-15T16:08:26+00:00"
+            "time": "2018-04-15T18:07:25+00:00"
         },
         {
             "name": "twig/twig",
@@ -257,16 +257,16 @@
     "packages-dev": [
         {
             "name": "czproject/git-php",
-            "version": "v3.13.1",
+            "version": "v3.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/czproject/git-php.git",
-                "reference": "335fa46470209bd164a4eaeda00d931f7d0343b0"
+                "reference": "6faf55527a17fb569456709c2769a6d8749ceb6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/czproject/git-php/zipball/335fa46470209bd164a4eaeda00d931f7d0343b0",
-                "reference": "335fa46470209bd164a4eaeda00d931f7d0343b0",
+                "url": "https://api.github.com/repos/czproject/git-php/zipball/6faf55527a17fb569456709c2769a6d8749ceb6d",
+                "reference": "6faf55527a17fb569456709c2769a6d8749ceb6d",
                 "shasum": ""
             },
             "require": {
@@ -295,7 +295,7 @@
             "keywords": [
                 "git"
             ],
-            "time": "2018-04-11T14:37:59+00:00"
+            "time": "2018-04-17T08:52:47+00:00"
         }
     ],
     "aliases": [],
