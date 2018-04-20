@@ -127,12 +127,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/phpMv-UI.git",
-            "reference": "52e3ac314f7179c433f5c46da09213982aac918a"
+            "reference": "128edc8ca1eeb973cbfc8eb24b91f020dc822c70"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/52e3ac314f7179c433f5c46da09213982aac918a",
-            "reference": "52e3ac314f7179c433f5c46da09213982aac918a",
+            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/128edc8ca1eeb973cbfc8eb24b91f020dc822c70",
+            "reference": "128edc8ca1eeb973cbfc8eb24b91f020dc822c70",
             "shasum": ""
         },
         "require": {
@@ -144,7 +144,7 @@
             "semantic/ui": "~2.2.1",
             "twitter/bootstrap": "~3.3"
         },
-        "time": "2018-04-15T15:46:08+00:00",
+        "time": "2018-04-20T18:13:01+00:00",
         "type": "phpmv-ui",
         "extra": {
             "branch-alias": {
@@ -190,18 +190,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity.git",
-            "reference": "e92b4f3251ac1266e68e01427702ed0ff14fe9ae"
+            "reference": "15dd0d078bb2f50a4ddd1c0374082ea881d13bc9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/e92b4f3251ac1266e68e01427702ed0ff14fe9ae",
-            "reference": "e92b4f3251ac1266e68e01427702ed0ff14fe9ae",
+            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/15dd0d078bb2f50a4ddd1c0374082ea881d13bc9",
+            "reference": "15dd0d078bb2f50a4ddd1c0374082ea881d13bc9",
             "shasum": ""
         },
         "require": {
             "php": ">7.0"
         },
-        "time": "2018-04-15T18:07:25+00:00",
+        "time": "2018-04-20T18:04:38+00:00",
         "type": "framework",
         "extra": {
             "branch-alias": {
