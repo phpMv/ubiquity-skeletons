@@ -85,12 +85,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/phpMv-UI.git",
-                "reference": "128edc8ca1eeb973cbfc8eb24b91f020dc822c70"
+                "reference": "dff88108eaafa041a797fa4d513173571353ee52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/128edc8ca1eeb973cbfc8eb24b91f020dc822c70",
-                "reference": "128edc8ca1eeb973cbfc8eb24b91f020dc822c70",
+                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/dff88108eaafa041a797fa4d513173571353ee52",
+                "reference": "dff88108eaafa041a797fa4d513173571353ee52",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "twitter bootstrap",
                 "yii"
             ],
-            "time": "2018-04-20T18:13:01+00:00"
+            "time": "2018-04-21T02:33:31+00:00"
         },
         {
             "name": "phpmv/ubiquity",
