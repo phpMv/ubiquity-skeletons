@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/ubiquity.git",
-                "reference": "15dd0d078bb2f50a4ddd1c0374082ea881d13bc9"
+                "reference": "0f3ac7429f44c8b6609cc2a179fe1b774137664e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/15dd0d078bb2f50a4ddd1c0374082ea881d13bc9",
-                "reference": "15dd0d078bb2f50a4ddd1c0374082ea881d13bc9",
+                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/0f3ac7429f44c8b6609cc2a179fe1b774137664e",
+                "reference": "0f3ac7429f44c8b6609cc2a179fe1b774137664e",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +186,7 @@
                 "orm",
                 "php"
             ],
-            "time": "2018-04-20T18:04:38+00:00"
+            "time": "2018-04-21T02:32:27+00:00"
         },
         {
             "name": "twig/twig",
