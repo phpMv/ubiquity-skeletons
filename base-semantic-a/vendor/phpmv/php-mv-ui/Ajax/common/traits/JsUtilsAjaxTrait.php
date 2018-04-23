@@ -99,6 +99,12 @@ trait JsUtilsAjaxTrait {
 	protected function onPopstate(){
 		return "window.onpopstate = function(e){if(e.state){var target=e.state.jqueryDone;$(e.state.selector)[target](e.state.html);}};";
 	}
+	
+	protected function autoActiveLinks($previousURL="window.location.href"){
+		$result= "\nfunction getHref(url) { return \$('a').filter(function(){return \$(this).prop('href') == url; });}";
+		$result.="\nvar myurl={$previousURL};if(window._previousURL) getHref(window._previousURL).removeClass('active');getHref(myurl).addClass('active');window._previousURL=myurl;";
+		return $result;
+	}
 
 	protected function _getOnAjaxDone($responseElement,$jqueryDone,$ajaxTransition,$jsCallback,$hasLoader=false,$history=null){
 		$retour="";$call=null;
@@ -114,6 +120,9 @@ trait JsUtilsAjaxTrait {
 				$retour="\t{$responseElement}.{$jqueryDone}( data );\n";
 		}
 		if(isset($history)){
+			if($this->params["autoActiveLinks"]){
+				$retour.=$this->autoActiveLinks("url");
+			}
 			$retour.="\nwindow.history.pushState({'html':data,'selector':".Javascript::prep_value($history).",'jqueryDone':'{$jqueryDone}'},'', url);";
 		}
 		if($hasLoader==="internal"){
@@ -125,7 +134,6 @@ trait JsUtilsAjaxTrait {
 
 	protected function _getResponseElement($responseElement){
 		if (JString::isNotNull($responseElement)) {
-			$responseElement=Javascript::prep_value($responseElement);
 			$responseElement=Javascript::prep_jquery_selector($responseElement);
 		}
 		return $responseElement;
@@ -424,7 +432,7 @@ trait JsUtilsAjaxTrait {
 	public function getHref($element,$responseElement="",$parameters=array()){
 		$parameters["attr"]="href";
 		if(JString::isNull($responseElement)){
-			$responseElement='$($(this).attr("data-target"))';
+			$responseElement='%$(self).attr("data-target")%';
 		}
 		if(!isset($parameters["historize"])){
 			$parameters["historize"]=true;
@@ -442,7 +450,7 @@ trait JsUtilsAjaxTrait {
 	public function postHref($element,$responseElement="",$parameters=array()){
 		$parameters["attr"]="href";
 		if(JString::isNull($responseElement)){
-			$responseElement='$($(this).attr("data-target"))';
+			$responseElement='%$(this).attr("data-target")%';
 		}
 		if(!isset($parameters["historize"])){
 			$parameters["historize"]=true;
