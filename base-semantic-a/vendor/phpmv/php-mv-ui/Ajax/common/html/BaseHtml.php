@@ -22,6 +22,7 @@ abstract class BaseHtml extends BaseWidget {
 	protected $_wrapAfter=array ();
 	protected $_bsComponent;
 	protected $_compiled=false;
+	protected $_runned=false;
 	protected $_postCompile;
 	protected $_preCompile;
 
@@ -46,8 +47,8 @@ abstract class BaseHtml extends BaseWidget {
 		return $result;
 	}
 
-	protected function getTemplate(JsUtils $js=NULL) {
-		return PropertyWrapper::wrap($this->_wrapBefore, $js) . $this->_template . PropertyWrapper::wrap($this->_wrapAfter, $js);
+	protected function getTemplate(JsUtils $js=NULL,$view=null) {
+		return PropertyWrapper::wrap($this->_wrapBefore, $js,$view) . $this->_template . PropertyWrapper::wrap($this->_wrapAfter, $js,$view);
 	}
 
 	protected function ctrl($name, $value, $typeCtrl) {
@@ -207,13 +208,15 @@ abstract class BaseHtml extends BaseWidget {
 
 	public function compile(JsUtils $js=NULL, &$view=NULL) {
 		$this->compile_once($js,$view);
-		$result=$this->getTemplate($js);
+		$result=$this->getTemplate($js,$view);
 		foreach ( $this as $key => $value ) {
 				if(\strstr($result, "%{$key}%")!==false){
 					if (\is_array($value)) {
-						$v=PropertyWrapper::wrap($value, $js);
+						$v=PropertyWrapper::wrap($value, $js,$view);
 					}elseif($value instanceof \stdClass){
 							$v=\print_r($value,true);
+					}elseif ($value instanceof BaseHtml){
+						$v=$value->compile($js,$view);
 					}else{
 						$v=$value;
 					}

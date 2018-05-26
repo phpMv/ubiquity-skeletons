@@ -7,7 +7,7 @@ use Ajax\common\html\BaseHtml;
 
 /**
  * @author jc
- * @property SimpleExtComponent $_bsComponent
+ * @property \Ajax\common\components\SimpleExtComponent $_bsComponent
  * @property string identifier
  * @property BaseHtml _self
  */
@@ -30,6 +30,14 @@ trait BaseHtmlEventsTrait{
 			$jsCode=Javascript::$preventDefault . $jsCode;
 		}
 		return $this->_addEvent($event, $jsCode);
+	}
+	
+	public function trigger($event,$params="[]"){
+		$this->executeOnRun('$("#'.$this->identifier.'").trigger("'.$event.'",'.$params.');');
+	}
+	
+	public function jsTrigger($event,$params="[this]"){
+		return $this->jsDoJquery("trigger",["'".$event."'",$params]);
 	}
 
 	/**
@@ -100,7 +108,9 @@ trait BaseHtmlEventsTrait{
 				$this->_bsComponent->addEvent($event, $code);
 			}
 			$this->_events=array ();
+			return $this->_bsComponent->getScript();
 		}
+		return "";
 	}
 
 	protected function _eventsOnCreate(JsUtils $js=NULL){
@@ -239,4 +249,11 @@ trait BaseHtmlEventsTrait{
 	public function jsToggle($value) {
 		return $this->jsDoJquery("toggle",$value);
 	}
+	/**
+	 * @return array
+	 */
+	public function getEvents() {
+		return $this->_events;
+	}
+
 }

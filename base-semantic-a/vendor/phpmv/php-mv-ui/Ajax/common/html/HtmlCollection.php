@@ -80,7 +80,7 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 	 * @return \Ajax\common\html\HtmlDoubleElement
 	 */
 	public function getItem($index) {
-		if (is_int($index))
+		if (is_int($index)&& isset($this->content[$index]))
 			return $this->content[$index];
 		else {
 			$elm=$this->getElementById($index, $this->content);
@@ -159,14 +159,12 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 	 * @return $this
 	 */
 	public function setPropertyValues($property,$values){
-		$i=0;
 		if(\is_array($values)===false){
 			$values=\array_fill(0, $this->count(),$values);
 		}
-		foreach ($values as $value){
-			$c=$this->content[$i++];
-			if(isset($c)){
-				$c->setProperty($property,$value);
+		foreach ($values as $i=>$value){
+			if(isset($this->content[$i])){
+				$this->content[$i]->setProperty($property,$value);
 			}
 			else{
 				return $this;
@@ -182,14 +180,12 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 	 * @return $this
 	 */
 	public function addPropertyValues($property,$values){
-		$i=0;
 		if(\is_array($values)===false){
 			$values=\array_fill(0, $this->count(),$values);
 		}
-		foreach ($values as $value){
-			$c=$this->content[$i++];
-			if(isset($c)){
-				$c->addToProperty($property,$value);
+		foreach ($values as $i=>$value){
+			if(isset($this->content[$i])){
+				$this->content[$i++]->addToProperty($property,$value);
 			}
 			else{
 				return $this;
@@ -225,6 +221,17 @@ abstract class HtmlCollection extends HtmlDoubleElement {
 				$item->asLink($href,$target);
 			}
 		}
+		return $this;
+	}
+	
+	/**
+	 * Remove a portion of the items array and replace it with something else
+	 * @param int $offset
+	 * @param int $length  If length is omitted, removes everything from offset to the end of the array. If length is specified and is positive, then that many elements will be removed. If length is specified and is negative then the end of the removed portion will be that many elements from the end of the array. If length is specified and is zero, no elements will be removed. Tip: to remove everything from offset to the end of the array when replacement is also specified, use count($input) for length. 
+	 * @return $this
+	 */
+	public function splice($offset,$length=null){
+		$this->content=array_slice($this->content, $offset,$length);
 		return $this;
 	}
 }

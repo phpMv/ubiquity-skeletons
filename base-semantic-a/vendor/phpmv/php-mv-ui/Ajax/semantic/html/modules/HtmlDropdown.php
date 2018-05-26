@@ -11,7 +11,6 @@ use Ajax\semantic\html\base\constants\Direction;
 use Ajax\semantic\html\base\traits\LabeledIconTrait;
 use Ajax\JsUtils;
 use Ajax\semantic\html\collections\form\traits\FieldTrait;
-use Ajax\common\html\HtmlCollection;
 use Ajax\common\html\HtmlDoubleElement;
 
 class HtmlDropdown extends HtmlSemDoubleElement {
@@ -67,7 +66,11 @@ class HtmlDropdown extends HtmlSemDoubleElement {
 	public function addIcon($icon,$before=true,$labeled=false){
 		$this->removeArrow();
 		$this->addIconP($icon,$before,$labeled);
-		return $this->getElementById("text-".$this->identifier, $this->content)->setWrapAfter("");
+		$elm=$this->getElementById("text-".$this->identifier, $this->content);
+		if(isset($elm)){
+			$elm->setWrapAfter("");
+		}
+		return $this;
 	}
 
 	public function addIcons($icons){
@@ -317,6 +320,11 @@ class HtmlDropdown extends HtmlSemDoubleElement {
 		$this->value=$value;
 		return $this;
 	}
+	
+	public function setDefaultText($text){
+		$this->content["text"]=new HtmlSemDoubleElement("","div","default text",$text);
+	}
+	
 	private function applyValue(){
 		$value=$this->value;
 		if(isset($this->input) && isset($value)){

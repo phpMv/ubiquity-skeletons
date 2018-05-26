@@ -172,14 +172,19 @@ abstract class JsUtils{
 	 * @param mixed $injected optional param for Symfony/Ubiquity
 	 */
 	public function __construct($params=array(),$injected=NULL) {
-		$defaults=['debug'=>true,'defer'=>false,'ajax'=>
-				['ajaxTransition'=>null,'attr'=>'','historize'=>false,'jsCallback'=>null,'hasLoader'=>true,'jqueryDone'=>'html',
-				'async'=>true,'params'=>null,'headers'=>null,'jsCondition'=>null,'ajaxLoader'=>null],
+		$ajaxDefault=['ajaxTransition'=>null,'attr'=>'','historize'=>false,'jsCallback'=>null,'hasLoader'=>true,'jqueryDone'=>'html',
+				'async'=>true,'params'=>null,'headers'=>null,'jsCondition'=>null,'ajaxLoader'=>null];
+		$defaults=['debug'=>true,'defer'=>false,'ajax'=>$ajaxDefault,
 				'historize'=>true,'autoActiveLinks'=>true
 		];
 		foreach ( $defaults as $key => $val ) {
 			if (isset($params[$key])===false || $params[$key]==="") {
 				$params[$key]=$defaults[$key];
+			}
+		}
+		foreach ( $ajaxDefault as $key=>$val){
+			if (isset($params["ajax"][$key])===false || $params["ajax"][$key]==="") {
+				$params["ajax"][$key]=$ajaxDefault[$key];
 			}
 		}
 
@@ -294,6 +299,7 @@ abstract class JsUtils{
 			$script=$this->defer($script);
 		}
 		$script.=";";
+
 		$this->jquery_code_for_compile=array();
 		if($this->params["debug"]===false){
 			$script=$this->minify($script);
@@ -303,6 +309,7 @@ abstract class JsUtils{
 		if ($view!==NULL){
 			$this->createScriptVariable($view,$view_var, $output);
 		}
+		
 		return $output;
 	}
 
@@ -431,11 +438,11 @@ abstract class JsUtils{
 		}
 		if (array_search($event, $this->jquery_events)===false)
 			$event="\n\t$(".Javascript::prep_element($element).").bind('{$event}',function(event){\n\t\t{$js}\n\t});\n";
-			else
-				$event="\n\t$(".Javascript::prep_element($element).").{$event}(function(event){\n\t\t{$js}\n\t});\n";
-				if($immediatly)
-					$this->jquery_code_for_compile[]=$event;
-					return $event;
+		else
+			$event="\n\t$(".Javascript::prep_element($element).").{$event}(function(event){\n\t\t{$js}\n\t});\n";
+		if($immediatly)
+			$this->jquery_code_for_compile[]=$event;
+		return $event;
 	}
 
 	public function getInjected() {

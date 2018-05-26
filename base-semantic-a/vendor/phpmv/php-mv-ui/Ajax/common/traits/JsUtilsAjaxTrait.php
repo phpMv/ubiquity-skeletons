@@ -18,6 +18,7 @@ trait JsUtilsAjaxTrait {
 
 	abstract public function getUrl($url);
 	abstract public function _add_event($element, $js, $event, $preventDefault=false, $stopPropagation=false,$immediatly=true);
+	abstract public function interval($jsCode,$time,$globalName=null,$immediatly=true);
 
 	protected function _ajax($method,$url,$responseElement="",$parameters=[]) {
 		if(isset($this->params["ajax"])){
@@ -228,6 +229,10 @@ trait JsUtilsAjaxTrait {
 		$parameters["immediatly"]=true;
 		return $this->_ajax($method,$url,$responseElement,$parameters);
 	}
+	
+	public function ajaxInterval($method,$url, $interval,$globalName=null,$responseElement="", $parameters=[]){
+		return $this->interval($this->ajaxDeferred($method, $url,$responseElement,$parameters), $interval,$globalName);
+	}
 
 	/**
 	 * Performs a deferred ajax request
@@ -251,13 +256,14 @@ trait JsUtilsAjaxTrait {
 		$parameters=\array_merge($parameters,["hasLoader"=>false]);
 		$jsCallback=isset($parameters['jsCallback']) ? $parameters['jsCallback'] : "";
 		$context=isset($parameters['context']) ? $parameters['context'] : "document";
-		$retour="\tdata=($.isPlainObject(data))?data:JSON.parse(data);\t".$jsCallback.";\n\tfor(var key in data){"
+		$retour="\tdata=($.isPlainObject(data))?data:JSON.parse(data);\t".$jsCallback.";"
+				."\n\tfor(var key in data){"
 				."if($('#'+key,".$context.").length){ if($('#'+key,".$context.").is('[value]')) { $('#'+key,".$context.").val(data[key]);} else { $('#'+key,".$context.").html(data[key]); }}};\n";
 				$retour.="\t$(document).trigger('jsonReady',[data]);\n";
 		$parameters["jsCallback"]=$retour;
 		return $this->_ajax($method, $url,null,$parameters);
 	}
-
+	
 	/**
 	 * Performs an ajax request and receives the JSON data types by assigning DOM elements with the same name
 	 * @param string $url the request url
@@ -313,11 +319,12 @@ trait JsUtilsAjaxTrait {
 		}
 		$appendTo="\t\tnewElm.appendTo(".$parent.");\n";
 		$retour=$parent.".find('.{$rowClass}').remove();";
-		$retour.="\tdata=($.isPlainObject(data))?data:JSON.parse(data);\t".$jsCallback.";\n$.each(data, function(index, value) {\n"."\tvar created=false;var maskElm=$('".$maskSelector."').first();maskElm.hide();"."\tvar newId=(maskElm.attr('id') || 'mask')+'-'+index;"."\tvar newElm=".$newElm.";\n"."\tif(!newElm.length){\n"."\t\tnewElm=maskElm.clone();
+		$retour.="\tdata=($.isPlainObject(data)||$.isArray(data))?data:JSON.parse(data);\n$.each(data, function(index, value) {\n"."\tvar created=false;var maskElm=$('".$maskSelector."').first();maskElm.hide();"."\tvar newId=(maskElm.attr('id') || 'mask')+'-'+index;"."\tvar newElm=".$newElm.";\n"."\tif(!newElm.length){\n"."\t\tnewElm=maskElm.clone();
 		newElm.attr('id',newId);\n;newElm.addClass('{$rowClass}').removeClass('_jsonArrayModel');\nnewElm.find('[id]').each(function(){ var newId=$(this).attr('id')+'-'+index;$(this).attr('id',newId).removeClass('_jsonArrayChecked');});\n";
 		$retour.= $appendTo;
 		$retour.="\t}\n"."\tfor(var key in value){\n"."\t\t\tvar html = $('<div />').append($(newElm).clone()).html();\n"."\t\t\tif(html.indexOf('__'+key+'__')>-1){\n"."\t\t\t\tcontent=$(html.split('__'+key+'__').join(value[key]));\n"."\t\t\t\t$(newElm).replaceWith(content);newElm=content;\n"."\t\t\t}\n"."\t\tvar sel='[data-id=\"'+key+'\"]';if($(sel,newElm).length){\n"."\t\t\tvar selElm=$(sel,newElm);\n"."\t\t\t if(selElm.is('[value]')) { selElm.attr('value',value[key]);selElm.val(value[key]);} else { selElm.html(value[key]); }\n"."\t\t}\n"."}\n"."\t$(newElm).show(true);"."\n"."\t$(newElm).removeClass('hide');"."});\n";
 		$retour.="\t$(document).trigger('jsonReady',[data]);\n";
+		$retour.="\t".$jsCallback;
 		$parameters["jsCallback"]=$retour;
 		return $this->_ajax($method, $url,null,$parameters);
 	}

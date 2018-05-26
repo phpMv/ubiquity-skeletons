@@ -531,6 +531,20 @@ trait JsUtilsActionsTrait {
 		return $script;
 	}
 	
+	public function setJsonToElement($json,$elementClass="_element",$immediatly=true){
+		$retour="var data={$json};"
+				."\n\tdata=($.isPlainObject(data))?data:JSON.parse(data);"
+				."\n\tvar pk=data['pk'];var object=data['object'];"
+				."\n\tfor(var field in object){"
+				."\n\tif($('[data-field='+field+']',$('._element[data-ajax='+pk+']')).length){"
+				."\n\t\t$('[data-field='+field+']',$('._element[data-ajax='+pk+']')).each(function(){"
+						."\n\t\t\tif($(this).is('[value]')) { $(this).val(object[field]);} else { $(this).html(object[field]); }"
+				."\n\t});"
+				."\n}};\n";
+		$retour.="\t$(document).trigger('jsonReady',[data]);\n";
+		return $this->exec($retour,$immediatly);
+	}
+	
 	/**
 	 * Sets an element draggable (HTML5 drag and drop)
 	 * @param string $element The element selector
@@ -557,5 +571,21 @@ trait JsUtilsActionsTrait {
 		extract($parameters);
 		$script.=$this->_add_event($element, Javascript::dropZone($jqueryDone,$jsCallback), "drop",true,$stopPropagation,$immediatly);
 		return $script;
+	}
+	
+	public function interval($jsCode,$time,$globalName=null,$immediatly=true){
+		if(!Javascript::isFunction($jsCode)){
+			$jsCode="function(){\n".$jsCode."\n}";
+		}
+		if(isset($globalName)){
+			$script="if(window.{$globalName}){clearInterval(window.{$globalName});}\nwindow.{$globalName}=setInterval({$jsCode},{$time});";
+		}else{
+			$script="setInterval({$jsCode},{$time});";
+		}
+		return $this->exec($script,$immediatly);
+	}
+	
+	public function clearInterval($globalName,$immediatly=true){
+		return $this->exec("if(window.{$globalName}){clearInterval(window.{$globalName});}",$immediatly);
 	}
 }

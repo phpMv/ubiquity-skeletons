@@ -13,6 +13,7 @@ class Startup {
 	private static $ctrlNS;
 	private static $controller;
 	private static $action;
+	private static $actionParams;
 
 	public static function run(array &$config, $url) {
 		self::$config = $config;
@@ -36,7 +37,7 @@ class Startup {
 				self::runAction ( $u );
 			} else {
 				\header ( 'HTTP/1.0 404 Not Found', true, 404 );
-				print "Le contrôleur `" . $u [0] . "` n'existe pas <br/>";
+				print "The controller `" . $u [0] . "` doesn't exists! <br/>";
 			}
 		}
 	}
@@ -90,13 +91,28 @@ class Startup {
 		self::$action = "index";
 		if (\sizeof ( $u ) > 1)
 			self::$action = $u [1];
+		if (\sizeof ( $u ) > 2)
+			self::$actionParams=array_slice ( $u, 2 );
 
 		$controller = new $ctrl ();
 		if (! $controller instanceof Controller) {
-			print "`{$u[0]}` n'est pas une instance de contrôleur.`<br/>";
+			print "`{$u[0]}` isn't a controller instance.`<br/>";
 			return;
 		}
 		// Dependency injection
+		self::injectDependences($controller, $config);
+		if(!$controller->isValid(self::$action)){
+			$controller->onInvalidControl();
+		}else{
+			if ($initialize)
+				$controller->initialize ();
+			self::callController ( $controller, $u );
+			if ($finalize)
+				$controller->finalize ();
+		}
+	}
+	
+	public static function injectDependences($controller,$config){
 		if (\array_key_exists ( "di", $config )) {
 			$di = $config ["di"];
 			if (\is_array ( $di )) {
@@ -105,12 +121,6 @@ class Startup {
 				}
 			}
 		}
-
-		if ($initialize)
-			$controller->initialize ();
-		self::callController ( $controller, $u );
-		if ($finalize)
-			$controller->finalize ();
 	}
 
 	public static function runAsString($u, $initialize = true, $finalize = true) {
@@ -131,12 +141,12 @@ class Startup {
 				if (\method_exists ( $controller, $action )) {
 					$controller->$action ();
 				} else {
-					print "La méthode `{$action}` n'existe pas sur le contrôleur `" . $u [0] . "`<br/>";
+					print "The method `{$action}` doesn't exists on controller `" . $u [0] . "`<br/>";
 				}
 				break;
 			default :
 				// Appel de la méthode en lui passant en paramètre le reste du tableau
-				\call_user_func_array ( array ($controller,$u [1] ), array_slice ( $u, 2 ) );
+				\call_user_func_array ( array ($controller,$u [1] ), self::$actionParams );
 				break;
 		}
 	}
@@ -211,6 +221,10 @@ class Startup {
 
 	public static function getAction() {
 		return self::$action;
+	}
+	
+	public static function getActionParams() {
+		return self::$actionParams;
 	}
 
 	public static function getFrameworkDir() {
