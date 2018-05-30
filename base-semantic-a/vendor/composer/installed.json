@@ -190,18 +190,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity.git",
-            "reference": "530ddf8fde3de33a2bc58242522c5101b89b6fa2"
+            "reference": "0e62328bc338ba1db4293d962581812165c3cdd9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/530ddf8fde3de33a2bc58242522c5101b89b6fa2",
-            "reference": "530ddf8fde3de33a2bc58242522c5101b89b6fa2",
+            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/0e62328bc338ba1db4293d962581812165c3cdd9",
+            "reference": "0e62328bc338ba1db4293d962581812165c3cdd9",
             "shasum": ""
         },
         "require": {
             "php": ">7.0"
         },
-        "time": "2018-05-28T12:54:33+00:00",
+        "time": "2018-05-30T00:48:28+00:00",
         "type": "framework",
         "extra": {
             "branch-alias": {

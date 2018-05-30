@@ -10,6 +10,7 @@ use Ubiquity\cache\ClassUtils;
 use Ubiquity\utils\http\UResponse;
 use Ubiquity\utils\base\UString;
 use Ubiquity\controllers\Startup;
+use Ubiquity\utils\http\UCookie;
 
  /**
  * Controller Auth
@@ -46,7 +47,8 @@ abstract class AuthController extends ControllerBase{
 		}
 		$this->authLoadView($this->_getFiles()->getViewIndex(),["action"=>$this->_getBaseRoute()."/connect",
 				"loginInputName"=>$this->_getLoginInputName(),"loginLabel"=>$this->loginLabel(),
-				"passwordInputName"=>$this->_getPasswordInputName(),"passwordLabel"=>$this->passwordLabel()
+				"passwordInputName"=>$this->_getPasswordInputName(),"passwordLabel"=>$this->passwordLabel(),
+				"rememberCaption"=>$this->rememberCaption()
 		]);
 	}
 	
@@ -105,6 +107,9 @@ abstract class AuthController extends ControllerBase{
 	public function connect(){
 		if(URequest::isPost()){
 			if($connected=$this->_connect()){
+				if(isset($_POST["ck-remember"])){
+					$this->rememberMe($connected);
+				}
 				if(USession::exists($this->_attemptsSessionKey)){
 					USession::delete($this->_attemptsSessionKey);
 				}
@@ -268,6 +273,14 @@ abstract class AuthController extends ControllerBase{
 	}
 	
 	/**
+	 * To override for getting active user, default : USession::get("activeUser")
+	 * @return string
+	 */
+	public function _getActiveUser(){
+		return USession::get($this->_getUserSessionKey());
+	}
+	
+	/**
 	 * To override
 	 * Returns the maximum number of allowed login attempts
 	 */
@@ -360,7 +373,66 @@ abstract class AuthController extends ControllerBase{
 		$this->_loginCaption = $_loginCaption;
 	}
 	
+	protected function rememberCaption(){
+		return "Remember me";
+	}
 	
-
-
+	protected function getViewVars($viewname){
+		return ["authURL"=>$this->_getBaseRoute(),"bodySelector"=>$this->_getBodySelector(),"_loginCaption"=>$this->_loginCaption];
+	}
+	
+	/**
+	 * Saves the connected user identifier in a cookie
+	 * @param object $connected
+	 */
+	protected function rememberMe($connected){
+		$id= $this->toCookie($connected);
+		if(isset($id)){
+			UCookie::set($this->_getUserSessionKey(),$id);
+		}
+	}
+	
+	/**
+	 * Returns the cookie for auto connection
+	 * @return NULL|string
+	 */
+	protected function getCookieUser(){
+		return UCookie::get($this->_getUserSessionKey());
+	}
+	
+	/**
+	 * Returns the value from connected user to save it in the cookie for auto connection
+	 * @param object $connected
+	 */
+	protected function toCookie($connected){
+		return;
+	}
+	
+	/**
+	 * Loads the user from database using the cookie value
+	 * @param string $cookie
+	 */
+	protected function fromCookie($cookie){
+		return;
+	}
+	
+	/**
+	 * Auto connect the user
+	 */
+	public function _autoConnect() {
+		$cookie=$this->getCookieUser();
+		if(isset($cookie)){
+			$user=$this->fromCookie($cookie);
+			if(isset($user)){
+				USession::set($this->_getUserSessionKey(), $user);
+			}
+		}
+	}
+	/**
+	 * Deletes the cookie for auto connection and returns to index
+	 */
+	public function forgetConnection(){
+		UCookie::delete($this->_getUserSessionKey());
+		$this->index();
+	}
 }
