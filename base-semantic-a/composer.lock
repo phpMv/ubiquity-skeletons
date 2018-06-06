@@ -85,12 +85,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/phpMv-UI.git",
-                "reference": "489ec7e9813a7b3b58c8f22f208ad8c7dc339ee8"
+                "reference": "008e10b7c870f960d240eedd54a866fcc1cf0a42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/489ec7e9813a7b3b58c8f22f208ad8c7dc339ee8",
-                "reference": "489ec7e9813a7b3b58c8f22f208ad8c7dc339ee8",
+                "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/008e10b7c870f960d240eedd54a866fcc1cf0a42",
+                "reference": "008e10b7c870f960d240eedd54a866fcc1cf0a42",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "twitter bootstrap",
                 "yii"
             ],
-            "time": "2018-05-24T00:29:30+00:00"
+            "time": "2018-06-06T01:46:35+00:00"
         },
         {
             "name": "phpmv/ubiquity",
@@ -146,12 +146,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpMv/ubiquity.git",
-                "reference": "0e62328bc338ba1db4293d962581812165c3cdd9"
+                "reference": "3ee6aaf671150b02e510786700f6e11e4a731c9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/0e62328bc338ba1db4293d962581812165c3cdd9",
-                "reference": "0e62328bc338ba1db4293d962581812165c3cdd9",
+                "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/3ee6aaf671150b02e510786700f6e11e4a731c9f",
+                "reference": "3ee6aaf671150b02e510786700f6e11e4a731c9f",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +186,7 @@
                 "orm",
                 "php"
             ],
-            "time": "2018-05-30T00:48:28+00:00"
+            "time": "2018-06-06T01:45:09+00:00"
         },
         {
             "name": "twig/twig",
