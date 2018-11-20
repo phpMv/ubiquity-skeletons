@@ -14,6 +14,7 @@ use Ubiquity\utils\http\URequest;
 use Ubiquity\utils\http\UResponse;
 use Ubiquity\controllers\rest\ResponseFormatter;
 use Ajax\semantic\widgets\datatable\Pagination;
+use Ubiquity\utils\base\UString;
 
 /**
  *
@@ -30,6 +31,9 @@ trait ModelsTrait{
 
 	abstract public function _getAdminViewer();
 	
+	/**
+	 * @return \Ubiquity\controllers\admin\viewers\ModelViewer
+	 */
 	abstract public function _getModelViewer();
 
 	abstract public function _getAdminFiles();
@@ -70,22 +74,24 @@ trait ModelsTrait{
 
 	protected function _showModel($model,$id=null) {
 		$_SESSION["model"]=$model;
-		$datas=$this->getInstances($model,1,$id);
+		$totalCount=0;
+		$datas=$this->getInstances($model,$totalCount,1,$id);
 		$this->formModal=($this->_getModelViewer()->isModal($datas,$model))? "modal" : "no";
-		return $this->_getModelViewer()->getModelDataTable($datas, $model,$this->activePage);
+		return $this->_getModelViewer()->getModelDataTable($datas, $model,$totalCount,$this->activePage);
 	}
 	
-	protected function getInstances($model,$page=1,$id=null){
+	protected function getInstances($model,&$totalCount,$page=1,$id=null){
 		$this->activePage=$page;
-		$recordsPerPage=$this->_getModelViewer()->recordsPerPage($model,DAO::count($model));
+		$totalCount=DAO::count($model,$this->_getInstancesFilter($model));
+		$recordsPerPage=$this->_getModelViewer()->recordsPerPage($model,$totalCount);
 		if(is_numeric($recordsPerPage)){
 			if(isset($id)){
 				$rownum=DAO::getRownum($model, $id);
 				$this->activePage=Pagination::getPageOfRow($rownum,$recordsPerPage);
 			}
-			return DAO::paginate($model,$this->activePage,$recordsPerPage);
+			return DAO::paginate($model,$this->activePage,$recordsPerPage,$this->_getInstancesFilter($model),false);
 		}
-		return DAO::getAll($model);
+		return DAO::getAll($model,"",false);
 	}
 	
 	protected function search($model,$search){
@@ -98,16 +104,19 @@ trait ModelsTrait{
 		if(isset($_POST["s"])){
 			$instances=$this->search($model, $_POST["s"]);
 		}else{
-			$instances=$this->getInstances($model,URequest::post("p",1));
+			$instances=$this->getInstances($model,$totalCount,URequest::post("p",1));
 		}
-		$recordsPerPage=$this->_getModelViewer()->recordsPerPage($model,DAO::count($model));
+		if(!isset($totalCount)){
+			$totalCount=DAO::count($model,$this->_getInstancesFilter($model));
+		}
+		$recordsPerPage=$this->_getModelViewer()->recordsPerPage($model,$totalCount);
 		if(isset($recordsPerPage)){
 			UResponse::asJSON();
 			$responseFormatter=new ResponseFormatter();
 			print_r($responseFormatter->getJSONDatas($instances));
 		}else{
 			$this->formModal=($this->_getModelViewer()->isModal($instances,$model))? "modal" : "no";
-			$compo= $this->_getModelViewer()->getModelDataTable($instances, $model)->refresh(["tbody"]);
+			$compo= $this->_getModelViewer()->getModelDataTable($instances, $model,$totalCount)->refresh(["tbody"]);
 			$this->jquery->execAtLast('$("#search-query-content").html("'.$_POST["s"].'");$("#search-query").show();$("#table-details").html("");');
 			$this->jquery->renderView("@framework/Admin/main/component.html",["compo"=>$compo]);
 		}
@@ -116,19 +125,20 @@ trait ModelsTrait{
 	protected function _edit($instance, $modal="no") {
 		$_SESSION["instance"]=$instance;
 		$modal=($modal == "modal");
-		$form=$this->_getModelViewer()->getForm("frmEdit", $instance);
-		$this->jquery->click("#action-modal-frmEdit-0", "$('#frmEdit').form('submit');", false);
+		$formName="frmEdit-".UString::cleanAttribute(get_class($instance));
+		$form=$this->_getModelViewer()->getForm($formName, $instance);
+		$this->jquery->click("#action-modal-".$formName."-0", "$('#".$formName."').form('submit');", false);
 		if (!$modal) {
 			$this->jquery->click("#bt-cancel", "$('#form-container').transition('drop');");
 			$this->jquery->compile($this->view);
-			$this->loadView($this->_getAdminFiles()->getViewEditTable(), [ "modal" => $modal ]);
+			$this->loadView($this->_getAdminFiles()->getViewEditTable(), [ "modal" => $modal,"frmEditName"=>$formName]);
 		} else {
-			$this->jquery->exec("$('#modal-frmEdit').modal('show');", true);
+			$this->jquery->exec("$('#modal-".$formName."').modal('show');", true);
 			$form=$form->asModal(\get_class($instance));
 			$form->setActions([ "Okay","Cancel" ]);
 			$btOkay=$form->getAction(0);
 			$btOkay->addClass("green")->setValue("Validate modifications");
-			$form->onHidden("$('#modal-frmEdit').remove();");
+			$form->onHidden("$('#modal-".$formName."').remove();");
 			echo $form->compile($this->jquery, $this->view);
 			echo $this->jquery->compile($this->view);
 		}
@@ -170,7 +180,7 @@ trait ModelsTrait{
 	private function getModelInstance($ids) {
 		$model=$_SESSION['model'];
 		$ids=\explode("_", $ids);
-		$instance=DAO::getOne($model, $ids);
+		$instance=DAO::getOne($model, $ids,true);
 		if(isset($instance)){
 			return $instance;
 		}
@@ -219,7 +229,7 @@ trait ModelsTrait{
 		$viewer=$this->_getModelViewer();
 		$hasElements=false;
 		$model=$_SESSION['model'];
-		$fkInstances=CRUDHelper::getFKIntances($instance, $model);	
+		$fkInstances=CRUDHelper::getFKIntances($instance, $model,false);	
 		$semantic=$this->jquery->semantic();
 		$grid=$semantic->htmlGrid("detail");
 		if (sizeof($fkInstances) > 0) {

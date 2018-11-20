@@ -70,6 +70,9 @@ class DataForm extends Widget {
 				$this->_generateFields($form, $fields, $headers, $separators[$i], $wrappers);
 			}
 		}
+		if($this->_hasRules && !$this->getForm()->hasValidationParams()){
+				$this->setValidationParams(["inline"=>true]);
+		}
 	}
 
 	protected function _generateFields($form,$values,$headers,$sepFirst,$wrappers){
@@ -88,6 +91,16 @@ class DataForm extends Widget {
 		if(isset($wrapper)){
 			$added->wrap($wrapper[0],$wrapper[1]);
 		}
+		$this->execHook("onGenerateFields",$added);
+	}
+	
+	/**
+	 * Function called when a field is generated
+	 * the generated field is the first parameter
+	 * @param callable $callback the fonction to call when a field is generated
+	 */
+	public function onGenerateField($callback){
+		$this->addHook("onGenerateFields",$callback);
 	}
 
 	/**

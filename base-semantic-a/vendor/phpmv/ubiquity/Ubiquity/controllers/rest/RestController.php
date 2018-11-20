@@ -135,17 +135,15 @@ abstract class RestController extends Controller {
 	/**
 	 * Returns a list of objects from the server
 	 * @param string $condition the sql Where part
-	 * @param boolean $loadManyToOne
-	 * @param boolean $loadOneToMany
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
 	 * @param boolean $useCache
 	 */
-	public function get($condition="1=1",$loadManyToOne=false,$loadOneToMany=false,$useCache=false){
+	public function get($condition="1=1",$included=false,$useCache=false){
 		try{
 			$condition=\urldecode($condition);
-			$loadManyToOne=UString::isBooleanTrue($loadManyToOne);
-			$loadOneToMany=UString::isBooleanTrue($loadOneToMany);
+			$included=$this->getIncluded($included);
 			$useCache=UString::isBooleanTrue($useCache);
-			$datas=DAO::getAll($this->model,$condition,$loadManyToOne,$loadOneToMany,$useCache);
+			$datas=DAO::getAll($this->model,$condition,$included,$useCache);
 			echo $this->responseFormatter->get($datas);
 		}catch (\Exception $e){
 			$this->_setResponseCode(500);
@@ -156,16 +154,14 @@ abstract class RestController extends Controller {
 	/**
 	 * Get the first object corresponding to the $keyValues
 	 * @param string $keyValues primary key(s) value(s) or condition
-	 * @param boolean $loadManyToOne if true then manyToOne members are loaded.
-	 * @param boolean $loadOneToMany if true then oneToMany members are loaded.
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
 	 * @param boolean $useCache if true then response is cached
 	 */
-	public function getOne($keyValues,$loadManyToOne=false,$loadOneToMany=false,$useCache=false){
+	public function getOne($keyValues,$included=false,$useCache=false){
 		$keyValues=\urldecode($keyValues);
-		$loadManyToOne=UString::isBooleanTrue($loadManyToOne);
-		$loadOneToMany=UString::isBooleanTrue($loadOneToMany);
+		$included=$this->getIncluded($included);
 		$useCache=UString::isBooleanTrue($useCache);
-		$data=DAO::getOne($this->model, $keyValues,$loadManyToOne,$loadOneToMany,$useCache);
+		$data=DAO::getOne($this->model, $keyValues,$included,$useCache);
 		if(isset($data)){
 			$_SESSION["_restInstance"]=$data;
 			echo $this->responseFormatter->getOne($data);
@@ -175,6 +171,13 @@ abstract class RestController extends Controller {
 			echo $this->responseFormatter->format(["message"=>"No result found","keyValues"=>$keyValues]);
 		}
 	}
+	
+	private function getIncluded($included){
+		if(!UString::isBoolean($included)){
+			return explode(",", $included);
+		}
+		return UString::isBooleanTrue($included);
+	}
 
 	public function _format($arrayMessage){
 		return $this->responseFormatter->format($arrayMessage);
@@ -182,13 +185,15 @@ abstract class RestController extends Controller {
 
 	/**
 	 * @param string $member
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
 	 * @param boolean $useCache
 	 * @throws \Exception
 	 */
-	public function getOneToMany($member,$useCache=false){
+	public function getOneToMany($member,$included=false,$useCache=false){
 		if(isset($_SESSION["_restInstance"])){
+			$included=$this->getIncluded($included);
 			$useCache=UString::isBooleanTrue($useCache);
-			$datas=DAO::getOneToMany($_SESSION["_restInstance"], $member,$useCache);
+			$datas=DAO::getOneToMany($_SESSION["_restInstance"], $member,$included,$useCache);
 			echo $this->responseFormatter->get($datas);
 		}else{
 			throw new \Exception("You have to call getOne before calling getOneToMany.");
@@ -197,13 +202,15 @@ abstract class RestController extends Controller {
 
 	/**
 	 * @param string $member
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
 	 * @param boolean $useCache
 	 * @throws \Exception
 	 */
-	public function getManyToMany($member,$useCache=false){
+	public function getManyToMany($member,$included=false,$useCache=false){
 		if(isset($_SESSION["_restInstance"])){
+			$included=$this->getIncluded($included);
 			$useCache=UString::isBooleanTrue($useCache);
-			$datas=DAO::getManyToMany($_SESSION["_restInstance"], $member,null,$useCache);
+			$datas=DAO::getManyToMany($_SESSION["_restInstance"], $member,$included,null,$useCache);
 			echo $this->responseFormatter->get($datas);
 		}else{
 			throw new \Exception("You have to call getOne before calling getManyToMany.");

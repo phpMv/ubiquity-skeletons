@@ -116,4 +116,87 @@ class UFileSystem {
 	public static function getDirFromNamespace($ns){
 		return ROOT . DS . str_replace ( "\\", DS, $ns );
 	}
+	
+	public static function xcopy($source, $dest, $permissions = 0755){
+		if (is_link($source)) {
+			return symlink(readlink($source), $dest);
+		}
+		if (is_file($source)) {
+			return copy($source, $dest);
+		}
+		if (!is_dir($dest)) {
+			mkdir($dest, $permissions,true);
+		}
+		$dir = dir($source);
+		while (false !== $entry = $dir->read()) {
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
+			self::xcopy("$source/$entry", "$dest/$entry", $permissions);
+		}
+		$dir->close();
+		return true;
+	}
+	
+	public static function delTree($dir) {
+		$files = array_diff(scandir($dir), array('.','..'));
+		foreach ($files as $file) {
+			(is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
+		}
+		return rmdir($dir);
+	}
+	
+	public static function getLines($filename,$reverse=false,$maxLines=null,$lineCallback=null){
+		if(file_exists($filename)){
+			$result=[];
+			if($reverse && isset($maxLines)){
+				$fl = fopen($filename, "r");
+				 for($x_pos = 0, $ln = 0,$lines=[]; fseek($fl, $x_pos, SEEK_END) !== -1; $x_pos--) {
+					 $char = fgetc($fl);
+					 if ($char === "\n") {
+					 	if(is_callable($lineCallback)){
+					 		$lineCallback($result,$lines[$ln]);
+					 	}else{
+					 		$result[]=$lines[$ln];
+					 	}
+					 	if(isset($maxLines) && sizeof($result)>=$maxLines){
+					 		fclose($fl);
+					 		return $result;
+					 	}
+					 $ln++;
+					 continue;
+					 }
+					 $lines[$ln] = $char . ((array_key_exists($ln, $lines)) ? $lines[$ln] : '');
+				 }
+				 fclose($fl);
+				 return $result;
+			 }else{
+				$handle = fopen($filename, "r");
+				if ($handle) {
+					while (($line = fgets($handle)) !== false) {
+						if(is_callable($lineCallback)){
+							$lineCallback($result,$line);
+						}else{
+							$result[]=$line;
+						}
+						if(isset($maxLines) && sizeof($result)>=$maxLines){
+							fclose($handle);
+							if($result){
+								$result=array_reverse($result);
+							}
+							return $result;
+						}
+					}
+					fclose($handle);
+				} else {
+					// error opening the file.
+				}
+				if($reverse){
+					$result=array_reverse($result);
+				}
+				return $result;
+			}
+		}
+		return [];
+	}
 }

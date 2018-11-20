@@ -36,13 +36,20 @@ trait DAOUpdatesTrait{
 	 */
 	private static function removeByKey_($tableName, $keyAndValues) {
 		$sql = "DELETE FROM " . $tableName . " WHERE " . SqlUtils::getWhere ( $keyAndValues );
-		Logger::log ( "delete", $sql );
+		Logger::info("DAOUpdates", $sql,"delete");
 		$statement = self::$db->prepareStatement ( $sql );
 		foreach ( $keyAndValues as $key => $value ) {
 			self::$db->bindValueFromStatement ( $statement, $key, $value );
 		}
-
-		return $statement->execute ();
+		try{
+			if( $statement->execute ()){
+				return $statement->rowCount();
+			}
+		}catch(\PDOException $e){
+			Logger::warn("DAOUpdates",  $e->getMessage() ,"delete");
+			return;
+		}
+		return;
 	}
 
 	/**
@@ -52,13 +59,17 @@ trait DAOUpdatesTrait{
 	 * @return int the number of rows that were modified or deleted by the SQL statement you issued
 	 */
 	private static function remove_($tableName, $where) {
-		$sql = "DELETE FROM " . $tableName . " " . SqlUtils::checkWhere ( $where );
-		Logger::log ( "delete", $sql );
+		$sql = "DELETE FROM `" . $tableName . "` " . SqlUtils::checkWhere ( $where );
+		Logger::info ("DAOUpdates",  $sql ,"delete");
 		$statement = self::$db->prepareStatement ( $sql );
-		if($statement->execute ()){
-			return $statement->rowCount();
+		try{
+			if($statement->execute ()){
+				return $statement->rowCount();
+			}
+		}catch(\PDOException $e){
+			Logger::warn("DAOUpdates",  $e->getMessage() ,"delete");
+			return false;
 		}
-		return false;
 	}
 	
 	/**
@@ -100,22 +111,30 @@ trait DAOUpdatesTrait{
 		$tableName = OrmUtils::getTableName ( get_class ( $instance ) );
 		$keyAndValues = Reflexion::getPropertiesAndValues ( $instance );
 		$keyAndValues = array_merge ( $keyAndValues, OrmUtils::getManyToOneMembersAndValues ( $instance ) );
-		$sql = "INSERT INTO " . $tableName . "(" . SqlUtils::getInsertFields ( $keyAndValues ) . ") VALUES(" . SqlUtils::getInsertFieldsValues ( $keyAndValues ) . ")";
-		Logger::log ( "insert", $sql );
-		Logger::log ( "Key and values", json_encode ( $keyAndValues ) );
+		$sql = "INSERT INTO `" . $tableName . "`(" . SqlUtils::getInsertFields ( $keyAndValues ) . ") VALUES(" . SqlUtils::getInsertFieldsValues ( $keyAndValues ) . ")";
+		Logger::info ( "DAOUpdates", $sql,"insert" );
+		Logger::info ( "DAOUpdates", json_encode ( $keyAndValues ),"Key and values" );
 		$statement = self::$db->prepareStatement ( $sql );
 		foreach ( $keyAndValues as $key => $value ) {
 			self::$db->bindValueFromStatement ( $statement, $key, $value );
 		}
-		$result = $statement->execute ();
-		if ($result) {
-			$accesseurId = "set" . ucfirst ( OrmUtils::getFirstKey ( get_class ( $instance ) ) );
-			$instance->$accesseurId ( self::$db->lastInserId () );
-			if ($insertMany) {
-				self::insertOrUpdateAllManyToMany ( $instance );
+		try{
+			$result = $statement->execute ();
+			if ($result) {
+				$accesseurId = "set" . ucfirst ( OrmUtils::getFirstKey ( get_class ( $instance ) ) );
+				$lastId=self::$db->lastInserId ();
+				if($lastId!=0){
+					$instance->$accesseurId ( $lastId);
+				}
+				if ($insertMany) {
+					self::insertOrUpdateAllManyToMany ( $instance );
+				}
 			}
+			return $result;
+		}catch(\PDOException $e){
+			Logger::warn("DAOUpdates",  $e->getMessage() ,"insert");
 		}
-		return $result;
+		return false;
 	}
 
 	/**
@@ -160,12 +179,12 @@ trait DAOUpdatesTrait{
 					if (! OrmUtils::exists ( $targetInstance, $parser->getPk (), $foreignInstances )) {
 						self::insert ( $targetInstance, false );
 						$foreignId = $targetInstance->$accessorId ();
-						Logger::log ( "InsertMany", "Insertion d'une instance de " . get_class ( $instance ) );
+						Logger::info ( "DAOUpdates", "Insertion d'une instance de " . get_class ( $instance ),"InsertMany" );
 					}
 					self::$db->bindValueFromStatement ( $statement, $myField, $id );
 					self::$db->bindValueFromStatement ( $statement, $field, $foreignId );
 					$statement->execute ();
-					Logger::log ( "InsertMany", "Insertion des valeurs dans la table association '" . $parser->getJoinTable () . "'" );
+					Logger::info ( "DAOUpdates", "Insertion des valeurs dans la table association '" . $parser->getJoinTable () . "'","InsertMany" );
 				}
 			}
 		}
@@ -185,17 +204,22 @@ trait DAOUpdatesTrait{
 		$ColumnskeyAndValues = Reflexion::getPropertiesAndValues ( $instance );
 		$ColumnskeyAndValues = array_merge ( $ColumnskeyAndValues, OrmUtils::getManyToOneMembersAndValues ( $instance ) );
 		$keyFieldsAndValues = OrmUtils::getKeyFieldsAndValues ( $instance );
-		$sql = "UPDATE " . $tableName . " SET " . SqlUtils::getUpdateFieldsKeyAndValues ( $ColumnskeyAndValues ) . " WHERE " . SqlUtils::getWhere ( $keyFieldsAndValues );
-		Logger::log ( "update", $sql );
-		Logger::log ( "Key and values", json_encode ( $ColumnskeyAndValues ) );
+		$sql = "UPDATE `" . $tableName . "` SET " . SqlUtils::getUpdateFieldsKeyAndValues ( $ColumnskeyAndValues ) . " WHERE " . SqlUtils::getWhere ( $keyFieldsAndValues );
+		Logger::info ( "DAOUpdates", $sql,"update" );
+		Logger::info ("DAOUpdates", json_encode ( $ColumnskeyAndValues ), "Key and values" );
 		$statement = self::$db->prepareStatement ( $sql );
 		foreach ( $ColumnskeyAndValues as $key => $value ) {
 			self::$db->bindValueFromStatement ( $statement, $key, $value );
 		}
-		$result = $statement->execute ();
-		if ($result && $updateMany)
-			self::insertOrUpdateAllManyToMany ( $instance );
-		return $result;
+		try{
+			$result = $statement->execute ();
+			if ($result && $updateMany)
+				self::insertOrUpdateAllManyToMany ( $instance );
+			return $result;
+		}catch(\PDOException $e){
+			Logger::warn("DAOUpdates",  $e->getMessage() ,"update");
+		}
+		return false;
 	}
 
 	/**

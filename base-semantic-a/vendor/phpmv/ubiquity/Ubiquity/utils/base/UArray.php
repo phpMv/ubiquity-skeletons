@@ -102,6 +102,14 @@ class UArray {
 		}
 		return $array;
 	}
+	
+	public static function removeByKeys($array,$keys){
+		$assocKeys = [];
+		foreach($keys as $key) {
+			$assocKeys[$key] = true;
+		}
+		return array_diff_key($array, $assocKeys);
+	}
 
 	public static function removeOne($array, $search) {
 		if (($key=array_search($search, $array)) !== false) {
@@ -128,9 +136,11 @@ class UArray {
 			$result=$v;
 		} elseif (\is_array($v)) {
 			$result=self::asPhpArray($v, $prefix,$depth+1,$format);
-		}elseif(UString::startswith(trim($v), "function") || UString::startswith(trim($v), "array(")){
+		}elseif(is_string($v) && (UString::startswith(trim($v), "function") || UString::startswith(trim($v), "array("))){
 			$result=$v;
-		} else {
+		}elseif($v instanceof \Closure){
+			$result=UIntrospection::closure_dump($v);
+		}else {
 			$result="\"" . \str_replace('$', '\$', $v) . "\"";
 			$result=UString::doubleBackSlashes($result);
 		}

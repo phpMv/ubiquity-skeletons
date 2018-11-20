@@ -4,6 +4,7 @@ namespace Ubiquity\db;
 
 use Ubiquity\cache\database\DbCache;
 use Ubiquity\exceptions\CacheException;
+use Ubiquity\log\Logger;
 
 /**
  * PDO Database class
@@ -96,26 +97,60 @@ class Database {
 	 * @param string $tableName
 	 * @param string $condition
 	 * @param array|string $fields
+	 * @param array $parameters
 	 * @param boolean|null $useCache
 	 * @return array
 	 */
-	public function prepareAndExecute($tableName, $condition, $fields, $useCache = NULL) {
+	public function prepareAndExecute($tableName, $condition, $fields, $parameters=null,$useCache = NULL) {
 		$cache = (DbCache::$active && $useCache !== false) || (! DbCache::$active && $useCache === true);
 		$result = false;
 		if ($cache) {
-			$result = $this->cache->fetch ( $tableName, $condition );
+			$cKey=$condition;
+			if(is_array($parameters)){
+				$cKey.=implode(",", $parameters);
+			}
+			$result = $this->cache->fetch ( $tableName, $cKey );
+			Logger::info("Cache", "fetching cache for table {$tableName} with condition : {$condition}","Database::prepareAndExecute",$parameters);
 		}
 		if ($result === false) {
 			$fields = SqlUtils::getFieldList ( $fields, $tableName );
-			$statement = $this->getStatement ( "SELECT {$fields} FROM " . $tableName . $condition );
-			$statement->execute ();
-			$result = $statement->fetchAll ();
-			$statement->closeCursor ();
+			$result=$this->prepareAndFetchAll("SELECT {$fields} FROM `" . $tableName ."`". $condition,$parameters);
 			if ($cache) {
-				$this->cache->store ( $tableName, $condition, $result );
+				$this->cache->store ( $tableName, $cKey, $result );
 			}
 		}
 		return $result;
+	}
+	
+	public function prepareAndFetchAll($sql,$parameters=null){
+		$result=false;
+		$statement=$this->getStatement($sql);
+		if($statement->execute ($parameters)){
+			Logger::info("Database", $sql,"prepareAndFetchAll",$parameters);
+			$result = $statement->fetchAll ();
+		}
+		$statement->closeCursor ();
+		return $result;
+	}
+	
+	public function prepareAndFetchAllColumn($sql,$parameters=null,$column=null){
+		$result=false;
+		$statement=$this->getStatement($sql);
+		if($statement->execute ($parameters)){
+			Logger::info("Database", $sql,"prepareAndFetchAllColumn",$parameters);
+			$result = $statement->fetchAll(\PDO::FETCH_COLUMN,$column);
+		}
+		$statement->closeCursor ();
+		return $result;
+	}
+	
+	public function prepareAndFetchColumn($sql,$parameters=null,$column=null){
+		$statement=$this->getStatement($sql);
+		if($statement->execute ($parameters)){
+			Logger::info("Database", $sql,"prepareAndFetchColumn",$parameters);
+			return $statement->fetchColumn($column);
+		}
+		return false;
 	}
 
 	/**
@@ -201,6 +236,10 @@ class Database {
 	
 	public function queryColumn($query){
 		return $this->query ( $query )->fetchColumn ();
+	}
+	
+	public function fetchAll($query){
+		return $this->query ( $query )->fetchAll ( \PDO::FETCH_COLUMN );
 	}
 	
 	public function isConnected() {

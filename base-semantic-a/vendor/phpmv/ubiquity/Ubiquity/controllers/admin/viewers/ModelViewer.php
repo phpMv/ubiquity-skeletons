@@ -19,6 +19,7 @@ use Ajax\common\html\HtmlDoubleElement;
 use Ajax\semantic\html\elements\HtmlButton;
 use Ajax\semantic\widgets\datatable\PositionInTable;
 use Ajax\semantic\html\elements\HtmlLabel;
+use Ubiquity\utils\base\UString;
 
 class ModelViewer {
 	
@@ -42,26 +43,41 @@ class ModelViewer {
 	 * @param string $identifier
 	 * @param object $instance
 	 *        	the object to add or modify
-	 * @return DataForm
+	 * @return \Ajax\semantic\widgets\dataform\DataForm
 	 */
 	public function getForm($identifier, $instance) {
-		$type = ($instance->_new) ? "new" : "edit";
-		$messageInfos = [ "new" => [ "icon" => HtmlIconGroups::corner ( "table", "plus", "big" ),"message" => "New object creation" ],"edit" => [ "icon" => HtmlIconGroups::corner ( "table", "edit", "big" ),"message" => "Editing an existing object" ] ];
-		$message = $messageInfos [$type];
-		$form = $this->jquery->semantic ()->dataForm ( $identifier, $instance );
+		$form = $this->jquery->semantic()->dataForm( $identifier, $instance);
+		$form->setLibraryId("frmEdit");
 		$className = \get_class ( $instance );
-		$fields = $this->controller->_getAdminData ()->getFormFieldNames ( $className );
+		$fields = $this->controller->_getAdminData ()->getFormFieldNames ( $className ,$instance);
 		$form->setFields ( $fields );
 		$form->insertField ( 0, "_message" );
-		$form->fieldAsMessage ( "_message", [ "icon" => $message ["icon"] ] );
-		$instance->_message = $className;
+
 		$fieldTypes = OrmUtils::getFieldTypes ( $className );
 		$this->setFormFieldsComponent($form, $fieldTypes);
 		$this->relationMembersInForm ( $form, $instance, $className );
 		$form->setCaptions ( $this->getFormCaptions ( $form->getInstanceViewer ()->getVisibleProperties (), $className, $instance ) );
-		$form->setCaption ( "_message", $message ["message"] );
+		$message=$this->getFormTitle($form, $instance);
+		$form->setCaption ( "_message", $message ["subMessage"] );
+		$form->fieldAsMessage ( "_message", [ "icon" => $message ["icon"] ] );
+		$instance->_message = $message ["message"];
 		$form->setSubmitParams ( $this->controller->_getBaseRoute () . "/update", "#frm-add-update" );
+		$form->onGenerateField([$this,'onGenerateFormField']);
 		return $form;
+	}
+	
+	/**
+	 * Returns an associative array defining form message title with keys "icon","message","subMessage"
+	 * @param DataForm $form
+	 * @param object $instance
+	 * @return array the message title
+	 */
+	protected function getFormTitle($form,$instance){
+		$type = ($instance->_new) ? "new" : "edit";
+		$messageInfos = [ "new" => [ "icon" => HtmlIconGroups::corner ( "table", "plus", "big" ),"subMessage" => "New object creation" ],"edit" => [ "icon" => HtmlIconGroups::corner ( "table", "edit", "big" ),"subMessage" => "Editing an existing object" ] ];
+		$message = $messageInfos [$type];
+		$message["message"]=\get_class ( $instance );
+		return $message;
 	}
 	
 	/**
@@ -71,6 +87,15 @@ class ModelViewer {
 	 */
 	public function setFormFieldsComponent(DataForm $form,$fieldTypes){
 		foreach ( $fieldTypes as $property => $type ) {
+			switch ($property) {
+				case "password":
+				$form->fieldAsInput ( $property, [ "inputType" => "password" ] );
+				$form->setValidationParams(["inline"=>true]);
+				break;
+				case "email": case "mail":
+					$form->fieldAsInput ( $property, [ "inputType" => "email" ,"rules"=>[["email"]]] );
+					break;
+			}
 			switch ($type) {
 				case "tinyint(1)" :
 					$form->fieldAsCheckbox ( $property );
@@ -120,22 +145,24 @@ class ModelViewer {
 	 *        	model class name (long name)
 	 * @return DataTable
 	 */
-	public function getModelDataTable($instances, $model,$page=1) {
+	public function getModelDataTable($instances, $model,$totalCount,$page=1) {
 		$adminRoute = $this->controller->_getBaseRoute ();
 		$semantic = $this->jquery->semantic ();
 		
 		$modal = ($this->isModal ( $instances, $model ) ? "modal" : "no");
-		$dataTable = $this->getDataTableInstance( $instances,$model,$page );
+		$dataTable = $this->getDataTableInstance( $instances,$model,$totalCount,$page );
 		$attributes = $this->controller->_getAdminData()->getFieldNames ( $model );
 		
 		$dataTable->setCaptions ( $this->getCaptions ( $attributes, $model ) );
 		$dataTable->setButtons($this->getDataTableRowButtons());
 		$dataTable->setFields ( $attributes );
-
+		if(array_search("password", $attributes)!==false){
+			$dataTable->setValueFunction("password", function($v){return UString::mask($v);});
+		}
 		$dataTable->setIdentifierFunction ( CRUDHelper::getIdentifierFunction ( $model ) );
 		if($this->showDetailsOnDataTableClick()){
 			$dataTable->getOnRow ( "click", $adminRoute . "/showDetail", "#table-details", [ "attr" => "data-ajax" ] );
-			$dataTable->setActiveRowSelector ( "error" );
+			$dataTable->setActiveRowSelector ( "active" );
 		}
 		$dataTable->setUrls ( [ "refresh"=>$adminRoute . "/refresh_","delete" => $adminRoute . "/delete","edit" => $adminRoute . "/edit/" . $modal ,"display"=> $adminRoute."/display/".$modal] );
 		$dataTable->setTargetSelector ( [ "delete" => "#table-messages","edit" => "#frm-add-update" ,"display"=>"#table-details" ] );
@@ -160,12 +187,23 @@ class ModelViewer {
 		return ;
 	}
 	
+	/**
+	 * 
+	 */
 	public function getGroupByFields(){
 		return;
 	}
 	
-	protected function getDataTableInstance($instances,$model,$page=1):DataTable{
-		$totalCount=DAO::count($model,$this->controller->_getInstancesFilter($model));
+	/**
+	 * For doing something when $field is generated in form
+	 * @param mixed $field
+	 */
+	public function onGenerateFormField($field){
+		return;
+	}
+	
+	
+	protected function getDataTableInstance($instances,$model,$totalCount,$page=1):DataTable{
 		$semantic = $this->jquery->semantic ();
 		$recordsPerPage=$this->recordsPerPage($model,$totalCount);
 		if(is_numeric($recordsPerPage)){
@@ -199,12 +237,23 @@ class ModelViewer {
 		} );
 		$dataTable->addAllButtons( false, [ "ajaxTransition" => "random" ], function ($bt) {
 			$bt->addClass ( "circular" );
+			$this->dataTableRowButton($bt);
 		}, function ($bt) {
 			$bt->addClass ( "circular" );
+			$this->dataTableRowButton($bt);
 		}, function ($bt) {
 			$bt->addClass ( "circular" );
+			$this->dataTableRowButton($bt);
 		});
 		$dataTable->setDisplayBehavior(["jsCallback"=>'$("#dataTable").hide();',"ajaxTransition"=>"random"]);
+	}
+	
+	/**
+	 * To override for modifying the dataTable row buttons
+	 * @param HtmlButton $bt
+	 */
+	public function dataTableRowButton(HtmlButton $bt){
+		
 	}
 	
 	public function confirmButtons(HtmlButton $confirmBtn,HtmlButton $cancelBtn){

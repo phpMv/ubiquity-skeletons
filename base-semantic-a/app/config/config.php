@@ -17,6 +17,7 @@ return array(
 		"templateEngineOptions"=>array("cache"=>false),
 		"test"=>false,
 		"debug"=>false,
+		"logger"=>function(){return new \Ubiquity\log\libraries\UMonolog("%app_name%",\Monolog\Logger::INFO);},
 		"di"=>["jquery"=>function($controller){
 							$jquery=new \Ajax\php\ubiquity\JsUtils(["defer"=>true],$controller);
 							$jquery->semantic(new \Ajax\Semantic());

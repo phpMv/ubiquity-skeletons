@@ -47,11 +47,17 @@ use Ubiquity\controllers\semantic\MessagesTrait;
 use Ubiquity\controllers\crud\CRUDDatas;
 use Ubiquity\controllers\admin\traits\CreateControllersTrait;
 use Ubiquity\cache\ClassUtils;
+use Ubiquity\controllers\admin\traits\LogsTrait;
+use Ajax\semantic\html\modules\checkbox\HtmlCheckbox;
+use Ajax\semantic\html\elements\HtmlInput;
+use Ubiquity\log\LoggerParams;
+use Ajax\semantic\html\elements\HtmlButtonGroups;
 
 class UbiquityMyAdminBaseController extends Controller implements HasModelViewerInterface{
 	
 	use MessagesTrait,ModelsTrait,ModelsConfigTrait,RestTrait,CacheTrait,ConfigTrait,
-	ControllersTrait,RoutesTrait,DatabaseTrait,SeoTrait,GitTrait,CreateControllersTrait;
+	ControllersTrait,RoutesTrait,DatabaseTrait,SeoTrait,GitTrait,CreateControllersTrait,
+	LogsTrait;
 	/**
 	 *
 	 * @var CRUDDatas
@@ -268,8 +274,8 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 		$cacheFiles = CacheManager::$cache->getCacheFiles ( 'controllers' );
 		$cacheFiles = \array_merge ( $cacheFiles, CacheManager::$cache->getCacheFiles ( 'models' ) );
 		$form = $this->jquery->semantic ()->htmlForm ( "frmCache" );
-		$radios = HtmlFormFields::checkeds ( "cacheTypes[]", [ "controllers" => "Controllers","models" => "Models","views" => "Views","queries" => "Queries","annotations" => "Annotations","seo" => "SEO" ], "Display cache types: ", [ "controllers","models" ] );
-		$radios->postFormOnClick ( $this->_getAdminFiles ()->getAdminBaseRoute () . "/setCacheTypes", "frmCache", "#dtCacheFiles tbody", [ "jqueryDone" => "replaceWith" ] );
+		$radios = HtmlFormFields::checkeds ( "ctvv","cacheTypes[]", [ "controllers" => "Controllers","models" => "Models","views" => "Views","queries" => "Queries","annotations" => "Annotations","seo" => "SEO" ], "Display cache types: ", [ "controllers","models" ] );
+		$radios->postFormOnClick ( $this->_getAdminFiles ()->getAdminBaseRoute () . "/setCacheTypes", "frmCache", "#dtCacheFiles tbody", ["jqueryDone" => "replaceWith","preventDefault"=>false ] );
 		$form->addField ( $radios )->setInline ();
 		$this->_getAdminViewer ()->getCacheDataTable ( $cacheFiles );
 		$this->jquery->compile ( $this->view );
@@ -302,9 +308,38 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 	}
 
 	public function logs() {
+		$config=Startup::getConfig();
 		$this->getHeader ( "logs" );
-		$this->jquery->compile ( $this->view );
+		$menu=$this->jquery->semantic()->htmlMenu("menu-logs");
+		$ck=$menu->addItem(HtmlCheckbox::toggle("ck-reverse"));
+		$ck->postFormOnClick($this->_getAdminFiles()->getAdminBaseRoute()."/logsRefresh", "frm-logs","#logs-div");
+		$menu->addItem(new HtmlInput("maxLines","number",50));
+		$dd=new HtmlDropdown("groupBy","1,2",["1"=>"Date","2"=>"Context","3"=>"Part"]);
+		$dd->setDefaultText("Group by...");
+		$dd->asSelect("group-by",true);
+		$menu->addItem($dd);
+		$dd=new HtmlDropdown("dd-contexts","",array_combine(LoggerParams::$contexts,LoggerParams::$contexts));
+		$dd->setDefaultText("Select contexts...");
+		$dd->asSelect("contexts",true);
+		$menu->addItem($dd);
 
+		
+		if(!$config["debug"]){
+			$this->showSimpleMessage("Debug mode is not active in config.php file. <br><br><a class='_activateLogs ui blue button'><i class='ui toggle on icon'></i> Activate logging</a>", "info","Debug","info circle",null,"logs-message");
+			$this->jquery->getOnClick("._activateLogs", $this->_getAdminFiles()->getAdminBaseRoute()."/activateLog","#main-content");
+		}else{
+			$item=$menu->addItem($bts=new HtmlButtonGroups("bt-apply",["","Clear all","Apply"]));
+			$item->addClass("right aligned");
+			$bts->postFormOnClick($this->_getAdminFiles()->getAdminBaseRoute()."/", "frm-logs","$('#'+$(self).attr('data-target'))",["attr"=>"data-url"]);
+			$bts->addPropertyValues("class", ["","red","black"]);
+			$bts->setPropertyValues("data-url", ["deActivateLog","deleteAllLogs","logsRefresh"]);
+			$bts->setPropertyValues("title", ["Stop logging","delete all logs","Apply modifications"]);
+			$bts->setPropertyValues("data-target", ["main-content","logs-div","logs-div"]);
+			$bts->getItem(0)->asIcon("stop");
+		}
+		$this->_getAdminViewer()->getLogsDataTable(50);
+		$this->jquery->compile ( $this->view );
+		
 		$this->loadView ( $this->_getAdminFiles ()->getViewLogsIndex () );
 	}
 

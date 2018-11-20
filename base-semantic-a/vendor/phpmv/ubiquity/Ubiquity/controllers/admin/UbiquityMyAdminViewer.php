@@ -36,6 +36,10 @@ use Ubiquity\db\Database;
 use Ajax\semantic\html\collections\form\HtmlFormTextarea;
 use Ajax\semantic\components\validation\Rule;
 use Ubiquity\controllers\Startup;
+use Ubiquity\log\LogMessage;
+use Ubiquity\log\Logger;
+use Ubiquity\utils\base\UDateTime;
+use Ubiquity\log\HtmlLogFormatter;
 
 /**
  *
@@ -608,6 +612,19 @@ class UbiquityMyAdminViewer {
 			$input->setValue($value);
 			return $input;
 		} );
+		
+		$de->setValueFunction ( "logger", function ($v) use ($config) {
+			$r = $config ["logger"];
+			$input=new HtmlFormTextarea("logger");
+			$df=$input->getDataField();
+			$df->setProperty("rows","3");
+			$df->setProperty("data-editor","true");
+			if (\is_callable ( $r )){
+				$value= \htmlentities ( UIntrospection::closure_dump ( $r ) );
+			}
+			$input->setValue($value);
+			return $input;
+		} );
 		$de->fieldAsCheckbox ( "test", [ "class" => "ui checkbox slider" ] );
 		$de->fieldAsCheckbox ( "debug", [ "class" => "ui checkbox slider" ] );
 		$js='
@@ -740,5 +757,57 @@ class UbiquityMyAdminViewer {
 		$frm->fieldAsInput ( 4, [ "inputType" => "password" ] );
 		$frm->addDividerBefore ( "user", "gitHub" );
 		return $frm;
+	}
+	
+	public function getLogsDataTable($maxLines=null,$reverse=true,$groupBy=[1,2],$contexts=null){
+		$dt=$this->jquery->semantic()->dataTable("dt-logs",LogMessage::class ,Logger::asObjects($reverse,$maxLines,$contexts));
+		$gbSize=0;
+		if(is_array($groupBy)){
+			$gbSize=sizeof($groupBy);
+		}
+		$dt->setFields(["level","datetime","context","part","message","extra"]);
+		$dt->setCaptions(["Level","When?","Context","Part","Message","Extra"]);
+		$dt->setValueFunction(1, function($value,$instance){
+			$lbl=new HtmlLabel(uniqid("datetime-"),UDateTime::elapsed($value),"clock");
+			$lbl->addPopup("",UDateTime::longDatetime($value,"fr"));
+			return $lbl;
+		});
+		$dt->setValueFunction(0, function($value,$instance){
+			return new HtmlIcon("", HtmlLogFormatter::getIcon($instance));
+		});
+		$dt->setValueFunction(3, function($value,$instance){
+			if(($count=$instance->getCount())>1){
+				$lbl=new HtmlLabel(uniqid("count-"),"x".$count);
+				$lbl->addClass("circular");
+				return $value."&nbsp;".$lbl;
+			}else{
+				return $value;
+			}
+		});
+
+		$dt->setValueFunction(5, function($value,$instance){
+			if(isset($value)){
+				$lbl=new HtmlLabel(uniqid("count-"),sizeof($value),"database");
+				$lbl->addClass("circular");
+				$lbls=new HtmlLabelGroups("",$value,["circular"]);
+				$lbl->addPopupHtml("<h4>Datas</h4>".$lbls,null,["on"=>"click"]);
+				return $lbl;
+			}
+		});
+			
+		$dt->onNewRow(function($row,$instance){
+			$row->addClass(HtmlLogFormatter::getFormat($instance));
+		});
+		$dt->setHasCheckboxes(true);
+		$dt->onPreCompile ( function () use (&$dt,$gbSize) {
+			$body=$dt->getHtmlComponent()->getBody();
+			$body->addPropertyCol(6-$gbSize,"style","max-width: 300px;word-break:break-all;");
+			$body->addPropertyCol(5-$gbSize,"style","max-width: 500px;word-break:break-all;");
+		} );
+		if(is_array($groupBy)){
+			$dt->setGroupByFields($groupBy);
+		}
+		$dt->setCompact(true)->setSelectable();
+		return $dt;
 	}
 }

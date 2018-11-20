@@ -287,6 +287,7 @@ class HtmlDropdown extends HtmlSemDoubleElement {
 	}
 
 	public function setSelect($name=NULL,$multiple=false){
+		$this->_template='<%tagName% id="%identifier%" %properties%>%items%</%tagName%>';
 		if(!isset($name))
 			$name="select-".$this->identifier;
 		$this->input=null;
@@ -367,6 +368,10 @@ class HtmlDropdown extends HtmlSemDoubleElement {
 
 	public function setShowOnFocus($value){
 		$this->_params["showOnFocus"]=$value;
+	}
+	
+	public function setAllowAdditions($value){
+		$this->_params["allowAdditions"]=$value;
 	}
 
 	public function setFullTextSearch($value){

@@ -18,9 +18,10 @@ use Ajax\semantic\html\collections\form\HtmlFormField;
 use Ajax\semantic\html\collections\form\traits\FormTrait;
 use Ajax\common\html\BaseWidget;
 use Ajax\semantic\html\modules\HtmlModal;
+use Ajax\common\html\traits\BaseHooksTrait;
 
 abstract class Widget extends HtmlDoubleElement {
-	use FieldAsTrait,FormTrait;
+	use FieldAsTrait,FormTrait,BaseHooksTrait;
 
 	/**
 	 * @var string classname
@@ -51,7 +52,9 @@ abstract class Widget extends HtmlDoubleElement {
 	protected $_form;
 
 	protected $_generated;
-
+	
+	protected $_hasRules;
+	
 
 	public function __construct($identifier,$model,$modelInstance=NULL) {
 		parent::__construct($identifier);
@@ -472,4 +475,19 @@ abstract class Widget extends HtmlDoubleElement {
 	public function addToProperty($name, $value, $separator=" ") {
 		return $this->getHtmlComponent()->addToProperty($name,$value,$separator);
 	}
+	/**
+	 * @return mixed
+	 */
+	public function getModelInstance() {
+		return $this->_modelInstance;
+	}
+	
+	/**
+	 * @return mixed true if widget has validation rules
+	 */
+	public function hasRules() {
+		return $this->_hasRules;
+	}
+	
+
 }

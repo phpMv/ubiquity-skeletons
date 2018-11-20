@@ -7,9 +7,10 @@ use Ubiquity\orm\OrmUtils;
 /**
  * ManyToManyParser
  * @author jc
- * @version 1.0.0.4
+ * @version 1.1.0.0
  */
 class ManyToManyParser {
+	private $table;
 	private $member;
 	private $joinTable;
 	private $myFkField;
@@ -21,50 +22,60 @@ class ManyToManyParser {
 	private $inversedBy;
 	private $pk;
 	private $instance;
+	private $whereValues;
 
-	public function __construct($instance, $member) {
+	public function __construct($instance, $member=null) {
 		$this->instance=$instance;
 		$this->member=$member;
+		$this->whereValues=[];
 	}
 
-	public function init() {
+	public function init($annot=false) {
 		$member=$this->member;
 		$class=$this->instance;
-		if(\is_string($class)===false)
+		if(\is_string($class)===false){
 			$class=get_class($class);
-		$annot=OrmUtils::getAnnotationInfoMember($class, "#manyToMany", $member);
+		}
+		if($annot===false){
+			$annot=OrmUtils::getAnnotationInfoMember($class, "#manyToMany", $member);
+		}
 		if ($annot !== false) {
-			$this->targetEntity=$annot["targetEntity"];
-			$this->inversedBy=strtolower($this->targetEntity) . "s";
-			if (!is_null($annot["inversedBy"]))
-				$this->inversedBy=$annot["inversedBy"];
-			$this->targetEntityClass=get_class(new $this->targetEntity());
-
-			$annotJoinTable=OrmUtils::getAnnotationInfoMember($class, "#joinTable", $member);
-			$this->joinTable=$annotJoinTable["name"];
-			
-			$this->myFkField=OrmUtils::getDefaultFk($class);
-			$this->myPk=OrmUtils::getFirstKey($class);
-			if(isset($annotJoinTable["joinColumns"])){
-				$joinColumnsAnnot=$annotJoinTable["joinColumns"];
-				if (!is_null($joinColumnsAnnot)) {
-					$this->myFkField=$joinColumnsAnnot["name"];
-					$this->myPk=$joinColumnsAnnot["referencedColumnName"];
-				}
-			}
-			$this->targetEntityTable=OrmUtils::getTableName($this->targetEntity);
-			$this->fkField=OrmUtils::getDefaultFk($this->targetEntityClass);
-			$this->pk=OrmUtils::getFirstKey($this->targetEntityClass);
-			if(isset($annotJoinTable["inverseJoinColumns"])){
-				$inverseJoinColumnsAnnot=$annotJoinTable["inverseJoinColumns"];
-				if (!is_null($inverseJoinColumnsAnnot)) {
-					$this->fkField=$inverseJoinColumnsAnnot["name"];
-					$this->pk=$inverseJoinColumnsAnnot["referencedColumnName"];
-				}
-			}
+			$this->_init($class,$annot);
 			return true;
 		}
 		return false;
+	}
+	
+	private function _init($class,$annot){
+		$this->table=OrmUtils::getTableName($class);
+		$this->targetEntity=$annot["targetEntity"];
+		$this->inversedBy=strtolower($this->targetEntity) . "s";
+		if (!is_null($annot["inversedBy"]))
+			$this->inversedBy=$annot["inversedBy"];
+		$this->targetEntityClass=get_class(new $this->targetEntity());
+		
+		$annotJoinTable=OrmUtils::getAnnotationInfoMember($class, "#joinTable", $this->member);
+		$this->joinTable=$annotJoinTable["name"];
+		
+		$this->myFkField=OrmUtils::getDefaultFk($class);
+		$this->myPk=OrmUtils::getFirstKey($class);
+		if(isset($annotJoinTable["joinColumns"])){
+			$joinColumnsAnnot=$annotJoinTable["joinColumns"];
+			if (!is_null($joinColumnsAnnot)) {
+				$this->myFkField=$joinColumnsAnnot["name"];
+				$this->myPk=$joinColumnsAnnot["referencedColumnName"];
+			}
+		}
+		$this->targetEntityTable=OrmUtils::getTableName($this->targetEntity);
+		$this->fkField=OrmUtils::getDefaultFk($this->targetEntityClass);
+		$this->pk=OrmUtils::getFirstKey($this->targetEntityClass);
+		if(isset($annotJoinTable["inverseJoinColumns"])){
+			$inverseJoinColumnsAnnot=$annotJoinTable["inverseJoinColumns"];
+			if (!is_null($inverseJoinColumnsAnnot)) {
+				$this->fkField=$inverseJoinColumnsAnnot["name"];
+				$this->pk=$inverseJoinColumnsAnnot["referencedColumnName"];
+			}
+		}
 	}
 
 	public function getMember() {
@@ -165,4 +176,68 @@ class ManyToManyParser {
 		$this->instance=$instance;
 		return $this;
 	}
+	
+	public function getSQL($alias="",$aliases=null){
+		if($alias!==""){
+			$targetEntityTable=$alias;
+			$alias="`".$alias."`";
+		}else{
+			$targetEntityTable=$this->targetEntityTable;
+		}
+		$jtAlias=uniqid($this->joinTable);
+		$table=$this->table;
+		if(is_array($aliases)){
+			if(isset($aliases[$this->table]))
+				$table=$aliases[$this->table];
+		}
+		return " INNER JOIN `" . $this->joinTable . "` `{$jtAlias}` on `".$jtAlias."`.`".$this->myFkField."`=`".$table."`.`".$this->myPk."`".
+				" INNER JOIN `" . $this->targetEntityTable . "` {$alias} on `".$jtAlias."`.`".$this->fkField."`=`".$targetEntityTable."`.`".$this->pk."`";
+	}
+	
+	public function getConcatSQL(){
+		return "SELECT `".$this->myFkField."` as '_field' ,GROUP_CONCAT(`".$this->fkField."` SEPARATOR ',') as '_concat' FROM `".$this->joinTable."` {condition} GROUP BY 1";
+	}
+	
+	public function getParserWhereMask($mask="'{value}'"){
+		return "`".$this->getTargetEntityTable()."`.`". $this->getPk() . "`=".$mask;
+	}
+	
+	private function getParserConcatWhereMask($mask="'{value}'"){
+		return "`".$this->myFkField. "`=".$mask;
+	}
+	
+	private function getParserConcatWhereInMask($mask="'{values}'"){
+		return " INNER JOIN (".$mask.") as _tmp ON `".$this->myFkField. "`=_tmp._id";
+	}
+	
+	
+	public function generateConcatSQL(){
+		$sql=$this->getConcatSQL();
+		$where="";
+		if(($size=sizeof($this->whereValues))>0){
+			if($size>3){
+				$res=array_fill(0, $size, "?");
+				$res[0]="SELECT ? as _id";
+				$where=$this->getParserConcatWhereInMask(implode(" UNION ALL SELECT ", $res));
+			}else{
+				$mask=$this->getParserConcatWhereMask(" ?");
+				$res=array_fill(0, $size, $mask);
+				$where="WHERE ".implode(" OR ", $res);
+			}
+		}
+		return str_replace("{condition}", $where, $sql);
+	}
+	
+	public function addValue($value){
+		$this->whereValues[$value]=true;
+	}
+	/**
+	 * @return array|null
+	 */
+	public function getWhereValues() {
+		if(is_array($this->whereValues))
+			return array_keys($this->whereValues);
+		return null;
+	}
+
 }
