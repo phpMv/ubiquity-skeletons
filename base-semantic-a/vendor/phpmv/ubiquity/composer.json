@@ -1,30 +1,36 @@
 {
-	"name": "phpmv/ubiquity",
-	"description": "Ubiquity-framework",
-	"type": "framework",
-	"keywords": [
+	"name" : "phpmv/ubiquity",
+	"description" : "Ubiquity-framework",
+	"type" : "framework",
+	"keywords" : [
 		"php",
 		"framework",
 		"mvc",
 		"orm"
 	],
-	"require": {
-		"php": ">7.0"
+	"require" : {
+		"php" : ">7.0"
 	},
-	"license": "Apache-2.0",
-	"authors": [
-		{
-			"name": "Jean-Christophe HERON",
-			"email": "myaddressmail@gmail.com",
-			"role": "Developer"
+	"license" : "Apache-2.0",
+	"authors" : [{
+			"name" : "Jean-Christophe HERON",
+			"email" : "myaddressmail@gmail.com",
+			"role" : "Lead developer"
 		}
 	],
-	"autoload": {
-		"psr-4": { "Ubiquity\\": "Ubiquity/" }
+	"autoload" : {
+		"psr-4" : {
+			"Ubiquity\\" : "src/Ubiquity/"
+		}
 	},
-     "extra": {
-        "branch-alias": {
-            "dev-master": "2.0.x-dev"
-        }
-    }
+	"extra" : {
+		"branch-alias" : {
+			"dev-master" : "2.0.x-dev",
+			"themes_module" : "2.1.x-dev"
+		}
+	},
+	"require-dev" : {
+		"phpmv/ubiquity-devtools": "dev-master",
+		"phpmv/ubiquity-codeception": "^1.0"
+	}
 }

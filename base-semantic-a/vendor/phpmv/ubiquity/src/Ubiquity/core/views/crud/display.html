@@ -1,0 +1,25 @@
+{% block _before %}
+{% endblock %}
+{% block buttons %}
+	<div id="buttons" style="padding: 10px 0px 10px;">
+	{% block btClose %}
+		<a class="ui _close button"><i class="ui close icon"></i>Close</a>
+	{% endblock %}
+	{% block btDelete %}
+		<a class="ui _delete _element basic negative button" data-ajax="{{pk}}"><i class="ui close icon"></i>Delete <b>{{ instance | raw }}</b>...</a>
+	{% endblock %}
+	{% block btEdit %}
+		<a class="ui _edit _element basic button" data-ajax="{{pk}}"><i class="ui edit icon"></i>Edit <b>{{ instance | raw }}</b>...</a>
+	{% endblock %}
+	</div>
+{% endblock %}
+{% block dataElement %}
+	<div id="dataElement" style="padding: 10px 0px 10px;">
+	{{ q["de"] | raw }}
+	</div>
+{% endblock %}
+{% block _after %}
+{% endblock %}
+{% block _script_foot %}
+	{{script_foot | raw}}
+{% endblock %}

@@ -1,0 +1,28 @@
+<?php
+$I = new FunctionalTester ( $scenario );
+$I->wantTo ( 'perform actions and see result' );
+$I->amOnPage ( "/TestUSessionController/index" );
+$I->canSeeInSource ( "session" );
+$I->amOnPage ( "/TestUSessionController/testUser" );
+$I->canSeeInSource ( "test-user" );
+$I->amOnPage ( "/TestUSessionController/testTmp" );
+$I->canSeeInSource ( "testTmp" );
+$I->amOnPage ( "/TestUSessionController/getTmp" );
+$I->canSeeInSource ( "tmpValue" );
+sleep ( 20 );
+$I->amOnPage ( "/TestUSessionController/getTmpExpired" );
+$I->canSeeInSource ( "null" );
+$I->amOnPage ( "/TestUSessionController/delete" );
+$I->canSeeInSource ( "delete-user" );
+$I->amOnPage ( "/TestUSessionController/testDelete" );
+$I->canSeeInSource ( "user-null" );
+$I->amOnPage ( "/TestUSessionController/testInc" );
+$I->canSeeInSource ( "11" );
+$I->amOnPage ( "/TestUSessionController/testDec" );
+$I->canSeeInSource ( "8" );
+$I->amOnPage ( "/TestUSessionController/testApply" );
+$I->canSeeInSource ( "majuscule" );
+$I->amOnPage ( "/TestUSessionController/testApplyBis" );
+$I->canSeeInSource ( "prefix-content" );
+$I->amOnPage ( "/TestUSessionController/terminate" );
+$I->canSeeInSource ( "terminated" );

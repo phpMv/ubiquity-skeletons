@@ -1,0 +1,8 @@
+AddDefaultCharset UTF-8
+
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{HTTP_ACCEPT} !(.*images.*)
+RewriteRule ^(.*)$ index.php?c=$1 [L,QSA]

@@ -1,14 +1,64 @@
+build:
+  nodes:
+    analysis:
+      dependencies:
+        before:
+          - composer require twig/twig mindplay/annotations phpfastcache/phpfastcache monolog/monolog czproject/git-php phpmv/php-mv-ui
+          - composer require codeception/codeception --dev
+          - composer require phpmv/ubiquity-devtools:dev-master --dev
+      environment:
+        php:
+          version: 7.2
+      tests:
+        override:
+          - php-scrutinizer-run
+
+    coverage:
+      dependencies:
+        before:
+#          - sudo apt-get install -y zip
+
+      environment:
+        php:
+          version: 7.2
+        hosts:
+          dev.local: '127.0.0.1'
+        apache2:
+          modules: ['rewrite']
+          sites:
+            ubiquity:
+              host: 'dev.local'
+              web_root: 'src/'
+        selenium: true
+      services:
+          # For available tags, see https://hub.docker.com/_/mysql/
+          mysql: 5.7
+      tests:
+        before:
+          - sudo cp src/tests/files/xdebug.ini /home/scrutinizer/.phpenv/versions/7.2.13/etc/conf.d/xdebug.ini
+          - mysql -u root mysql < src/tests/unit/db/messagerie.sql
+          - (yes | ./vendor/bin/Ubiquity new src -b=messagerie -q=semantic -m -a)
+          - cp -f src/tests/files/composer.json src/composer.json
+          - (cd src/ && composer update)
+          - cp -f src/tests/files/_index.php src/index.php && cp -f src/tests/files/.htaccess src/.htaccess && cp -f src/tests/files/services.php src/app/config/
+          - cp -R src/tests/files/unit/* src/app/
+          - sudo chmod 0777 -R src/*
+          - sudo /usr/share/locales/install-language-pack fr_FR
+          - sudo service apache2 restart && sudo service apache2 reload
+          - sudo curl -v http://dev.local/index.php?c=Admin
+
+        override:
+          - command: (cd src/ && ./vendor/bin/codecept build && ./vendor/bin/codecept run --coverage-xml -v)
+            coverage:
+              file: src/tests/_output/coverage.xml
+              format: clover
 filter:
+    paths: ["src/Ubiquity/*"]
     excluded_paths:
-        - Ubiquity/log/
-        - Ubiquity/controllers/Autoloader.php
-        - Ubiquity/controllers/admin/
-        - Ubiquity/annotations/
-        - Ubiquity/js/Jquery.php
-        - Ubiquity/utils/git/UGitRepository.php
-        - docs/
-        - api/
-        - documentation/
+        - src/Ubiquity/controllers/Autoloader.php
+        - src/Ubiquity/controllers/admin/
+        - src/Ubiquity/annotations/
+        - src/Ubiquity/utils/git/UGitRepository.php
 checks:
     php:
         code_rating: true

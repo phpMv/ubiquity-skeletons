@@ -1,0 +1,39 @@
+{% block _before %}
+<div class="ui segment">
+{% endblock %}
+{% block btAddNew %}
+	<a id="btAddNew" class="ui button orange _new">
+	 <i class="icon plus"></i>
+	 {% block _addNewCaption %}
+	Add a new {{classname}}...
+	{% endblock %}
+	</a>
+{% endblock %}
+{% block frm %}
+	<div id='frm-add-update' style="padding-top: 10px"></div>
+{% endblock %}
+{% block dataTable %}
+	<div id="dataTable" style="padding: 10px 0px 10px;">
+	{{ q["lv"] | raw }}
+	</div>
+{% endblock %}
+{% block messages %}
+	<div id='table-messages'>
+		{% for msg in messages %}
+			{{ msg | raw }}
+		{% endfor %}
+	</div>
+{% endblock %}
+{% block details %}
+	<div class="popup container"></div>
+	<div id='table-details'>
+	</div>
+{% endblock %}
+{% block _after %}
+</div>
+{% endblock %}
+{% block script %}
+	{% if hasScript %}
+	{{script_foot | raw}}
+	{% endif %}
+{% endblock %}

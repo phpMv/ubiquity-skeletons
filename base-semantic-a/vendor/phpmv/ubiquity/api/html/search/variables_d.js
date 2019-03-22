@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['templates_5fpath',['templates_path',['../namespaceconf.html#af5fc85fd05db5329f792629094fdd12c',1,'conf']]],
-  ['texinfo_5fdocuments',['texinfo_documents',['../namespaceconf.html#a122461edc71af89e490ec6c7c71b8a0f',1,'conf']]],
-  ['todo_5finclude_5ftodos',['todo_include_todos',['../namespaceconf.html#a9c7a99d15e14d10286285d3e49eeb704',1,'conf']]]
+  ['translate',['TRANSLATE',['../class_ubiquity_1_1log_1_1_logger_params.html#ae10e944285b1667efb7be22f12b14613',1,'Ubiquity::log::LoggerParams']]],
+  ['types',['TYPES',['../class_ubiquity_1_1db_1_1utils_1_1_db_types.html#a374a25e600c8c1e77eb4e64ac1920882',1,'Ubiquity::db::utils::DbTypes']]]
 ];

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Ubiquity
-   &#160;<span id="projectnumber">2.0.3</span>
+   &#160;<span id="projectnumber">2.0.11</span>
    </div>
    <div id="projectbrief">php rapid development framework</div>
   </td>
@@ -96,6 +96,8 @@ $(document).ready(function(){initNavTree('class_ubiquity_1_1utils_1_1base_1_1_u_
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a341f878795fe17896d77e1e4277a3f50"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a341f878795fe17896d77e1e4277a3f50">startswith</a> ($hay, $needle)</td></tr>
 <tr class="separator:a341f878795fe17896d77e1e4277a3f50"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa691e93c29cfca67ec0aa070feef24af"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#aa691e93c29cfca67ec0aa070feef24af">contains</a> ($needle, $haystack)</td></tr>
+<tr class="separator:aa691e93c29cfca67ec0aa070feef24af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86009f13f076a325b5cfaacc59589d1d"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a86009f13f076a325b5cfaacc59589d1d">endswith</a> ($hay, $needle)</td></tr>
 <tr class="separator:a86009f13f076a325b5cfaacc59589d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeef80b563d26a561fff4f72c1e2de5b7"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#aeef80b563d26a561fff4f72c1e2de5b7">getBooleanStr</a> ($value)</td></tr>
@@ -119,22 +121,35 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:af33e36f0039621c50a3efad91d7703cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfddc5af012b71976f615f658a6806d3"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#adfddc5af012b71976f615f658a6806d3">replaceFirstOccurrence</a> ($pattern, $replacement, $subject)</td></tr>
 <tr class="separator:adfddc5af012b71976f615f658a6806d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b3a1db938c9e204e11e583e904baf1d"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a5b3a1db938c9e204e11e583e904baf1d">replaceArray</a> ($haystack, $needle, $replaceArray)</td></tr>
-<tr class="separator:a5b3a1db938c9e204e11e583e904baf1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac04b0c7a7a317eb764e1c66e044ed268"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#ac04b0c7a7a317eb764e1c66e044ed268">replaceArray</a> ($haystack, $needleArray, $replace)</td></tr>
+<tr class="separator:ac04b0c7a7a317eb764e1c66e044ed268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6dc706a614f58fb01fd7f1379194fbde"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a6dc706a614f58fb01fd7f1379194fbde">doubleBackSlashes</a> ($value)</td></tr>
 <tr class="separator:a6dc706a614f58fb01fd7f1379194fbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac58c2e682fede5dc25aaa2cd69fcbc74"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#ac58c2e682fede5dc25aaa2cd69fcbc74">cleanAttribute</a> ($attr, $replacement=&quot;_&quot;)</td></tr>
-<tr class="separator:ac58c2e682fede5dc25aaa2cd69fcbc74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a909912aa2fb59d3596098e730257cc3d"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a909912aa2fb59d3596098e730257cc3d">cleanAttribute</a> ($attr, $replacement=&quot;-&quot;)</td></tr>
+<tr class="separator:a909912aa2fb59d3596098e730257cc3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0df6f6eeef7d57f471aa359970839555"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a0df6f6eeef7d57f471aa359970839555">mask</a> ($secretString, $maskChar=&quot;*&quot;)</td></tr>
+<tr class="separator:a0df6f6eeef7d57f471aa359970839555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ba90c01bec66aeb6e444fcb0e0aef1d"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a1ba90c01bec66aeb6e444fcb0e0aef1d">isValid</a> ($value)</td></tr>
+<tr class="separator:a1ba90c01bec66aeb6e444fcb0e0aef1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a389e3f96c05b0266bff20783df176c78"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#a389e3f96c05b0266bff20783df176c78">isJson</a> ($value)</td></tr>
+<tr class="separator:a389e3f96c05b0266bff20783df176c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6675c8ec383724ca1ed03309a380abc"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#ac6675c8ec383724ca1ed03309a380abc">toString</a> ($value)</td></tr>
+<tr class="memdesc:ac6675c8ec383724ca1ed03309a380abc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a value to a string.  <a href="#ac6675c8ec383724ca1ed03309a380abc">More...</a><br /></td></tr>
+<tr class="separator:ac6675c8ec383724ca1ed03309a380abc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab72b558847cf11987d165a76e18a68e0"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html#ab72b558847cf11987d165a76e18a68e0">explode</a> ($delimiters, $string)</td></tr>
+<tr class="memdesc:ab72b558847cf11987d165a76e18a68e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explodes a string with an array of delimiters.  <a href="#ab72b558847cf11987d165a76e18a68e0">More...</a><br /></td></tr>
+<tr class="separator:ab72b558847cf11987d165a76e18a68e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>String utilities. </p>
-<dl class="section author"><dt>Author</dt><dd>jc </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.0.0.2 </dd></dl>
+<p><a class="el" href="namespace_ubiquity.html">Ubiquity</a>$UString This class is part of <a class="el" href="namespace_ubiquity.html">Ubiquity</a></p>
+<dl class="section author"><dt>Author</dt><dd>jcheron <a href="#" onclick="location.href='mai'+'lto:'+'mya'+'dd'+'res'+'sm'+'ail'+'@g'+'mai'+'l.'+'com'; return false;">myadd<span style="display: none;">.nosp@m.</span>ress<span style="display: none;">.nosp@m.</span>mail@<span style="display: none;">.nosp@m.</span>gmai<span style="display: none;">.nosp@m.</span>l.com</a> </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>1.0.2 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00010">10</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00015">15</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ac58c2e682fede5dc25aaa2cd69fcbc74"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac58c2e682fede5dc25aaa2cd69fcbc74">&#9670;&nbsp;</a></span>cleanAttribute()</h2>
+<a id="a909912aa2fb59d3596098e730257cc3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a909912aa2fb59d3596098e730257cc3d">&#9670;&nbsp;</a></span>cleanAttribute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -152,7 +167,7 @@ Static Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>$replacement</em> = <code>&quot;_&quot;</code>&#160;</td>
+          <td class="paramname"><em>$replacement</em> = <code>&quot;-&quot;</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -167,7 +182,45 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00099">99</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00108">108</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="aa691e93c29cfca67ec0aa070feef24af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa691e93c29cfca67ec0aa070feef24af">&#9670;&nbsp;</a></span>contains()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static contains </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$needle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$haystack</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00021">21</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -195,7 +248,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00093">93</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00102">102</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -233,7 +286,55 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00016">16</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00025">25</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="ab72b558847cf11987d165a76e18a68e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab72b558847cf11987d165a76e18a68e0">&#9670;&nbsp;</a></span>explode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static explode </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$delimiters</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$string</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Explodes a string with an array of delimiters. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramtype">array</td><td class="paramname">$delimiters</td><td></td></tr>
+    <tr><td class="paramtype">string</td><td class="paramname">$string</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>array </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00148">148</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -277,7 +378,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00071">71</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00080">80</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -305,7 +406,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00020">20</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00029">29</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -333,7 +434,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00043">43</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00049">49</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -361,7 +462,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00039">39</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00045">45</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -389,7 +490,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00047">47</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00053">53</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -417,7 +518,35 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00035">35</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00041">41</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="a389e3f96c05b0266bff20783df176c78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a389e3f96c05b0266bff20783df176c78">&#9670;&nbsp;</a></span>isJson()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static isJson </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00123">123</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -445,7 +574,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00031">31</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00037">37</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -473,7 +602,73 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00027">27</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00033">33</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="a1ba90c01bec66aeb6e444fcb0e0aef1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ba90c01bec66aeb6e444fcb0e0aef1d">&#9670;&nbsp;</a></span>isValid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static isValid </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00119">119</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="a0df6f6eeef7d57f471aa359970839555"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0df6f6eeef7d57f471aa359970839555">&#9670;&nbsp;</a></span>mask()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static mask </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$secretString</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$maskChar</em> = <code>&quot;*&quot;</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00115">115</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -535,12 +730,12 @@ Static Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>string the pluralized expression </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00059">59</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00070">70</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
-<a id="a5b3a1db938c9e204e11e583e904baf1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b3a1db938c9e204e11e583e904baf1d">&#9670;&nbsp;</a></span>replaceArray()</h2>
+<a id="ac04b0c7a7a317eb764e1c66e044ed268"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac04b0c7a7a317eb764e1c66e044ed268">&#9670;&nbsp;</a></span>replaceArray()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -558,13 +753,13 @@ Static Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>$needle</em>, </td>
+          <td class="paramname"><em>$needleArray</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>$replaceArray</em>&#160;</td>
+          <td class="paramname"><em>$replace</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -579,7 +774,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00085">85</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00094">94</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -623,7 +818,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00080">80</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00089">89</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
@@ -661,12 +856,49 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00012">12</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00017">17</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
+
+</div>
+</div>
+<a id="ac6675c8ec383724ca1ed03309a380abc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6675c8ec383724ca1ed03309a380abc">&#9670;&nbsp;</a></span>toString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static toString </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts a value to a string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramtype">mixed</td><td class="paramname">$value</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>string </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="_u_string_8php_source.html#l00134">134</a> of file <a class="el" href="_u_string_8php_source.html">UString.php</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Ubiquity/utils/base/<a class="el" href="_u_string_8php_source.html">UString.php</a></li>
+<li>src/Ubiquity/utils/base/<a class="el" href="_u_string_8php_source.html">UString.php</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -675,7 +907,7 @@ Static Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespace_ubiquity.html">Ubiquity</a></li><li class="navelem"><a class="el" href="namespace_ubiquity_1_1utils.html">utils</a></li><li class="navelem"><a class="el" href="namespace_ubiquity_1_1utils_1_1base.html">base</a></li><li class="navelem"><a class="el" href="class_ubiquity_1_1utils_1_1base_1_1_u_string.html">UString</a></li>
-    <li class="footer"><small>Generated on Thu May 31 2018 02:05:27 for <a href="http://ubiquity.kobject.net/">Ubiquity</a>
+    <li class="footer"><small>Generated on Thu Mar 14 2019 03:22:00 for <a href="https://ubiquity.kobject.net/">Ubiquity</a>
  by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.13
 </small></li>
   </ul>

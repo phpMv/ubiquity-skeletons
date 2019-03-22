@@ -1,6 +1,6 @@
 <?php
 return array(
-		"siteUrl"=>"http://127.0.0.1/%base_url%/",
+		"siteUrl"=>"http://127.0.0.1/{projectName}/",
 		"database"=>[
 				"type"=>"mysql",
 				"dbName"=>"",
@@ -11,18 +11,14 @@ return array(
 				"options"=>[],
 				"cache"=>false
 		],
-		"sessionName"=>"%session_name%",
+		"sessionName"=>"{projectName}",
 		"namespaces"=>[],
 		"templateEngine"=>'Ubiquity\\views\\engine\\Twig',
-		"templateEngineOptions"=>array("cache"=>false),
+		"templateEngineOptions"=>array("cache"=>false,"activeTheme"=>"bootstrap"),
 		"test"=>false,
 		"debug"=>false,
-		"logger"=>function(){return new \Ubiquity\log\libraries\UMonolog("%app_name%",\Monolog\Logger::INFO);},
-		"di"=>["jquery"=>function($controller){
-							$jquery=new \Ajax\php\ubiquity\JsUtils(["defer"=>true],$controller);
-							$jquery->semantic(new \Ajax\Semantic());
-							return $jquery;
-						}],
+		"logger"=>function(){return new \Ubiquity\log\libraries\UMonolog("{projectName}",\Monolog\Logger::INFO);},
+		"di"=>[],
 		"cache"=>["directory"=>"cache/","system"=>"Ubiquity\\cache\\system\\ArrayCache","params"=>[]],
 		"mvcNS"=>["models"=>"models","controllers"=>"controllers","rest"=>""],
 		"isRest"=>function(){

@@ -1,17 +1,12 @@
 <?php
-use Ubiquity\cache\CacheManager;
 use Ubiquity\controllers\Router;
-use Ubiquity\orm\DAO;
 
-/*if($config["test"]){
-\Ubiquity\log\Logger::init($config);
- $config["siteUrl"]="http://127.0.0.1:8090/";
- }*/
-
-CacheManager::startProd($config);
-$db=$config["database"];
-if($db["dbName"]!==""){
-	DAO::connect($db["type"],$db["dbName"],@$db["serverName"],@$db["port"],@$db["user"],@$db["password"],@$db["options"],@$db["cache"]);
+\Ubiquity\cache\CacheManager::startProd($config);
+try{
+	\Ubiquity\orm\DAO::startDatabase($config);
+}catch(Exception $e){
+	echo $e->getMessage();
 }
 Router::start();
-Router::addRoute("_default", "controllers\Main");
+Router::addRoute("_default", "controllers\\IndexController");
+\Ubiquity\assets\AssetsManager::start($config);

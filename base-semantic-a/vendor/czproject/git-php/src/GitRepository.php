@@ -212,6 +212,19 @@
 
 
 		/**
+		 * Returns list of remote branches in repo.
+		 * @return string[]|NULL  NULL => no branches
+		 * @throws GitException
+		 */
+		public function getRemoteBranches()
+		{
+			return $this->extractFromCommand('git branch -r', function($value) {
+				return trim(substr($value, 1));
+			});
+		}
+
+
+		/**
 		 * Returns list of local branches in repo.
 		 * @return string[]|NULL  NULL => no branches
 		 * @throws GitException
@@ -282,7 +295,14 @@
 
 			foreach($file as $item)
 			{
-				// TODO: ?? is file($repo . / . $item) ??
+				// make sure the given item exists
+				// this can be a file or an directory, git supports both
+				$path = self::isAbsolute($item) ? $item : ($this->getRepositoryPath() . DIRECTORY_SEPARATOR . $item);
+
+				if (!file_exists($path)) {
+					throw new GitException("The path at '$item' does not represent a valid file.");
+				}
+
 				$this->run('git add', $item);
 			}
 
@@ -357,14 +377,14 @@
 
 		/**
 		 * Returns last commit ID on current branch
-		 * `git log --pretty=format:'%H' -n 1`
+		 * `git log --pretty=format:"%H" -n 1`
 		 * @return string|NULL
 		 * @throws GitException
 		 */
 		public function getLastCommitId()
 		{
 			$this->begin();
-			$lastLine = exec('git log --pretty=format:\'%H\' -n 1 2>&1');
+			$lastLine = exec('git log --pretty=format:"%H" -n 1 2>&1');
 			$this->end();
 			if (preg_match('/^[0-9a-f]{40}$/i', $lastLine)) {
 				return $lastLine;
@@ -750,16 +770,60 @@
 				$params = '-q';
 			}
 
-			exec(self::processCommand(array(
+			$descriptorspec = Array(
+				0 => Array('pipe', 'r'), // stdout
+				1 => Array('pipe', 'w'), // stdin
+				2 => Array('pipe', 'w'), // stderr
+			);
+
+			$pipes = [];
+			$command = self::processCommand(array(
 				'git clone',
 				$params,
 				$url,
 				$directory
-			)), $output, $returnCode);
+			));
+			$process = proc_open($command, $descriptorspec, $pipes);
+
+			if (!$process)
+			{
+				throw new GitException("Git clone failed (directory $directory).");
+			}
+
+			// Reset output and error
+			$stdout = '';
+			$stderr = '';
+
+			while (TRUE)
+			{
+				// Read standard output
+				$output = fgets($pipes[0], 1024);
+
+				if ($output)
+				{
+					$stdout .= $output;
+				}
+
+				// Read error output
+				$output_err = fgets($pipes[2], 1024);
+
+				if ($output_err)
+				{
+					$stderr .= $output_err;
+				}
+
+				// We are done
+				if ((feof($pipes[0]) OR $output === FALSE) AND (feof($pipes[2]) OR $output_err === FALSE))
+				{
+					break;
+				}
+			}
+
+			$returnCode = proc_close($process);
 
 			if($returnCode !== 0)
 			{
-				throw new GitException("Git clone failed (directory $directory).");
+				throw new GitException("Git clone failed (directory $directory)." . ($stderr !== '' ? ("\n$stderr") : ''));
 			}
 
 			return new static($directory);
@@ -773,8 +837,17 @@
 		 */
 		public static function isRemoteUrlReadable($url, array $refs = NULL)
 		{
+			$env = '';
+
+			if (DIRECTORY_SEPARATOR === '\\') { // Windows
+				$env = 'set GIT_TERMINAL_PROMPT=0 &&';
+
+			} else {
+				$env = 'GIT_TERMINAL_PROMPT=0';
+			}
+
 			exec(self::processCommand(array(
-				'GIT_TERMINAL_PROMPT=0 git ls-remote',
+				$env . ' git ls-remote',
 				'--heads',
 				'--quiet',
 				'--exit-code',
@@ -821,4 +894,69 @@
 		{
 			return (bool) preg_match('#[/\\\\]|[a-zA-Z]:[/\\\\]|[a-z][a-z0-9+.-]*://#Ai', $path);
 		}
+
+
+		/**
+		 * Returns commit message from specific commit
+		 * `git log -1 --format={%s|%B} )--pretty=format:'%H' -n 1`
+		 * @param  string  commit ID
+		 * @param  bool    use %s instead of %B if TRUE
+		 * @return string
+		 * @throws GitException
+		 */
+		public function getCommitMessage($commit, $oneline = FALSE)
+		{
+			$this->begin();
+			exec('git log -1 --format=' . ($oneline ? '%s' : '%B') . ' ' . $commit . ' 2>&1', $message);
+			$this->end();
+			return implode(PHP_EOL, $message);
+		}
+
+
+		/**
+		 * Returns array of commit metadata from specific commit
+		 * `git show --raw <sha1>`
+		 * @param  string  commit ID
+		 * @return array
+		 * @throws GitException
+		 */
+		public function getCommitData($commit)
+		{
+			$message = $this->getCommitMessage($commit);
+			$subject = $this->getCommitMessage($commit, TRUE);
+
+			$this->begin();
+			exec('git show --raw ' . $commit . ' 2>&1', $output);
+			$this->end();
+			$data = array(
+				'commit' => $commit,
+				'subject' => $subject,
+				'message' => $message,
+				'author' => NULL,
+				'committer' => NULL,
+				'date' => NULL,
+			);
+
+			// git show is a porcelain command and output format may changes
+			// in future git release or custom config.
+			foreach ($output as $index => $info) {
+				if (preg_match('`Author: *(.*)`', $info, $author)) {
+					$data['author'] = trim($author[1]);
+					unset($output[$index]);
+				}
+
+				if (preg_match('`Commit: *(.*)`', $info, $committer)) {
+					$data['committer'] = trim($committer[1]);
+					unset($output[$index]);
+				}
+
+				if (preg_match('`Date: *(.*)`', $info, $date)) {
+					$data['date'] = trim($date[1]);
+					unset($output[$index]);
+				}
+			}
+
+			return $data;
+		}
+
 	}

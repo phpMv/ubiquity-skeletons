@@ -1,9 +1,6 @@
 ``dump``
 ========
 
-.. versionadded:: 1.5
-    The ``dump`` function was added in Twig 1.5.
-
 The ``dump`` function dumps information about a template variable. This is
 mostly useful to debug a template that does not behave as expected by
 introspecting its variables:
@@ -15,14 +12,14 @@ introspecting its variables:
 .. note::
 
     The ``dump`` function is not available by default. You must add the
-    ``Twig_Extension_Debug`` extension explicitly when creating your Twig
+    ``\Twig\Extension\DebugExtension`` extension explicitly when creating your Twig
     environment::
 
-        $twig = new Twig_Environment($loader, array(
+        $twig = new \Twig\Environment($loader, [
             'debug' => true,
             // ...
-        ));
-        $twig->addExtension(new Twig_Extension_Debug());
+        ]);
+        $twig->addExtension(new \Twig\Extension\DebugExtension());
 
     Even when enabled, the ``dump`` function won't display anything if the
     ``debug`` option on the environment is not enabled (to avoid leaking debug

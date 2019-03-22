@@ -1,12 +1,6 @@
 ``date``
 ========
 
-.. versionadded:: 1.6
-    The date function has been added in Twig 1.6.
-
-.. versionadded:: 1.6.1
-    The default timezone support has been added in Twig 1.6.1.
-
 Converts an argument to a date to allow date comparison:
 
 .. code-block:: jinja
@@ -40,11 +34,8 @@ If no argument is passed, the function returns the current date:
 
     .. code-block:: php
 
-        $twig = new Twig_Environment($loader);
-        $twig->getExtension('Twig_Extension_Core')->setTimezone('Europe/Paris');
-
-        // before Twig 1.26
-        $twig->getExtension('core')->setTimezone('Europe/Paris');
+        $twig = new \Twig\Environment($loader);
+        $twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Europe/Paris');
 
 Arguments
 ---------

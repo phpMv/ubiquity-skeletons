@@ -30,6 +30,21 @@ The main configuration of a project is localised in the ``app/conf/config.php`` 
    		"cacheDirectory"=>"cache/",
    		"mvcNS"=>["models"=>"models","controllers"=>"controllers"]
    );
+
+
+.. info::
+   
+   You can also use **devtools** (at the command prompt) to view or modify the configuration :
+   
+   .. code-block:: bash
+   
+      Ubiquity config
+   
+   .. code-block:: bash
+      
+       Ubiquity config:set --database.dbName=blog
+
+     
 Services configuration
 ----------------------
 Services loaded on startup are configured in the ``app/conf/services.php`` file.
@@ -38,22 +53,16 @@ Services loaded on startup are configured in the ``app/conf/services.php`` file.
    :linenos:
    :caption: app/conf/services.php
    
-   use Ubiquity\cache\CacheManager;
-   use Ubiquity\controllers\Router;
-   use Ubiquity\orm\DAO;
-   
-   /*if($config["test"]){
-   \Ubiquity\log\Logger::init();
-   $config["siteUrl"]="http://127.0.0.1:8090/";
-   }*/
-   
-   $db=$config["database"];
-   if($db["dbName"]!==""){
-   	DAO::connect($db["dbName"],@$db["serverName"],@$db["port"],@$db["user"],@$db["password"]);
-   }
-   CacheManager::startProd($config);
-   Router::start();
-   Router::addRoute("_default", "controllers\Main");
+	use Ubiquity\controllers\Router;
+	
+	try{
+		\Ubiquity\cache\CacheManager::startProd($config);
+	}catch(Exception $e){
+		//Do something
+	}
+	\Ubiquity\orm\DAO::startDatabase($config);
+	Router::start();
+	Router::addRoute("_default", "controllers\\IndexController");
 Pretty URLs
 -----------
 Apache
@@ -78,6 +87,6 @@ On Nginx, the following directive in your site configuration will allow "pretty"
 
 .. code-block:: php
    
-   location / {
-       try_files $uri $uri/ /index.php?c=$query_string;
+   location /{
+         rewrite ^/(.*)$ /index.php?c=$1 last;
    }

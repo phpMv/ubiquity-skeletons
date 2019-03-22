@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['info',['info',['../class_ubiquity_1_1controllers_1_1admin_1_1traits_1_1_check_trait.html#a7b16a542aaeea764362f9dc2249ae63c',1,'Ubiquity::controllers::admin::traits::CheckTrait']]]
+  ['get_5fall',['GET_ALL',['../class_ubiquity_1_1events_1_1_d_a_o_events.html#a2f57338cd8ffc416306924c8208ece73',1,'Ubiquity::events::DAOEvents']]],
+  ['get_5fone',['GET_ONE',['../class_ubiquity_1_1events_1_1_d_a_o_events.html#ac11a2cdbf031dd0f105c7410463bdd12',1,'Ubiquity::events::DAOEvents']]]
 ];

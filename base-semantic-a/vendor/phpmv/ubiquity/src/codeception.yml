@@ -1,0 +1,31 @@
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
+actor_suffix: Tester
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+coverage:
+    enabled: true
+    remote: false
+    c3_url: 'http://dev.local'
+
+    include:
+        - Ubiquity/*.php
+    exclude:
+        - Ubiquity/*Interface.php
+        - Ubiquity/controllers/Autoloader.php
+        - Ubiquity/controllers/admin/
+        - Ubiquity/annotations/
+        - Ubiquity/utils/git/UGitRepository.php
+        - Ubiquity/views/engine/micro/*
+        - Ubiquity/views/Gui.php
+settings:
+ bootstrap: _bootstrap.php
+reporters:
+    xml: Codeception\PHPUnit\Log\JUnit
+    html: Codeception\PHPUnit\ResultPrinter\HTML
+    report: Codeception\PHPUnit\ResultPrinter\Report

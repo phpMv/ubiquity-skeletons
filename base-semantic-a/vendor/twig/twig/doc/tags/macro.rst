@@ -9,14 +9,14 @@ Here is a small example of a macro that renders a form element:
 
 .. code-block:: jinja
 
-    {% macro input(name, value, type, size) %}
-        <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ value|e }}" size="{{ size|default(20) }}" />
+    {% macro input(name, value, type = "text", size = 20) %}
+        <input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}" />
     {% endmacro %}
 
-Macros differ from native PHP functions in a few ways:
+Each argument can have a default value (here ``text`` is the default value for
+``type`` if not provided in the call).
 
-* Default argument values are defined by using the ``default`` filter in the
-  macro body;
+Macros differ from native PHP functions in a few ways:
 
 * Arguments of a macro are always optional.
 
@@ -61,13 +61,6 @@ special ``_self`` variable to import them:
     {% import _self as forms %}
 
     <p>{{ forms.input('username') }}</p>
-
-.. warning::
-
-    When you define a macro in the template where you are going to use it, you
-    might be tempted to call the macro directly via ``_self.input()`` instead
-    of importing it; even if seems to work, this is just a side-effect of the
-    current implementation and it won't work anymore in Twig 2.x.
 
 When you want to use a macro in another macro from the same file, you need to
 import it locally:

@@ -1,13 +1,10 @@
 var NAVTREE =
 [
   [ "Ubiquity", "index.html", [
+    [ "Ubiquity framework API Documentation", "index.html", null ],
+    [ "Deprecated List", "deprecated.html", null ],
     [ "Namespaces", null, [
-      [ "Namespace List", "namespaces.html", "namespaces" ],
-      [ "Namespace Members", "namespacemembers.html", [
-        [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ],
-        [ "Variables", "namespacemembers_vars.html", null ]
-      ] ]
+      [ "Namespace List", "namespaces.html", "namespaces" ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -20,11 +17,7 @@ var NAVTREE =
       ] ]
     ] ],
     [ "Files", null, [
-      [ "File List", "files.html", "files" ],
-      [ "Globals", "globals.html", [
-        [ "All", "globals.html", null ],
-        [ "Variables", "globals_vars.html", null ]
-      ] ]
+      [ "File List", "files.html", "files" ]
     ] ]
   ] ]
 ];
@@ -32,16 +25,20 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_abstract_data_cache_8php.html",
-"_ubiquity_my_admin_data_8php.html",
-"class_ubiquity_1_1cache_1_1traits_1_1_models_cache_trait.html#a11bb9d4cc6953ffdb3372daab0aa089f",
-"class_ubiquity_1_1controllers_1_1admin_1_1_ubiquity_my_admin_viewer.html#a70545813a28824d49f7a5d51e7640b64",
-"class_ubiquity_1_1controllers_1_1admin_1_1traits_1_1_create_controllers_trait.html#a094f0e6b743ad95ce14666752c8ddc86",
-"class_ubiquity_1_1controllers_1_1auth_1_1_with_auth_trait.html#a91098fa7d1917ce4833f284bbef12627",
-"class_ubiquity_1_1db_1_1export_1_1_data_export.html#a722017cb634497fe2b92c39cd38a7c56",
-"class_ubiquity_1_1orm_1_1creator_1_1yuml_1_1_yuml_models_creator.html#af707f11c06d47e5cffa2696425c0015c",
-"class_ubiquity_1_1utils_1_1flash_1_1_flash_message.html#af2481e2c79b9beb6a79145cae4842c28",
-"conf_8py.html#abff8d0724bf3d78779f98fa828f1e1fe",
-"traits_8php.html#a33522f9e38f97add84cf6a3c7e5d39ab"
+"_messages_trait_8php.html",
+"class_ubiquity_1_1annotations_1_1_validator_annotation.html#a4b9b9fed46c4b4ca1c62de8d3635755f",
+"class_ubiquity_1_1cache_1_1traits_1_1_router_cache_trait.html#a0325c1dfb46fbe26208f6abab558396a",
+"class_ubiquity_1_1controllers_1_1_auth_1_1_auth_files.html#a095c5d389db211932136b53f25f39685",
+"class_ubiquity_1_1controllers_1_1admin_1_1popo_1_1_controller_seo.html#a21394902e4fc13c397b9bdc5201ff745",
+"class_ubiquity_1_1controllers_1_1admin_1_1traits_1_1_models_config_trait.html#ac3e20f9386d0723c70ea3fb261b8bd8a",
+"class_ubiquity_1_1controllers_1_1crud_1_1_c_r_u_d_controller_utilities_trait.html#a378f38cff59451fa95efc4ae3e7fcf08",
+"class_ubiquity_1_1controllers_1_1rest_1_1api_1_1jsonapi_1_1_json_api_response_formatter.html#af1e4af80e21a066d1077978b9d6f8771",
+"class_ubiquity_1_1exceptions_1_1_ubiquity_exception.html",
+"class_ubiquity_1_1orm_1_1parser_1_1_condition_parser.html#a83b9e7443572d2ddc6aab1e47711e580",
+"class_ubiquity_1_1scaffolding_1_1_scaffold_controller.html#a905cc03e9750db303a074a73fedbd7d4",
+"class_ubiquity_1_1utils_1_1flash_1_1_flash_message.html#aaf4aaa87a48ea1168c94609f75435871",
+"class_ubiquity_1_1views_1_1engine_1_1micro_1_1_micro_template_engine.html#ae00bb089543ff18ca275c5d44cfa1ec7",
+"namespace_ubiquity_1_1db_1_1reverse.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

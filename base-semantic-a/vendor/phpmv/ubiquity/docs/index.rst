@@ -3,8 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Ubiquity framework User guide
-===========================================
+Ubiquity User guide
+===================
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Quick-starts
+   
+   with console <quickstart/quickstart>
+   with web-tools <quickstart/quickstart-html>
+   
+.. sidebar:: New in documentation
+
+   - :ref:`Contributing<contributing>`
+   - :ref:`Quick start with webtools (UbiquityMyAdmin)<quickstart-html>`
+   - Generating models:
+   
+     - :doc:`with webtools (UbiquityMyAdmin)</model/generation/db-html>`
+     - :doc:`with console (devtools)</model/generation/db-console>`
+     
+.. End of sidebar
 
 .. toctree::
    :maxdepth: 1
@@ -22,11 +40,19 @@ Ubiquity framework User guide
    controller/uri
    controller/router
    controller/controllers
+   
+.. toctree::
+   :maxdepth: 1
+   :caption: Scaffolding
+   
+   scaffolding/crud
+   scaffolding/auth
 
 .. toctree::
    :maxdepth: 1
    :caption: Models and ORM
    
+   Generation <model/generation>
    model/models
    model/dao
   
@@ -45,6 +71,29 @@ Ubiquity framework User guide
    
    view/index
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents
+   
+   contents/normalizers
+   contents/validators
+   translation/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Rest
+   
+   rest/index
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contributing
+   
+   contributing/contributing-shem
+   contributing/coding
+   contributing/doc
+   
 .. toctree::
    :maxdepth: 1
    :caption: Extras
