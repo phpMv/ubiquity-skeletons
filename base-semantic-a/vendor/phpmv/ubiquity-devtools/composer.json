@@ -1,0 +1,33 @@
+{
+	"name": "phpmv/ubiquity-devtools",
+	"description": "Command line tools for ubiquity-framework",
+	"type": "installer",
+	"keywords": [
+		"php",
+		"framework"
+	],
+	"require": {
+		"php": ">7.0"
+	},
+	"license": "Apache-2.0",
+	"authors": [
+		{
+			"name": "Jean-Christophe HERON",
+			"email": "myaddressmail@gmail.com",
+			"role": "Lead developer"
+		}
+	],
+	 "bin": [
+        "src/Ubiquity"
+    ],
+    "autoload" : {
+		"psr-4" : {
+			"Ubiquity\\" : "src/"
+		}
+	},
+     "extra": {
+        "branch-alias": {
+            "dev-master": "1.3-x-dev"
+        }
+    }
+}

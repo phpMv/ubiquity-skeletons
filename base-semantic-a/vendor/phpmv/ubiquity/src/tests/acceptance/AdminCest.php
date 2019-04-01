@@ -47,7 +47,7 @@ class AdminCest extends BaseAcceptance {
 		$this->gotoAdminModule ( "Admin/Routes", $I );
 		$I->click ( "#bt-init-cache" );
 		$I->waitForElementVisible ( "#divRoutes .ui.message.info", self::TIMEOUT );
-		$I->canSee ( 'Router cache reset', '.ui.message.info' );
+		$I->canSee ( 'Router cache', '.ui.message.info' );
 	}
 
 	// tests
@@ -113,9 +113,19 @@ class AdminCest extends BaseAcceptance {
 		$this->gotoAdminModule ( "Admin/Config", $I );
 		$I->click ( '#edit-config-btn' );
 		$I->waitForElement ( "#save-config-btn", self::TIMEOUT );
-		$I->click ( "#save-config-btn" );
-		$I->waitForElement ( "#edit-config-btn" );
-		$I->see ( "http://dev.local/" );
+		$this->waitAndclick ( $I, "#save-config-btn", "#main-content" );
+		$I->waitForElementClickable ( "#edit-config-btn", self::TIMEOUT );
+		// $I->see ( "http://dev.local/" );
+	}
+
+	// tests
+	public function tryGotoAdminThemes(AcceptanceTester $I) {
+		$this->gotoAdminModule ( "Admin/Themes", $I );
+		$I->canSee ( "Themes module", "body" );
+		$I->click ( '._saveConfig' );
+		$this->waitAndclick ( $I, "._setTheme[href='Admin/setTheme/foundation']" );
+		$I->amOnPage ( "/" );
+		$I->canSee ( "foundation" );
 	}
 
 	// tests
@@ -146,7 +156,7 @@ class AdminCest extends BaseAcceptance {
 	public function tryGotoAdminLogs(AcceptanceTester $I) {
 		$this->gotoAdminModule ( "Admin/Logs", $I );
 		$I->click ( "[data-url='deActivateLog']", "#menu-logs" );
-		$I->waitForElement ( "a._activateLogs", self::TIMEOUT );
+		$I->waitForElement ( "#bt-apply", self::TIMEOUT );
 	}
 
 	// tests

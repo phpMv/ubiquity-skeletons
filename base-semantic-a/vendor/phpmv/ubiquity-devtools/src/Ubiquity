@@ -1,0 +1,554 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../../../../vendor/autoload.php';
+
+use Ubiquity\cache\CacheManager;
+use Ubiquity\core\Framework;
+use Ubiquity\devtools\cmd\Command;
+use Ubiquity\devtools\cmd\Console;
+use Ubiquity\devtools\cmd\ConsoleFormatter;
+use Ubiquity\devtools\utils\FileUtils;
+use Ubiquity\utils\base\UArray;
+use Ubiquity\devtools\cmd\commands\ConfigSetCmd;
+use Ubiquity\devtools\cmd\traits\CmdTrait;
+use Ubiquity\devtools\cmd\commands\ConfigCmd;
+use Ubiquity\devtools\cmd\commands\InfoRoutesCmd;
+use Ubiquity\devtools\cmd\commands\InfoModelsCmd;
+use Ubiquity\devtools\cmd\commands\InfoModelCmd;
+use Ubiquity\devtools\cmd\commands\CrudCmd;
+use Ubiquity\devtools\cmd\commands\InfoValidationCmd;
+use Ubiquity\devtools\cmd\commands\NewActionCmd;
+use Ubiquity\devtools\cmd\commands\AuthCmd;
+use Ubiquity\devtools\cmd\commands\DAOCmd;
+use Ubiquity\devtools\cmd\commands\RestCmd;
+use Ubiquity\devtools\cmd\commands\RestApiCmd;
+use Ubiquity\devtools\cmd\commands\InstallThemeCmd;
+use Ubiquity\devtools\cmd\commands\NewThemeCmd;
+
+class Ubiquity {
+	use CmdTrait;
+	private static $version="1.2.0";
+	private static $appName="Ubiquity devtools";
+	private static $configOptions;
+	private static $toolsConfig;
+	private static $indexContent="\n\t\$this->loadView(\"@framework/index/index.html\");\n";
+	private static $activeDir;
+	private static $checkProjectDir=".ubiquity";
+	private static $toolsPath="devtools/";
+
+	public static function createComposerFile(){
+		$composer=json_encode(self::$toolsConfig["composer"]);
+		echo ConsoleFormatter::showInfo("Composer file creation...\n");
+		FileUtils::writeFile("composer.json", $composer);
+	}
+
+	public static function replaceAll($array,$subject){
+		array_walk($array, function(&$item){if(is_array($item)) $item=implode("\n", $item);});
+		return str_replace(array_keys($array), array_values($array), $subject);
+	}
+
+	public static function openReplaceWrite($source,$destination,$keyAndValues){
+		$str=FileUtils::openFile($source);
+		$str=self::replaceAll($keyAndValues,$str);
+		return FileUtils::writeFile($destination,$str);
+	}
+
+
+	public static function create($projectName,$options,$force=false){
+		self::$activeDir=dirname(__FILE__);
+		self::$toolsConfig=include(self::$activeDir."/devtools/core/toolsConfig.php");
+		$arguments=[
+				["b","dbName",""],
+				["t","dbType","mysql"],
+				["s","serverName","127.0.0.1"],
+				["p","port","3306"],
+				["u","user","root"],
+				["w","password",""],
+				["m","all-models",false],
+				["a","admin",false],
+				["h","themes",""],
+				["c","use-cdn",false],
+		];
+		if(($dir=basename(getcwd()))==$projectName || $projectName==null){
+			$answer=Console::question("Do you want to create the new project in this folder ($dir) ?",["y","n"]);
+			if(Console::isYes($answer)){
+				if(chdir("..")){
+					self::create($projectName,$options,true);
+					return;
+				}else{
+					ConsoleFormatter::showMessage( "Unable to return to parent folder!\n",'error');
+					return;
+				}
+			}
+		}
+		if(!is_dir($projectName) || $force){
+			if(!$force)
+				FileUtils::safeMkdir($projectName);
+			chdir($projectName);
+			FileUtils::safeMkdir(self::$checkProjectDir);
+			FileUtils::safeMkdir("app");
+			FileUtils::safeMkdir("app/views/main");
+			FileUtils::safeMkdir("app/controllers");
+			FileUtils::safeMkdir("app/models");
+			FileUtils::safeMkdir("app/config");
+			define('ROOT', realpath('./app').DS);
+			echo ConsoleFormatter::showInfo("Files copy...");
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/controllers/ControllerBase.php", "app/controllers/ControllerBase.php");
+
+
+			echo ConsoleFormatter::showInfo("Config files creation...\n");
+			self::openReplaceWrite(self::$activeDir."/devtools/project-files/.htaccess", getcwd()."/.htaccess", array("%rewriteBase%"=>$projectName));
+			self::$configOptions=["%siteUrl%"=>"http://127.0.0.1/".$projectName."/"];
+			self::$configOptions["%projectName%"]=$projectName;
+			self::$configOptions["%cssFiles%"]=[];
+			self::$configOptions["%jsFiles%"]=[];
+			self::$configOptions["%injections%"]="";
+			foreach ($arguments as $argument){
+				self::$configOptions["%".$argument[1]."%"]=self::getOption($options,$argument[0], $argument[1],$argument[2]);
+			}
+			self::showConfigOptions();
+
+
+			if(self::isBooleanTrue(self::$configOptions["%admin%"])){
+				self::adminInstall();
+			}
+
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/templates/services.tpl", "app/config/services.php");
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/index.php", "index.php");
+
+			//-------------Add themes----------------
+
+			$themes=self::$configOptions["%themes%"];
+			$themes=explode(',', $themes);
+			$themesConfig=include(self::$activeDir."/devtools/core/themesConfig.php");
+			$hasThemes=false;$activeTheme="";
+
+			$vendorCopies=[];
+			foreach ($themes as $theme){
+				if(isset($themesConfig[$theme])){
+					$vendorCopies[$theme]=InstallThemeCmd::addTheme($theme,$theme, $themesConfig[$theme], self::$activeDir,false,self::$toolsConfig["composer"]);
+					$hasThemes=true;
+				}else{
+					echo ConsoleFormatter::showMessage('The theme <b>'.$theme.'</b> does not exists!','warning','Themes installation');
+				}
+			}
+			if(!$hasThemes){
+				self::includeDefaultStyles();
+				self::openReplaceWrite(self::$activeDir."/devtools/project-files/templates/vHeader.tpl", "app/views/main/vHeader.html", self::$configOptions);
+				self::openReplaceWrite(self::$activeDir."/devtools/project-files/templates/vFooter.tpl", "app/views/main/vFooter.html", self::$configOptions);
+				FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/views/themes/semantic/main/vMenu.html", "app/views/main/vMenu.html");
+				self::$configOptions['%activeTheme%']='';
+				FileUtils::xcopy(self::$activeDir."/devtools/project-files/public/themes/semantic/",  getcwd()."/public/assets/");
+			}else{
+				$activeTheme=end($themes);
+				self::$configOptions['%activeTheme%']=',"activeTheme"=>"'.$activeTheme.'"';
+				FileUtils::xcopy(self::$activeDir."/devtools/project-files/templates/indexThemes.tpl", "app/views/index.html");
+			}
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/controllers/IndexController.php", "app/controllers/IndexController.php");
+
+			//-------------Add themes----------------
+
+			self::openReplaceWrite(self::$activeDir."/devtools/project-files/templates/config.tpl", "app/config/config.php", self::$configOptions);
+
+			self::createComposerFile();
+			$answer=Console::question("Do you want to run composer install ?",["y","n"]);
+			if(Console::isYes($answer)){
+				system("composer install");
+				require_once ROOT.'./../vendor/autoload.php';
+				$dir=getcwd();
+				foreach ($vendorCopies as $theme=>$vCopies){
+					InstallThemeCmd::copyVendorFiles($theme, $vCopies, $dir);
+				}
+			}
+			$config=require_once 'app/config/config.php';
+			\Ubiquity\controllers\Startup::setConfig($config);
+
+			if(self::isBooleanTrue(self::$configOptions["%all-models%"])){
+				ob_start();
+				(new \Ubiquity\orm\creator\database\DbModelsCreator())->create($config);
+				$res=ob_get_clean();
+				echo ConsoleFormatter::showMessage($res,'success','models generation');
+			}
+			ob_start();
+			\Ubiquity\cache\CacheManager::checkCache($config);
+			$res=ob_get_clean();
+			echo ConsoleFormatter::showMessage($res,'info','cache initialization');
+			echo ConsoleFormatter::showMessage("project <b>{$projectName}</b> successfully created.",'success','new-project');
+		}else{
+			echo ConsoleFormatter::showInfo("The <b>{$projectName}</b> folder already exists !\n");
+			$answer=Console::question("Would you like to continue ?",["y","n"]);
+			if(Console::isYes($answer)){
+				self::create($projectName,$options,true);
+			}else
+				die();
+		}
+	}
+
+	private static function includeDefaultStyles(){
+		self::$configOptions["%injections%"]="\"@exec\"=>[\"jquery\"=>function(\$controller){
+				\t\treturn \\Ubiquity\\core\\Framework::diSemantic(\$controller);
+				\t}]";
+		self::$configOptions["%cssFiles%"][]=self::includeCss(self::$toolsConfig["cdn"]["semantic"]["css"]);
+		self::$configOptions["%jsFiles%"][]=self::includeJs(self::$toolsConfig["cdn"]["jquery"]);
+		self::$configOptions["%jsFiles%"][]=self::includeJs(self::$toolsConfig["cdn"]["semantic"]["js"]);
+		self::$configOptions["%jsFiles%"][]=self::includeJs(self::$toolsConfig["cdn"]["semantic"]["state"]);//Semantic-ui bug see
+		}
+
+	private static function adminInstall($config=null){
+		FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/controllers/Admin.php","app/controllers/Admin.php");
+		echo ConsoleFormatter::showInfo("Creating the Controller <b>Admin</b> at the location <b>app/controllers/Admin.php<:b>\n");
+		self::$toolsConfig["composer"]["require-dev"]["czproject/git-php"]="^3.13";
+		self::$toolsConfig["composer"]["require"]["phpmv/php-mv-ui"]="^2.2.6";
+	}
+
+	private static function includeCss($filename){
+		return "{{ css('".$filename."') }}";
+	}
+
+	private static function includeJs($filename){
+		return "{{ js('".$filename."') }}";
+	}
+
+	private static function showConfigOptions(){
+		$output = implode("\n", array_map(
+		function ($v, $k) {if(is_array($v))
+			$v=implode(",",$v );
+			return sprintf("%s='%s'", str_ireplace("%", "", $k), $v); },
+		self::$configOptions,
+		array_keys(self::$configOptions)
+		));
+		echo ConsoleFormatter::showMessage($output."\n",'info','Command line arguments');
+	}
+
+	public static function createController($config,$controllerName,$indexContent=null,$view=false,$theme=null,$force=false){
+		$controllerName=ucfirst($controllerName);
+		FileUtils::safeMkdir("app/controllers");
+		$filename="app/controllers/{$controllerName}.php";
+		if(file_exists($filename) && !$force){
+			$answer=Console::question("The file {$filename} exists.\nWould you like to replace it?",["y","n"]);
+			if(Console::isYes($answer))
+				self::createController($config,$controllerName,$indexContent,$view,$theme,true);
+		}else{
+			$msg= "Creation of the Controller <b>{$controllerName}</b> at the location <b>{$filename}</b>\n";
+			$namespace="";
+			if(isset($config["mvcNS"]["controllers"]) && $config["mvcNS"]["controllers"]!=="")
+				$namespace="namespace ".$config["mvcNS"]["controllers"].";";
+			self::openReplaceWrite(self::$activeDir."/devtools/project-files/templates/controller.tpl", $filename, ["%controllerName%"=>$controllerName,"%indexContent%"=>$indexContent,"%namespace%"=>$namespace]);
+			if($view){
+				$prefix="";
+				if ($theme==null) {
+					$theme = $config["templateEngineOptions"]["activeTheme"]??null;
+				}
+				if ($theme != null) {
+					$prefix = 'themes/'.$theme . '/';
+				}
+				$viewFolder="app/views/".$prefix.$controllerName;
+				FileUtils::safeMkdir($viewFolder);
+				$msg.= "Creation of the the associated view index.html at the location {$viewFolder}/index.html\n";
+				self::openReplaceWrite(self::$activeDir."/devtools/project-files/templates/view.tpl", $viewFolder."/index.html", ["%controllerName%"=>$controllerName]);
+			}
+			echo ConsoleFormatter::showMessage($msg, "success","Controller creation");
+		}
+	}
+
+	private static function setDir($dir=null){
+		if(file_exists($dir) && is_dir($dir)){
+			$microDir=$dir.DIRECTORY_SEPARATOR.self::$checkProjectDir;
+			if(file_exists($microDir) && is_dir($microDir)){
+				chdir($dir);
+				echo ConsoleFormatter::showInfo("The project folder is <b>".FileUtils::cleanPathname($dir)."</b>");
+				return true;
+			}
+		}
+		$newDir=dirname($dir);
+		if($newDir===$dir)
+			return false;
+		else
+			return self::setDir($newDir);
+	}
+
+	private static function selfUpdate(){
+		self::_init();
+		define('ROOT', realpath('./app').DS);
+		echo ConsoleFormatter::showInfo("Files copy...\n");
+
+		$filename="app/controllers/Admin.php";
+		if(file_exists($filename)){
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/views/Admin","app/views/Admin");
+			FileUtils::xcopy(self::$activeDir."/devtools/project-files/app/views/Seo","app/views/Seo");
+		}
+		$answer=Console::question("Do you want to run composer update ?",["y","n"]);
+		if(Console::isYes($answer)){
+			system("composer global update");
+			system("composer update");
+		}
+		echo ConsoleFormatter::showMessage("project in <b>".self::$activeDir."</b> successfully updated.",'success','self-update');
+	}
+
+	private static function displayResult($callback){
+		ob_start();
+		$callback();
+		$res=ob_get_clean();
+		echo ConsoleFormatter::showInfo($res);
+	}
+
+	public static function init($command,$current=2){
+		global $argv;
+		set_exception_handler(array(Ubiquity::class,"error"));
+		//ob_start ( array (__class__,'error' ) );
+
+		$what=$argv[$current]??null;
+		if($what!=null && strpos($what, '=')!==false){
+			$what=null;
+		}
+		$options=self::parseArguments();
+		switch ($command) {
+			case "project":case "create-project":case "new":
+			self::create($what,$options);
+			break;
+			case "all-models":case "create-all-models":
+				$config=self::_init();
+				$base=self::getOption($options, "b", "dbName",$config["database"]["dbName"]);
+				$config["database"]["dbName"]=self::requiredParam($base, 'dbName');
+				self::displayResult(function()use($config){(new \Ubiquity\orm\creator\database\DbModelsCreator())->create($config);});
+				break;
+
+			case "model":case "create-model":
+				$config=self::_init();
+				$what=self::requiredParam($what, 'tableName');
+				$base=self::getOption($options, "b", "dbName",$config["database"]["dbName"]);
+				$config["database"]["dbName"]=self::requiredParam($base, 'dbName');
+				self::displayResult(function()use($config,$what){(new \Ubiquity\orm\creator\database\DbModelsCreator())->create($config,true,$what);});
+				break;
+
+			case "controller":case "create-controller":
+				$config=self::_init();
+				$what=self::requiredParam($what, 'controllerName');
+				$view=self::getOption($options, "v", "views",false);
+				$theme=self::getOption($options, "t", "theme");
+				$indexContent=null;
+				if($view){
+					$indexContent="\n\t\t".'$this->loadDefaultView();'."\n\t";
+				}
+				self::createController($config,$what,$indexContent,$view,$theme);
+				break;
+
+			case "crud":case "crud-controller":
+				$config=self::_init();
+				$what=self::requiredParam($what, 'controllerName');
+				CrudCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "auth": case "auth-controller":
+				self::_init();
+				AuthCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "clear-cache":
+				$type=self::getOption($options, "t", "type","all");
+				$config=self::_init();
+				CacheManager::clearCache($config,$type);
+				break;
+			case "action": case "new-action":
+				$config=self::_init();
+				NewActionCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "init-cache":
+				$type=self::getOption($options, "t", "type","all");
+				$config=self::_init();
+				ob_start();
+				CacheManager::initCache($config,$type);
+				$res=ob_get_clean();
+				echo ConsoleFormatter::showMessage($res,'success','init-cache:'.$type);
+				break;
+
+			case "self-update":
+				self::selfUpdate();
+				break;
+
+			case "admin":
+				$config=self::_init();
+				self::adminInstall($config);
+				break;
+
+			case "help":
+				if(isset($what)){
+					self::infoCmd($what);
+				}else{
+					self::info();
+				}
+				break;
+			case "serve":
+				$host=self::getOption($options, 'h', 'host','127.0.0.1');
+				if(!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)){
+					echo ConsoleFormatter::showMessage($host." is not a valid ipv4 address!",'error');
+					exit(1);
+				}
+				$port=self::getOption($options, 'p', 'port',8090);
+				if(($p=(int)$port)!=$port || !($p>0 && $p<26000 )){
+					echo ConsoleFormatter::showMessage($port." is an invalid port number!",'error');
+					exit(1);
+				}
+				self::startServer($host, $port);
+				break;
+			case "version":
+				$v='PHP '. phpversion()."\n";
+				$v.=self::$appName." (".self::$version.")\n";
+				$config=self::_init(true);
+				if(is_array($config)){
+					$v.='Ubiquity '.Framework::version."\n";
+				}
+				echo ConsoleFormatter::showInfo($v);
+				break;
+
+			case "info:routes":case "info:r":case "info::routes":
+				$config=self::_init();
+				InfoRoutesCmd::run($config, $options, $what);
+				break;
+
+			case "info:model":case "info-model":
+				$config=self::_init();
+				InfoModelCmd::run($config, $options, $what);
+				break;
+
+			case "info:models":case "info-models":
+				$config=self::_init();
+				InfoModelsCmd::run($config, $options, $what);
+				break;
+
+			case "config": case "info:config":case "info-config":
+				$config=self::_init();
+				ConfigCmd::run($config, $options, $what);
+				break;
+
+			case "info:validators":case "info:validation":
+				$config=self::_init();
+				InfoValidationCmd::run($config, $options, $what);
+				break;
+
+			case "config:set":case "config-set":
+				$config=self::_init();
+				ConfigSetCmd::run($config, $options);
+				break;
+
+			case "dao":case "DAO":
+				$config=self::_init();
+				DAOCmd::run($config, $options, $what);
+				break;
+
+			case "rest":case "rest-controller":
+				$config=self::_init();
+				RestCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "restapi":case "restapi-controller":
+				$config=self::_init();
+				RestApiCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "create-theme":case "create:theme":
+				$config=self::_init();
+				NewThemeCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			case "install-theme":case "install:theme":case "theme":
+				$config=self::_init();
+				InstallThemeCmd::run($config, $options, $what, self::$activeDir);
+				break;
+
+			default:
+				$commands=Command::getInfo($command);
+				echo ConsoleFormatter::showMessage("The command {$command} does not exists!",'warning');
+				if(sizeof($commands)>0){
+					$cmd=current($commands)["cmd"];
+					$answer=Console::question("Did you mean {$cmd->getName()}?",["y","n"]);
+					if(Console::isYes($answer)){
+						self::init($cmd->getName());
+					}else{
+						exit(1);
+					}
+				}
+			break;
+		}
+	}
+
+	private static function startServer($host,$port){
+		$what=$host.':'.$port;
+		self::_init();
+		echo ConsoleFormatter::showInfo("Starting php server at <b>".$what."</b>...\nPress Ctrl+C to stop it!\n");
+		if(!file_exists(".ubiquity/.htrouter.php")){
+			FileUtils::xcopy(self::$activeDir."/devtools/server/.htrouter.php",".ubiquity/.htrouter.php");
+		}
+		if(!file_exists(".ubiquity/_index.php")){
+			FileUtils::xcopy(self::$activeDir."/devtools/server/_index.php",".ubiquity/_index.php");
+		}
+
+		if(file_exists(".ubiquity/config.php")){
+			$config=include ".ubiquity/config.php";
+			$updated=$config['host']!=$host || $config['port']!=$port;
+		}
+		if(!isset($config) || $updated){
+			$config['host']=$host;
+			$config['port']=$port;
+			$config['sessionName']=uniqid('s');
+			$content="<?php\nreturn ".UArray::asPhpArray($config,'array').';';
+			if (@\file_put_contents('.ubiquity'.\DS.'config.php', $content, LOCK_EX) === false) {
+				throw new \Exception('Unable to write config file: .ubiquity'.\DS.'config.php');
+			}
+		}
+		system('php -S '.$what.' .ubiquity'.\DS.'.htrouter.php -t '.getcwd().' &');
+	}
+
+	private static function info(){
+		echo self::$appName." (".self::$version.")\n";
+		$commands=Command::getCommands();
+		foreach ($commands as $command){
+			echo ConsoleFormatter::formatHtml($command->longString());
+			echo "\n";
+		}
+	}
+
+	private static function infoCmd($cmd){
+		$infos=Command::getInfo($cmd);
+		$command=null;
+		foreach ($infos as $info){
+			echo ConsoleFormatter::showInfo($info['info']);
+			if($command!==$info['cmd']){
+				echo ConsoleFormatter::formatHtml($info['cmd']->longString());
+			}
+			$command=$info['cmd'];
+			echo "\n";
+		}
+	}
+	private static function _init($silent=false){
+		self::$activeDir=dirname(__FILE__);
+		if(!self::setDir(getcwd())){
+			if($silent){
+				return;
+			}
+			echo ConsoleFormatter::showMessage("Failed to locate project root folder\nAn Ubiquity project must contain the <b>".self::$checkProjectDir."</b> folder.",'error');
+			die();
+		}
+		define('ROOT', realpath('./app').DS);
+		$config=require_once 'app/config/config.php';
+		require_once ROOT.'./../vendor/autoload.php';
+		\Ubiquity\controllers\Startup::setConfig($config);
+		return $config;
+	}
+
+	private static function isBooleanTrue($s) {
+		return $s === true || $s === "true" || $s === 1 || $s === "1";
+	}
+
+	public static function error($exception) {
+		$msg="\n<b>Message</b> : ".ConsoleFormatter::colorize($exception->getMessage(),ConsoleFormatter::LIGHT_GRAY)."\n<b>File</b> : " .$exception->getFile()."\n<b>Line : </b> " . $exception->getLine();
+		echo ConsoleFormatter::showMessage($msg,'error');
+	}
+}
+error_reporting(E_ALL);
+
+define('DS', DIRECTORY_SEPARATOR);
+
+Ubiquity::init(@$argv[1]);

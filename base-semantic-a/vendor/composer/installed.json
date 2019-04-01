@@ -267,17 +267,17 @@
     },
     {
         "name": "phpmv/php-mv-ui",
-        "version": "2.2.7",
-        "version_normalized": "2.2.7.0",
+        "version": "2.2.8",
+        "version_normalized": "2.2.8.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/phpMv-UI.git",
-            "reference": "be8276bab8205b41e1942d9c583958a610e8dd88"
+            "reference": "dfdbfa81f071e94cddcecef02ca897b59db962f6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/be8276bab8205b41e1942d9c583958a610e8dd88",
-            "reference": "be8276bab8205b41e1942d9c583958a610e8dd88",
+            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/dfdbfa81f071e94cddcecef02ca897b59db962f6",
+            "reference": "dfdbfa81f071e94cddcecef02ca897b59db962f6",
             "shasum": ""
         },
         "require": {
@@ -289,7 +289,7 @@
             "semantic/ui": "~2.2.1",
             "twitter/bootstrap": "~3.3"
         },
-        "time": "2019-03-19T00:27:27+00:00",
+        "time": "2019-03-25T02:17:26+00:00",
         "type": "phpmv-ui",
         "extra": {
             "branch-alias": {
@@ -330,17 +330,17 @@
     },
     {
         "name": "phpmv/ubiquity",
-        "version": "dev-theme_module",
-        "version_normalized": "dev-theme_module",
+        "version": "v2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity.git",
-            "reference": "e6b17f6967b1b3b4822fd3aba80585537ec7c1ff"
+            "reference": "7079bf915663c9dd91a42a92ae2ab2dd7c0c09d4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/e6b17f6967b1b3b4822fd3aba80585537ec7c1ff",
-            "reference": "e6b17f6967b1b3b4822fd3aba80585537ec7c1ff",
+            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/7079bf915663c9dd91a42a92ae2ab2dd7c0c09d4",
+            "reference": "7079bf915663c9dd91a42a92ae2ab2dd7c0c09d4",
             "shasum": ""
         },
         "require": {
@@ -348,14 +348,13 @@
         },
         "require-dev": {
             "phpmv/ubiquity-codeception": "^1.0",
-            "phpmv/ubiquity-devtools": "dev-master"
+            "phpmv/ubiquity-devtools": "^1.2"
         },
-        "time": "2019-03-21T00:58:22+00:00",
+        "time": "2019-03-31T22:23:07+00:00",
         "type": "framework",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.0.x-dev",
-                "themes_module": "2.1.x-dev"
+                "dev-master": "2.2.x-dev"
             }
         },
         "installation-source": "source",
@@ -380,6 +379,55 @@
             "framework",
             "mvc",
             "orm",
+            "php"
+        ]
+    },
+    {
+        "name": "phpmv/ubiquity-devtools",
+        "version": "v1.2.1",
+        "version_normalized": "1.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phpMv/ubiquity-devtools.git",
+            "reference": "b89ab85e33c5189312793affa6ec27c8ee1d5782"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/phpMv/ubiquity-devtools/zipball/b89ab85e33c5189312793affa6ec27c8ee1d5782",
+            "reference": "b89ab85e33c5189312793affa6ec27c8ee1d5782",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">7.0"
+        },
+        "time": "2019-03-31T22:33:34+00:00",
+        "bin": [
+            "src/Ubiquity"
+        ],
+        "type": "installer",
+        "extra": {
+            "branch-alias": []
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Ubiquity\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            {
+                "name": "Jean-Christophe HERON",
+                "email": "myaddressmail@gmail.com",
+                "role": "Lead developer"
+            }
+        ],
+        "description": "Command line tools for ubiquity-framework",
+        "keywords": [
+            "framework",
             "php"
         ]
     },
@@ -594,17 +642,17 @@
     },
     {
         "name": "twig/twig",
-        "version": "v2.7.3",
-        "version_normalized": "2.7.3.0",
+        "version": "v2.7.4",
+        "version_normalized": "2.7.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "52b9a5bd41c8c53a1d784f90ca25e33bf558a6b3"
+            "reference": "ed9c49220e09bfaeb1ba4d48077c08a7b09908dd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/52b9a5bd41c8c53a1d784f90ca25e33bf558a6b3",
-            "reference": "52b9a5bd41c8c53a1d784f90ca25e33bf558a6b3",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/ed9c49220e09bfaeb1ba4d48077c08a7b09908dd",
+            "reference": "ed9c49220e09bfaeb1ba4d48077c08a7b09908dd",
             "shasum": ""
         },
         "require": {
@@ -617,7 +665,7 @@
             "symfony/debug": "^2.7",
             "symfony/phpunit-bridge": "^3.4.19|^4.1.8"
         },
-        "time": "2019-03-21T14:53:02+00:00",
+        "time": "2019-03-23T14:28:58+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {

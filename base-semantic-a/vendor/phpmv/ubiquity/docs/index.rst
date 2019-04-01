@@ -15,6 +15,9 @@ Ubiquity User guide
    
 .. sidebar:: New in documentation
 
+   - :ref:`Dependency injection<di>`
+   - :ref:`Events<events>`
+   - :ref:`Views and themes<views>`
    - :ref:`Contributing<contributing>`
    - :ref:`Quick start with webtools (UbiquityMyAdmin)<quickstart-html>`
    - Generating models:
@@ -40,6 +43,8 @@ Ubiquity User guide
    controller/uri
    controller/router
    controller/controllers
+   events/index
+   controller/di/index
    
 .. toctree::
    :maxdepth: 1

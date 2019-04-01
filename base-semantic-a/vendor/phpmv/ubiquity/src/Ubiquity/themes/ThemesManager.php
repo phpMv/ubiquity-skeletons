@@ -22,6 +22,7 @@ use Ubiquity\utils\base\UArray;
 class ThemesManager {
 	const THEMES_FOLDER = 'themes';
 	private static $activeTheme;
+	private static $refThemes = [ 'bootstrap','foundation','semantic' ];
 
 	public static function getActiveTheme() {
 		return self::$activeTheme;
@@ -42,15 +43,15 @@ class ThemesManager {
 			throw new ThemesException ( 'Template engine must be an instance of Twig for themes activation!' );
 		}
 	}
-	
-	public static function saveActiveTheme($theme){
-		$config=Startup::getConfig();
-		$config['templateEngineOptions']['activeTheme']=$theme;
-		$content="<?php\nreturn ".UArray::asPhpArray($config,"array",1,true).";";
-		Startup::saveConfig($content);
+
+	public static function saveActiveTheme($theme) {
+		$config = Startup::getConfig ();
+		$config ['templateEngineOptions'] ['activeTheme'] = $theme;
+		$content = "<?php\nreturn " . UArray::asPhpArray ( $config, "array", 1, true ) . ";";
+		Startup::saveConfig ( $content );
 		return $config;
 	}
-	
+
 	/**
 	 * Sets the activeTheme
 	 *
@@ -76,6 +77,35 @@ class ThemesManager {
 	}
 
 	/**
+	 * Returns all referenced themes.
+	 *
+	 * @return string[]
+	 */
+	public static function getRefThemes() {
+		return self::$refThemes;
+	}
+
+	/**
+	 * Returns if a theme is a custom Theme (not in refThemes).
+	 *
+	 * @param string $theme
+	 * @return boolean
+	 */
+	public static function isCustom($theme) {
+		return array_search ( $theme, self::$refThemes ) === false;
+	}
+
+	/**
+	 * Returns the not installed themes
+	 *
+	 * @return array
+	 */
+	public static function getNotInstalledThemes() {
+		$AvailableThemes = self::getAvailableThemes ();
+		return array_diff ( self::$refThemes, $AvailableThemes );
+	}
+
+	/**
 	 * Adds a listener before theme rendering.
 	 * The callback function takes the following parameters: $view (the view name), $pData (array of datas sent to the view)
 	 *
@@ -95,4 +125,3 @@ class ThemesManager {
 		EventsManager::addListener ( ViewEvents::AFTER_RENDER, $callback );
 	}
 }
-

@@ -3,7 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [Unreleased]
+## [Unrelease]
+- Nothing
+
+## [2.1.0] - 2019-04-01
+### Added
+- Themes manager with bootstrap, Semantic-ui and foundation
+  - `AssetsManager` for css,js, fonts and images integration
+  - `ThemesManager` for css framework integration
+  - Themes part in webtools interface
+- Dependency injection annotations
+  - `@injected` inject a member in a controller defined by a dependency in config
+  - `@autowired` inject an instance of class defined by type with `@var` annotation
+   
+### Changed
+- dependency injection mecanism
+  - controller cache for di
+  - `@exec`key in `config[di]` for injections at runtime
+  
 ### Fixed
 - An exception is thrown In case of problem with the Database connection (in `DataBase::connect` method) see https://github.com/phpMv/ubiquity/issues/12
 >The connection to the database must be protected by a `try/catch` in `app/config/services.php`
@@ -14,6 +31,10 @@ try{
 	echo $e->getMessage();
 }
 ```
+### Documentation
+- Dependency injection updates [di doc](https://micro-framework.readthedocs.io/en/latest/controller/di/index.html#di)
+- Themes managment [Assets and themes doc](https://micro-framework.readthedocs.io/en/latest/view/index.html#assets)
+
 ## [2.0.11] - 2019-03-14
 ### Added
 - Rest [JsonAPI](https://jsonapi.org/format/) implementation

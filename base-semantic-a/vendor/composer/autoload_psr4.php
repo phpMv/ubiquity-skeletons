@@ -7,7 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'mindplay\\annotations\\' => array($vendorDir . '/mindplay/annotations/src/annotations'),
-    'Ubiquity\\' => array($vendorDir . '/phpmv/ubiquity/src/Ubiquity'),
+    'Ubiquity\\' => array($vendorDir . '/phpmv/ubiquity/src/Ubiquity', $vendorDir . '/phpmv/ubiquity-devtools/src'),
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),

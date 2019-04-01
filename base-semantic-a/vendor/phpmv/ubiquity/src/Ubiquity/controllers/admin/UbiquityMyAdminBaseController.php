@@ -52,12 +52,17 @@ use Ubiquity\utils\http\UResponse;
 use Ubiquity\utils\yuml\ClassToYuml;
 use Ubiquity\utils\yuml\ClassesToYuml;
 use Ajax\php\ubiquity\JsUtils;
+use Ubiquity\controllers\semantic\InsertJqueryTrait;
+use Ubiquity\themes\ThemesManager;
+use Ubiquity\controllers\admin\traits\ThemesTrait;
+use Ajax\semantic\components\validation\Rule;
+use Ubiquity\utils\base\UArray;
 
 class UbiquityMyAdminBaseController extends Controller implements HasModelViewerInterface {
 
 	use MessagesTrait,ModelsTrait,ModelsConfigTrait,RestTrait,CacheTrait,ConfigTrait,
 	ControllersTrait,RoutesTrait,DatabaseTrait,SeoTrait,GitTrait,CreateControllersTrait,
-	LogsTrait;
+	LogsTrait,InsertJqueryTrait,ThemesTrait;
 
 	/**
 	 *
@@ -89,17 +94,15 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 	 */
 	private $scaffold;
 	private $globalMessage;
-
-	/**
-	 *
-	 * @var \Ajax\php\ubiquity\JsUtils
-	 */
-	public $jquery;
+	protected $config = [ 'devtools-path' => 'Ubiquity' ];
+	protected $configFile = ROOT . DS . 'config' . DS . 'adminConfig.php';
 
 	public function __construct() {
 		parent::__construct ();
-		$this->jquery = new \Ajax\php\ubiquity\JsUtils ( [ "defer" => true ], $this );
-		$this->jquery->semantic ( new \Ajax\Semantic () );
+		$this->insertJquerySemantic ();
+		if (file_exists ( $this->configFile )) {
+			$this->config = include ($this->configFile);
+		}
 	}
 
 	public function initialize() {
@@ -182,8 +185,8 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 
 	public function index() {
 		$array = $this->_getAdminViewer ()->getMainMenuElements ();
-		$this->_getAdminViewer ()->getMainIndexItems ( "part1", \array_slice ( $array, 0, 5 ) );
-		$this->_getAdminViewer ()->getMainIndexItems ( "part2", \array_slice ( $array, 5, 5 ) );
+		$this->_getAdminViewer ()->getMainIndexItems ( "part1", \array_slice ( $array, 0, 6 ) );
+		$this->_getAdminViewer ()->getMainIndexItems ( "part2", \array_slice ( $array, 6, 5 ) );
 		$this->jquery->compile ( $this->view );
 		$this->loadView ( $this->_getFiles ()->getViewIndex () );
 	}
@@ -240,10 +243,18 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 		$input->labeledCheckbox ( Direction::LEFT, "View", "v", "slider" );
 		$input->addAction ( "Create controller", true, "plus", true )->addClass ( "teal" )->asSubmit ();
 		$frm->setSubmitParams ( $baseRoute . "/createController", "#main-content" );
+		$activeTheme = ThemesManager::getActiveTheme ();
+
 		$bt = $fields->addDropdown ( "crud-bt", [ "frmAddCrudController" => "CRUD controller","frmAddAuthController" => "Auth controller" ], "Create special controller" );
 		$bt->asButton ();
 		$bt->addIcon ( "plus" );
-		$this->jquery->getOnClick ( "#dropdown-crud-bt [data-value]", $baseRoute, "#frm", [ "attr" => "data-value" ] );
+		if ($activeTheme == null) {
+			$this->jquery->getOnClick ( "#dropdown-crud-bt [data-value]", $baseRoute, "#frm", [ "attr" => "data-value" ] );
+		} else {
+			$bt->setDisabled ( true );
+			$bt->addPopup ( "Scaffolding", "No scaffolding with an active theme!" );
+		}
+
 		$bt = $fields->addButton ( "filter-bt", "Filter controllers" );
 		$bt->getOnClick ( $baseRoute . "/frmFilterControllers", "#frm", [ "attr" => "" ] );
 		$bt->addIcon ( "filter" );
@@ -376,7 +387,8 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 		$trans->setFallbackLocale ( 'en_EN' );
 		$catalog = $trans->getCatalogue ();
 		$world = $trans->trans ( "buttons.Okays", [ ], "messages" );
-		$this->jquery->renderView ( $this->_getFiles ()->getViewTranslateIndex (), compact ( "loc", "catalog", "world" ) );
+		$message = $this->showSimpleMessage ( "This part is under development, and will be available in the next version.", "info", "Translate","info circle", null, "msg" );
+		$this->jquery->renderView ( $this->_getFiles ()->getViewTranslateIndex (), compact ( "loc", "catalog", "world", "message" ) );
 	}
 
 	protected function _seo() {
@@ -469,6 +481,37 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 		$this->jquery->exec ( '$("#git-tabs .item").tab();', true );
 		$this->jquery->compile ( $this->view );
 		$this->loadView ( $this->_getFiles ()->getViewGitIndex (), [ "repo" => $gitRepo,"initializeBt" => $initializeBt,"gitIgnoreBt" => $gitIgnoreBt,"pushPullBts" => $pushPullBts,"btRefresh" => $btRefresh ] );
+	}
+
+	public function themes() {
+		$devtoolsPath = $this->config ["devtools-path"] ?? 'Ubiquity';
+		$this->getHeader ( "themes" );
+		$this->jquery->semantic ()->htmlLabel ( "activeTheme" );
+		$activeTheme = ThemesManager::getActiveTheme () ?? 'no theme';
+		$themes = ThemesManager::getAvailableThemes ();
+		$notInstalled = ThemesManager::getNotInstalledThemes ();
+		$refThemes = ThemesManager::getRefThemes ();
+		$frm = $this->jquery->semantic ()->htmlForm ( 'frmNewTheme' );
+		$fields = $frm->addFields ();
+		$input = $fields->addInput ( "themeName", null, 'text', '', 'Theme name' );
+		$input->addRules ( [ "empty",[ "checkTheme","Theme {value} already exists!" ] ] );
+		$dd = $fields->addDropdown ( "extendTheme", array_combine ( $refThemes, $refThemes ), '', 'extends...' );
+		$dd->getField ()->setClearable ( true );
+		$fields->addButton ( "btNewTheme", "Create theme", "positive" );
+
+		$this->jquery->exec ( Rule::ajax ( $this->jquery, "checkTheme", $this->_getFiles ()->getAdminBaseRoute () . "/_themeExists/themeName", "{}", "result=data.result;", "postForm", [ "form" => "frmNewTheme" ] ), true );
+
+		$frm->setValidationParams ( [ "on" => "blur","inline" => true ] );
+		$frm->setSubmitParams ( "Admin/createNewTheme", "#refresh-theme", [ "hasLoader" => "internal" ] );
+
+		$this->jquery->getOnClick ( "._installTheme", "Admin/installTheme", "#refresh-theme", [ "attr" => "data-ajax","hasLoader" => "internal" ] );
+		$this->jquery->postOnClick ( "._saveConfig", "Admin/setDevtoolsPath", "{path:$('#devtools-path').val()}", "#devtools-message", [ "hasLoader" => "internal" ] );
+		$this->jquery->getHref ( "._setTheme", "#refresh-theme" );
+
+		$checkDevtools = $this->_checkDevtoolsPath ( $devtoolsPath );
+		$this->jquery->compile ( $this->view );
+
+		$this->loadView ( $this->_getFiles ()->getViewThemesIndex (), compact ( 'activeTheme', 'themes', 'notInstalled', 'devtoolsPath', 'checkDevtools' ) );
 	}
 
 	protected function getHeader($key) {
@@ -986,5 +1029,14 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 
 	public function _getInstancesFilter($model) {
 		return "1=1";
+	}
+
+	public function getConfig() {
+		return $this->config;
+	}
+
+	public function saveConfig() {
+		$content = "<?php\nreturn " . UArray::asPhpArray ( $this->config, "array", 1, true ) . ";";
+		return UFileSystem::save ( $this->configFile, $content );
 	}
 }
