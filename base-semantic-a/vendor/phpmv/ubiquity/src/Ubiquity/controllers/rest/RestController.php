@@ -38,11 +38,10 @@ abstract class RestController extends RestBaseController implements HasResourceI
 	/**
 	 * Returns a list of objects from the server
 	 *
-	 * @param string $condition
-	 *        	the sql Where part
-	 * @param boolean|string $included
-	 *        	if true, loads associate members with associations, if string, example : client.*,commands
+	 * @param string $condition the sql Where part
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
 	 * @param boolean $useCache
+	 * @route("methods"=>["get"])
 	 */
 	public function get($condition = "1=1", $included = false, $useCache = false) {
 		$this->_get ( $condition, $included, $useCache );
@@ -51,12 +50,10 @@ abstract class RestController extends RestBaseController implements HasResourceI
 	/**
 	 * Get the first object corresponding to the $keyValues
 	 *
-	 * @param string $keyValues
-	 *        	primary key(s) value(s) or condition
-	 * @param boolean|string $included
-	 *        	if true, loads associate members with associations, if string, example : client.*,commands
-	 * @param boolean $useCache
-	 *        	if true then response is cached
+	 * @param string $keyValues primary key(s) value(s) or condition
+	 * @param boolean|string $included if true, loads associate members with associations, if string, example : client.*,commands
+	 * @param boolean $useCache if true then response is cached
+	 * @route("methods"=>["get"])
 	 */
 	public function getOne($keyValues, $included = false, $useCache = false) {
 		$this->_getOne ( $keyValues, $included, $useCache );
@@ -69,9 +66,10 @@ abstract class RestController extends RestBaseController implements HasResourceI
 	 *
 	 * @param array $keyValues
 	 * @authorization
+	 * @route("methods"=>["patch"])
 	 */
 	public function update(...$keyValues) {
-		$this->_update ( $keyValues );
+		$this->_update ( ...$keyValues );
 	}
 
 	/**
@@ -80,6 +78,7 @@ abstract class RestController extends RestBaseController implements HasResourceI
 	 * Requires an authorization with access token
 	 *
 	 * @authorization
+	 * @route("methods"=>["post"])
 	 */
 	public function add() {
 		$this->_add ();
@@ -94,6 +93,6 @@ abstract class RestController extends RestBaseController implements HasResourceI
 	 * @authorization
 	 */
 	public function delete(...$keyValues) {
-		$this->_delete ( $keyValues );
+		$this->_delete ( ...$keyValues );
 	}
 }

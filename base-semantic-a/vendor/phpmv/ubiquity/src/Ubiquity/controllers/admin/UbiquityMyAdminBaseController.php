@@ -99,6 +99,7 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 
 	public function __construct() {
 		parent::__construct ();
+		DAO::$transformerOp='toView';
 		$this->insertJquerySemantic ();
 		if (file_exists ( $this->configFile )) {
 			$this->config = include ($this->configFile);
@@ -806,7 +807,7 @@ class UbiquityMyAdminBaseController extends Controller implements HasModelViewer
 		$fields = $frm->addFields ();
 		$fields->addInput ( "name[]", \ucfirst ( $type ) . " name" )->getDataField ()->setIdentifier ( "name-" . $index )->setProperty ( "value", $name );
 		$input = $fields->addInput ( "value[]", \ucfirst ( $type ) . " value" );
-		$input->getDataField ()->setIdentifier ( "value-" . $index )->setProperty ( "value", $value );
+		$input->getDataField ()->setIdentifier ( "value-" . $index )->setProperty ( "value",htmlentities($value) );
 		$input->addAction ( "", true, "remove" )->addClass ( "icon basic _deleteParameter" );
 	}
 

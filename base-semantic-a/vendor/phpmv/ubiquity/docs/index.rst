@@ -15,6 +15,8 @@ Ubiquity User guide
    
 .. sidebar:: New in documentation
 
+   - :ref:`REST module<rest>`
+   - :ref:`Data transformers<transformers>`
    - :ref:`Dependency injection<di>`
    - :ref:`Events<events>`
    - :ref:`Views and themes<views>`
@@ -82,6 +84,7 @@ Ubiquity User guide
    
    contents/normalizers
    contents/validators
+   contents/transformers
    translation/index
 
 .. toctree::

@@ -21,6 +21,7 @@ trait FormTrait{
 	 * @return HtmlForm
 	 */
 	abstract protected function getForm();
+	
 
 	protected function addCompoValidation(Form $compo,HtmlFormField $field){
 		$validation=$field->getValidation();
@@ -28,12 +29,10 @@ trait FormTrait{
 			$validation->setIdentifier($field->getDataField()->getIdentifier());
 			$compo->addFieldValidation($validation);
 		}
-		return $compo;
 	}
 	
 	protected function addExtraCompoValidation(Form $compo,FieldValidation $validation){
 		$compo->addFieldValidation($validation);
-		return $compo;
 	}
 
 	protected function _runValidationParams(Form &$compo,JsUtils $js=NULL){

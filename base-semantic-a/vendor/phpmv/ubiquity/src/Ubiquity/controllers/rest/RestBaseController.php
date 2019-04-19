@@ -66,6 +66,19 @@ abstract class RestBaseController extends Controller {
 		return true;
 	}
 
+	/**
+	 * Returns true if $action require an authentification with token
+	 *
+	 * @param string $action
+	 * @return boolean
+	 */
+	protected function requireAuth($action) {
+		if (isset ( $this->restCache ["authorizations"] )) {
+			return array_search ( $action, $this->restCache ["authorizations"] ) !== false;
+		}
+		return false;
+	}
+
 	public function onInvalidControl() {
 		throw new \Exception ( 'HTTP/1.1 401 Unauthorized, you need an access token for this request', 401 );
 	}
@@ -75,7 +88,8 @@ abstract class RestBaseController extends Controller {
 	 * To override in derived classes to define your own authentication
 	 */
 	public function connect() {
-		$this->server->connect ( $this );
+		$resp = $this->server->connect ();
+		echo $this->_format ( $resp );
 	}
 
 	public function initialize() {
@@ -108,7 +122,7 @@ abstract class RestBaseController extends Controller {
 	 */
 	public function _get($condition = "1=1", $include = false, $useCache = false) {
 		try {
-			$condition = \urldecode ( $condition );
+			$condition = $this->getCondition ( $condition );
 			$include = $this->getInclude ( $include );
 			$useCache = UString::isBooleanTrue ( $useCache );
 			$datas = DAO::getAll ( $this->model, $condition, $include, null, $useCache );
@@ -127,7 +141,7 @@ abstract class RestBaseController extends Controller {
 	 * @param boolean $useCache if true then response is cached
 	 */
 	public function _getOne($keyValues, $include = false, $useCache = false) {
-		$keyValues = \urldecode ( $keyValues );
+		$keyValues = $this->getCondition ( $keyValues );
 		$include = $this->getInclude ( $include );
 		$useCache = UString::isBooleanTrue ( $useCache );
 		$data = DAO::getOne ( $this->model, $keyValues, $include, null, $useCache );
@@ -192,12 +206,12 @@ abstract class RestBaseController extends Controller {
 	 * @param array $keyValues
 	 */
 	public function _update(...$keyValues) {
-		$instance = DAO::getOne ( $this->model, $keyValues,false );
+		$instance = DAO::getOne ( $this->model, $keyValues, false );
 		$this->operate_ ( $instance, function ($instance) {
 			$datas = $this->getDatas ();
 			$this->_setValuesToObject ( $instance, $datas );
 			if ($this->_validateInstance ( $instance, array_keys ( $datas ) )) {
-				return $this->updateOperation($instance, $datas,true);
+				return $this->updateOperation ( $instance, $datas, true );
 			}
 			return null;
 		}, "updated", "Unable to update the instance", $keyValues );
@@ -214,7 +228,7 @@ abstract class RestBaseController extends Controller {
 			$datas = $this->getDatas ();
 			$this->_setValuesToObject ( $instance, $datas );
 			if ($this->_validateInstance ( $instance, $datas )) {
-				return $this->AddOperation($instance, $datas,true);
+				return $this->AddOperation ( $instance, $datas, true );
 			}
 			return null;
 		}, "inserted", "Unable to insert the instance", [ ] );
@@ -226,7 +240,7 @@ abstract class RestBaseController extends Controller {
 	 * @param array $keyValues
 	 */
 	public function _delete(...$keyValues) {
-		$instance = DAO::getOne ( $this->model, $keyValues );
+		$instance = DAO::getOne ( $this->model, $keyValues, false );
 		$this->operate_ ( $instance, function ($instance) {
 			return DAO::remove ( $instance );
 		}, "deleted", "Unable to delete the instance", $keyValues );
@@ -235,12 +249,13 @@ abstract class RestBaseController extends Controller {
 	public static function _getApiVersion() {
 		return '?';
 	}
-	
+
 	/**
 	 * Returns the template for creating this type of controller
+	 *
 	 * @return string
 	 */
-	public static function _getTemplateFile(){
+	public static function _getTemplateFile() {
 		return 'restController.tpl';
 	}
 }

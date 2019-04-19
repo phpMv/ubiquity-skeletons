@@ -16,6 +16,10 @@ class TestController extends Controller {
 		echo "Hello world!";
 	}
 
+	public function test() {
+		echo "test!";
+	}
+
 	public function doForward() {
 		echo "forward!";
 	}

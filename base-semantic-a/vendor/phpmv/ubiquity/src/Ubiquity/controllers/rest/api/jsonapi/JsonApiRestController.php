@@ -17,7 +17,7 @@ use Ubiquity\controllers\crud\CRUDHelper;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.2
+ * @version 1.1.3
  * @since Ubiquity 2.0.11
  *
  */
@@ -34,26 +34,14 @@ abstract class JsonApiRestController extends RestBaseController {
 		if (class_exists ( $this->model )) {
 			$callback ();
 		} else {
+			$this->_setResponseCode ( 404 );
 			$error = new RestError ( 404, "Not existing class", $this->model . " class does not exists!", Startup::getController () . "/" . Startup::getAction () );
 			echo $this->_format ( $error->asArray () );
 		}
 	}
 
-	/**
-	 *
-	 * @param string $param
-	 * @param string|boolean $default
-	 * @return string|boolean
-	 */
-	protected function getRequestParam($param, $default) {
-		if (isset ( $_GET [$param] )) {
-			return $_GET [$param];
-		}
-		return $default;
-	}
-
 	protected function getDatas() {
-		$datas = URequest::getInput ();
+		$datas = URequest::getRealInput ();
 		if (sizeof ( $datas ) > 0) {
 			$datas = current ( array_keys ( $datas ) );
 			$datas = json_decode ( $datas, true );
@@ -62,19 +50,19 @@ abstract class JsonApiRestController extends RestBaseController {
 				$key = OrmUtils::getFirstKey ( $this->model );
 				$attributes [$key] = $datas ["data"] ["id"];
 			}
-			$this->loadRelationshipsDatas($datas, $attributes);
+			$this->loadRelationshipsDatas ( $datas, $attributes );
 			return $attributes;
 		}
 		$this->addError ( 204, 'No content', 'The POST request has no content!' );
 	}
-	
-	protected function loadRelationshipsDatas($datas,&$attributes){
-		if(isset($datas['data']['relationships'])){
-			$relationShips=$datas['data']['relationships'];
-			foreach ($relationShips as $member=>$data){
-				if(isset($data['data']['id'])){
-					$m=OrmUtils::getJoinColumnName($this->model, $member);
-					$attributes[$m]=$data['data']['id'];
+
+	protected function loadRelationshipsDatas($datas, &$attributes) {
+		if (isset ( $datas ['data'] ['relationships'] )) {
+			$relationShips = $datas ['data'] ['relationships'];
+			foreach ( $relationShips as $member => $data ) {
+				if (isset ( $data ['data'] ['id'] )) {
+					$m = OrmUtils::getJoinColumnName ( $this->model, $member );
+					$attributes [$m] = $data ['data'] ['id'];
 				}
 			}
 		}
@@ -87,18 +75,19 @@ abstract class JsonApiRestController extends RestBaseController {
 	protected function getRestServer(): RestServer {
 		return new JsonApiRestServer ( $this->config );
 	}
-	
-	protected function updateOperation($instance,$datas,$updateMany=false){
-		$instance->_new=false;
-		return CRUDHelper::update($instance,$datas,false,$updateMany);
+
+	protected function updateOperation($instance, $datas, $updateMany = false) {
+		$instance->_new = false;
+		return CRUDHelper::update ( $instance, $datas, false, $updateMany );
 	}
-	
-	protected function AddOperation($instance,$datas,$insertMany=false){
-		$instance->_new=true;
-		return CRUDHelper::update($instance,$datas,false,$insertMany);
+
+	protected function AddOperation($instance, $datas, $insertMany = false) {
+		$instance->_new = true;
+		return CRUDHelper::update ( $instance, $datas, false, $insertMany );
 	}
 
 	/**
+	 * Route for CORS
 	 *
 	 * @route("{resource}","methods"=>["options"],"priority"=>3000)
 	 */
@@ -127,7 +116,7 @@ abstract class JsonApiRestController extends RestBaseController {
 	 */
 	public function getAll_($resource) {
 		$this->_checkResource ( $resource, function () {
-			$filter = $this->getRequestParam ( 'filter', '1=1' );
+			$filter = $this->getCondition ( $this->getRequestParam ( 'filter', '1=1' ) );
 			$pages = null;
 			if (isset ( $_GET ['page'] )) {
 				$pageNumber = $_GET ['page'] ['number'];
@@ -141,9 +130,6 @@ abstract class JsonApiRestController extends RestBaseController {
 
 	/**
 	 * Returns an instance of $resource, by primary key $id.
-	 * Query parameters:
-	 * - **include**: A string of associated members to load, comma separated (e.g. users,groups,organization...), or a boolean: true for all members, false for none (default: true).
-	 * - **filter**: The filter to apply to the query (where part of an SQL query) (default: 1=1).
 	 *
 	 * @param string $resource The resource (model) to use
 	 * @param string $id The primary key value(s), if the primary key is composite, use a comma to separate the values (e.g. 1,115,AB)
@@ -189,10 +175,11 @@ abstract class JsonApiRestController extends RestBaseController {
 
 	/**
 	 * Inserts a new instance of $resource.
-	 * Data attributes are send in data[attributes] request header
+	 * Data attributes are send in data[attributes] request body (in JSON format)
 	 *
 	 * @param string $resource The resource (model) to use
 	 * @route("{resource}/","methods"=>["post"],"priority"=>0)
+	 * @authorization
 	 */
 	public function add_($resource) {
 		$this->_checkResource ( $resource, function () {
@@ -202,14 +189,15 @@ abstract class JsonApiRestController extends RestBaseController {
 
 	/**
 	 * Updates an existing instance of $resource.
-	 * Data attributes are send in data[attributes] request header
+	 * Data attributes are send in data[attributes] request body (in JSON format)
 	 *
 	 * @param string $resource The resource (model) to use
 	 *
 	 * @route("{resource}/{id}","methods"=>["patch"],"priority"=>0)
+	 * @authorization
 	 */
-	public function update_($resource,...$id) {
-		$this->_checkResource ( $resource, function () use ($id){
+	public function update_($resource, ...$id) {
+		$this->_checkResource ( $resource, function () use ($id) {
 			if (! $this->hasErrors ()) {
 				parent::_update ( ...$id );
 			} else {
@@ -225,10 +213,11 @@ abstract class JsonApiRestController extends RestBaseController {
 	 * @param string $ids The primary key value(s), if the primary key is composite, use a comma to separate the values (e.g. 1,115,AB)
 	 *
 	 * @route("{resource}/{id}/","methods"=>["delete"],"priority"=>0)
+	 * @authorization
 	 */
 	public function delete_($resource, ...$id) {
 		$this->_checkResource ( $resource, function () use ($id) {
-			$this->_delete ( $id );
+			$this->_delete ( ...$id );
 		} );
 	}
 
@@ -240,12 +229,13 @@ abstract class JsonApiRestController extends RestBaseController {
 	public static function _getApiVersion() {
 		return self::API_VERSION;
 	}
-	
+
 	/**
 	 * Returns the template for creating this type of controller
+	 *
 	 * @return string
 	 */
-	public static function _getTemplateFile(){
+	public static function _getTemplateFile() {
 		return 'restApiController.tpl';
 	}
 }

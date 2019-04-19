@@ -83,12 +83,16 @@ class URequest {
 		$method = \strtolower ( $_SERVER ['REQUEST_METHOD'] );
 		switch ($method) {
 			case 'post' :
-				return $_POST;
+				if (self::getContentType () == 'application/x-www-form-urlencoded') {
+					return $_POST;
+				}
+				break;
 			case 'get' :
 				return $_GET;
 			default :
 				return self::getInput ();
 		}
+		return self::getInput ();
 	}
 
 	/**
@@ -98,8 +102,8 @@ class URequest {
 	 */
 	public static function getContentType() {
 		$headers = getallheaders ();
-		if (isset ( $headers ["content-type"] )) {
-			return $headers ["content-type"];
+		if (isset ( $headers ["Content-Type"] )) {
+			return $headers ["Content-Type"];
 		}
 		return null;
 	}
@@ -244,6 +248,25 @@ class URequest {
 		return \strtolower ( $_SERVER ['REQUEST_METHOD'] );
 	}
 
+	/**
+	 * Returns the request origin
+	 *
+	 * @return string
+	 */
+	public static function getOrigin() {
+		$headers = getallheaders ();
+		if (isset ( $headers ['Origin'] )) {
+			return $headers ['Origin'];
+		}
+		if (isset ( $_SERVER ['HTTP_ORIGIN'] )) {
+			return $_SERVER ['HTTP_ORIGIN'];
+		} else if (isset ( $_SERVER ['HTTP_REFERER'] )) {
+			return $_SERVER ['HTTP_REFERER'];
+		} else {
+			return $_SERVER ['REMOTE_ADDR'];
+		}
+	}
+
 	public static function cleanUrl($url) {
 		$url = \str_replace ( "\\", "/", $url );
 		return \str_replace ( "//", "/", $url );
@@ -258,7 +281,7 @@ class URequest {
 	 * @see https://stackoverflow.com/questions/68651/can-i-get-php-to-stop-replacing-characters-in-get-or-post-arrays#68667
 	 */
 	public static function getRealInput($source = 'post') {
-		$pairs = explode ( "&", strtolower ( $source ) === 'post' ? file_get_contents ( "php://input" ) : $_SERVER ['QUERY_STRING'] );
+		$pairs = explode ( "&", strtolower ( $source ) === 'get' ? $_SERVER ['QUERY_STRING']:file_get_contents ( "php://input" )  );
 		$vars = array ();
 		foreach ( $pairs as $pair ) {
 			$nv = explode ( "=", $pair );

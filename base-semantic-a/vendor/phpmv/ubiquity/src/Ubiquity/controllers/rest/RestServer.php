@@ -7,6 +7,7 @@ use Ubiquity\cache\ClassUtils;
 use Ubiquity\cache\CacheManager;
 use Ubiquity\exceptions\RestException;
 use Ubiquity\log\Logger;
+use Ubiquity\utils\http\URequest;
 
 /**
  * Rest server base class.
@@ -14,7 +15,7 @@ use Ubiquity\log\Logger;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.3
+ * @version 1.0.6
  *
  */
 class RestServer {
@@ -25,7 +26,10 @@ class RestServer {
 	protected $config;
 	protected $headers;
 	protected $tokensFolder;
+	protected $tokenLength;
+	protected $tokenDuration;
 	protected $tokensCacheKey = "_apiTokens";
+	protected $allowedOrigins;
 
 	/**
 	 *
@@ -33,18 +37,26 @@ class RestServer {
 	 */
 	protected $apiTokens;
 
-	public function __construct(&$config) {
+	public function __construct(&$config, $headers = null) {
 		$this->config = $config;
-		$this->headers = [ 'Access-Control-Allow-Origin' => 'http://127.0.0.1:4200','Access-Control-Allow-Credentials' => 'true','Access-Control-Max-Age' => '86400','Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD','Content-type' => 'application/json; charset=utf8' ];
+		$this->headers = [ 'Access-Control-Allow-Origin' => '*','Access-Control-Allow-Credentials' => 'true','Access-Control-Max-Age' => '86400','Access-Control-Allow-Methods' => 'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD','Content-Type' => 'application/json; charset=utf8' ];
+		if (is_array ( $headers )) {
+			$this->headers = array_merge ( $this->headers, $headers );
+		}
 	}
 
-	public function connect(RestBaseController $controller) {
+	/**
+	 * Establishes the connection with the server, returns an added token in the Authorization header of the request
+	 *
+	 * @return array
+	 */
+	public function connect() {
 		if (! isset ( $this->apiTokens )) {
-			$this->apiTokens = $this->_getApiTokens ();
+			$this->apiTokens = $this->_loadApiTokens ();
 		}
 		$token = $this->apiTokens->addToken ();
 		$this->_addHeaderToken ( $token );
-		echo $controller->_format ( [ "access_token" => $token,"token_type" => "Bearer","expires_in" => $this->apiTokens->getDuration () ] );
+		return [ "access_token" => $token,"token_type" => "Bearer","expires_in" => $this->apiTokens->getDuration () ];
 	}
 
 	/**
@@ -53,7 +65,7 @@ class RestServer {
 	 * @return boolean
 	 */
 	public function isValid() {
-		$this->apiTokens = $this->_getApiTokens ();
+		$this->apiTokens = $this->_loadApiTokens ();
 		$key = $this->_getHeaderToken ();
 		if ($this->apiTokens->isExpired ( $key )) {
 			return false;
@@ -66,11 +78,16 @@ class RestServer {
 	public function _getHeaderToken() {
 		$authHeader = $this->_getHeader ( "Authorization" );
 		if ($authHeader !== false) {
-			list ( $type, $data ) = explode ( " ", $authHeader, 2 );
-			if (\strcasecmp ( $type, "Bearer" ) == 0) {
-				return $data;
+			$headerDatas = explode ( " ", $authHeader, 2 );
+			if (sizeof ( $headerDatas ) === 2) {
+				list ( $type, $data ) = $headerDatas;
+				if (\strcasecmp ( $type, "Bearer" ) == 0) {
+					return $data;
+				} else {
+					throw new RestException ( "Bearer is required in authorization header." );
+				}
 			} else {
-				throw new RestException ( "Bearer is required in authorization header." );
+				throw new RestException ( "The header Authorization is required in http headers." );
 			}
 		} else {
 			throw new RestException ( "The header Authorization is required in http headers." );
@@ -93,7 +110,18 @@ class RestServer {
 	}
 
 	public function _addHeaderToken($token) {
-		$this->_header ( "Authorization", "Bearer " . $token );
+		$this->_header ( "Authorization", "Bearer " . $token, true );
+	}
+
+	public function _loadApiTokens() {
+		return $this->getApiTokens ()->getFromCache ( CacheManager::getAbsoluteCacheDirectory () . \DS, $this->tokensCacheKey );
+	}
+
+	protected function getApiTokens() {
+		if (! isset ( $this->apiTokens )) {
+			$this->apiTokens = $this->newApiTokens ();
+		}
+		return $this->apiTokens;
 	}
 
 	/**
@@ -101,8 +129,31 @@ class RestServer {
 	 *
 	 * @return ApiTokens
 	 */
-	public function _getApiTokens() {
-		return ApiTokens::getFromCache ( CacheManager::getAbsoluteCacheDirectory () . \DS, $this->tokensCacheKey );
+	protected function newApiTokens() {
+		return new ApiTokens ( $this->tokenLength, $this->tokenDuration );
+	}
+
+	protected function getAllowedOrigin() {
+		$http_origin = URequest::getOrigin ();
+		if (is_array ( $this->allowedOrigins )) {
+			if (array_search ( $http_origin, $this->allowedOrigins ) !== false) {
+				return $http_origin;
+			}
+			return 'null';
+		}
+		return '*';
+	}
+
+	protected function setAccessControlAllowOriginHeader() {
+		$origin = $this->getAllowedOrigin ();
+		unset ( $this->headers ['Access-Control-Allow-Origin'] );
+		\header ( 'Access-Control-Allow-Origin: ' . $origin, true );
+	}
+
+	protected function addOtherHeaders() {
+		foreach ( $this->headers as $k => $v ) {
+			$this->_header ( $k, $v );
+		}
 	}
 
 	/**
@@ -115,6 +166,7 @@ class RestServer {
 		if (! isset ( $value )) {
 			if (isset ( $this->headers [$headerField] )) {
 				$value = $this->headers [$headerField];
+				unset ( $this->headers [$headerField] );
 			} else
 				return;
 		}
@@ -134,7 +186,7 @@ class RestServer {
 	}
 
 	public function cors() {
-		$this->_header ( 'Access-Control-Allow-Origin' );
+		$this->setAccessControlAllowOriginHeader ();
 		$this->_header ( 'Access-Control-Allow-Credentials' );
 		$this->_header ( 'Access-Control-Max-Age' );
 		if ($_SERVER ['REQUEST_METHOD'] == 'OPTIONS') {
@@ -148,6 +200,7 @@ class RestServer {
 			}
 			Logger::info ( "Rest", "cors exit normally", "Cors" );
 		}
+		$this->addOtherHeaders ();
 	}
 
 	public static function getRestNamespace() {
@@ -160,7 +213,50 @@ class RestServer {
 		return ClassUtils::getNamespaceFromParts ( [ $controllerNS,$restNS ] );
 	}
 
-	public function setAccessAllowOrigin($address = '*') {
-		$this->headers ['Access-Control-Allow-Origin'] = $address;
+	/**
+	 * Adds an unique allowed origin for access control.
+	 *
+	 * @param string $address
+	 */
+	public function setAllowedOrigin($address = '*') {
+		if ($address !== '*') {
+			$this->allowedOrigins = [ $address ];
+		} else {
+			$this->allowedOrigins = [ ];
+		}
+	}
+
+	/**
+	 * Sets the allowed origins for access control.
+	 *
+	 * @param array $addresses
+	 */
+	public function setAllowedOrigins($addresses) {
+		$this->allowedOrigins = $addresses;
+	}
+
+	/**
+	 * Adds an allowed origin for access control.
+	 *
+	 * @param string $address
+	 */
+	public function addAllowedOrigin($address) {
+		$this->allowedOrigins = [ $address ];
+	}
+
+	/**
+	 *
+	 * @param int $tokenLength
+	 */
+	public function setTokenLength($tokenLength) {
+		$this->tokenLength = $tokenLength;
+	}
+
+	/**
+	 *
+	 * @param mixed $tokenDuration
+	 */
+	public function setTokenDuration($tokenDuration) {
+		$this->tokenDuration = $tokenDuration;
 	}
 }
