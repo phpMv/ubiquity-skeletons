@@ -330,17 +330,17 @@
     },
     {
         "name": "phpmv/ubiquity",
-        "version": "v2.1.1",
-        "version_normalized": "2.1.1.0",
+        "version": "v2.1.2",
+        "version_normalized": "2.1.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity.git",
-            "reference": "c60d6c410c6705a1634d82725a35ed0e66fc827f"
+            "reference": "2a9917d84a83474ae516f083a2410769e18eb9e9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/c60d6c410c6705a1634d82725a35ed0e66fc827f",
-            "reference": "c60d6c410c6705a1634d82725a35ed0e66fc827f",
+            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/2a9917d84a83474ae516f083a2410769e18eb9e9",
+            "reference": "2a9917d84a83474ae516f083a2410769e18eb9e9",
             "shasum": ""
         },
         "require": {
@@ -350,7 +350,7 @@
             "phpmv/ubiquity-codeception": "^1.0",
             "phpmv/ubiquity-devtools": "dev-master"
         },
-        "time": "2019-04-19T10:29:56+00:00",
+        "time": "2019-04-27T00:06:38+00:00",
         "type": "framework",
         "extra": {
             "branch-alias": {
@@ -644,17 +644,17 @@
     },
     {
         "name": "twig/twig",
-        "version": "v2.8.1",
-        "version_normalized": "2.8.1.0",
+        "version": "v2.9.0",
+        "version_normalized": "2.9.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "91cc2594d3143761ce0399c1caffd0b500ffe5b9"
+            "reference": "82a1c055c8ed4c4705023bfd0405f3c74db6e3ae"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/91cc2594d3143761ce0399c1caffd0b500ffe5b9",
-            "reference": "91cc2594d3143761ce0399c1caffd0b500ffe5b9",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/82a1c055c8ed4c4705023bfd0405f3c74db6e3ae",
+            "reference": "82a1c055c8ed4c4705023bfd0405f3c74db6e3ae",
             "shasum": ""
         },
         "require": {
@@ -667,11 +667,11 @@
             "symfony/debug": "^2.7",
             "symfony/phpunit-bridge": "^3.4.19|^4.1.8"
         },
-        "time": "2019-04-16T17:14:24+00:00",
+        "time": "2019-04-28T06:57:38+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.8-dev"
+                "dev-master": "2.9-dev"
             }
         },
         "installation-source": "dist",

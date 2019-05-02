@@ -8,6 +8,7 @@ use Ubiquity\utils\http\URequest;
 use Ubiquity\contents\validation\ValidatorsManager;
 use Ubiquity\contents\validation\validators\ConstraintViolation;
 use Ubiquity\orm\OrmUtils;
+use Ubiquity\orm\parser\Reflexion;
 
 /**
  * Rest controller internal utilities.
@@ -139,7 +140,32 @@ trait RestControllerUtilitiesTrait {
 				$values = \json_decode ( $values, true );
 			}
 		}
+		$className = \get_class ( $instance );
+		$fieldsInRelationForUpdate = OrmUtils::getFieldsInRelationsForUpdate_ ( $className );
+		$manyToOneRelations = $fieldsInRelationForUpdate ["manyToOne"];
+		
+		$members = array_keys ( $values );
+		OrmUtils::setFieldToMemberNames ( $members, $fieldsInRelationForUpdate ["relations"] );
 		URequest::setValuesToObject ( $instance, $values );
+		if ($manyToOneRelations) {
+			$this->updateManyToOne ( $manyToOneRelations, $members, $className, $instance, $values );
+		}
+	}
+	
+	protected function updateManyToOne($manyToOneRelations,$members,$className,$instance,$values){
+		foreach ( $manyToOneRelations as $member ) {
+			if (array_search($member, $members)!==false) {
+				$joinColumn=OrmUtils::getAnnotationInfoMember($className, "#joinColumn", $member);
+				if ($joinColumn) {
+					$fkClass=$joinColumn["className"];
+					$fkField=$joinColumn["name"];
+					if (isset($values[$fkField])) {
+						$fkObject=DAO::getOne($fkClass, $values["$fkField"]);
+						Reflexion::setMemberValue($instance, $member, $fkObject);
+					}
+				}
+			}
+		}
 	}
 
 	/**

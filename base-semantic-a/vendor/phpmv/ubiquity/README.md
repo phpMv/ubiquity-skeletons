@@ -1,4 +1,4 @@
-![Ubiquity](https://static.kobject.net/ubiquity/images/logo-ubiquity.png "Ubiquity")
+![img](https://github.com/richardbmx/ubiquity/blob/master/Banner/banner.png?raw=true)
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phpMv/ubiquity/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phpMv/ubiquity/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/phpMv/ubiquity/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phpMv/ubiquity/?branch=master) [![Documentation Status](https://readthedocs.org/projects/micro-framework/badge/?version=latest)](http://micro-framework.readthedocs.io/en/latest/?badge=latest)
  [![Total Downloads](https://poser.pugx.org/phpmv/ubiquity/downloads)](https://packagist.org/packages/phpmv/ubiquity)
@@ -134,6 +134,9 @@ When creating a project, it can be installed with the **-a** option.
 ubiquity new firstProject -a
 ```
 ![Admin interface](https://static.kobject.net/ubiquity/images/admin-interface.png "Admin interface")
+
+# Graphic design
+- Ubiquity logos and banner: [@richardbmx](https://github.com/richardbmx)
 
 # Donations
 You can tell us your pleasure in using Ubiquity, giving us a star,

@@ -16,7 +16,7 @@ use Ubiquity\orm\parser\Reflexion;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  *
  */
 trait DAOUpdatesTrait {
@@ -131,6 +131,7 @@ trait DAOUpdatesTrait {
 				$lastId = self::$db->lastInserId ();
 				if ($lastId != 0) {
 					$instance->$accesseurId ( $lastId );
+					$instance->_rest = $keyAndValues;
 					$instance->_rest [$pk] = $lastId;
 				}
 				if ($insertMany) {
@@ -212,8 +213,10 @@ trait DAOUpdatesTrait {
 		$ColumnskeyAndValues = array_merge ( $ColumnskeyAndValues, OrmUtils::getManyToOneMembersAndValues ( $instance ) );
 		$keyFieldsAndValues = OrmUtils::getKeyFieldsAndValues ( $instance );
 		$sql = "UPDATE `" . $tableName . "` SET " . SqlUtils::getUpdateFieldsKeyAndValues ( $ColumnskeyAndValues ) . " WHERE " . SqlUtils::getWhere ( $keyFieldsAndValues );
-		Logger::info ( "DAOUpdates", $sql, "update" );
-		Logger::info ( "DAOUpdates", json_encode ( $ColumnskeyAndValues ), "Key and values" );
+		if (Logger::isActive ()) {
+			Logger::info ( "DAOUpdates", $sql, "update" );
+			Logger::info ( "DAOUpdates", json_encode ( $ColumnskeyAndValues ), "Key and values" );
+		}
 		$statement = self::$db->prepareStatement ( $sql );
 		foreach ( $ColumnskeyAndValues as $key => $value ) {
 			self::$db->bindValueFromStatement ( $statement, $key, $value );
@@ -223,6 +226,7 @@ trait DAOUpdatesTrait {
 			if ($result && $updateMany)
 				self::insertOrUpdateAllManyToMany ( $instance );
 			EventsManager::trigger ( DAOEvents::AFTER_UPDATE, $instance, $result );
+			$instance->_rest = array_merge ( $instance->_rest, $ColumnskeyAndValues );
 			return $result;
 		} catch ( \PDOException $e ) {
 			Logger::warn ( "DAOUpdates", $e->getMessage (), "update" );

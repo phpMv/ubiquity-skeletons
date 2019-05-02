@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Assets managment
+ */
 namespace Ubiquity\assets;
 
 use Ubiquity\themes\ThemesManager;

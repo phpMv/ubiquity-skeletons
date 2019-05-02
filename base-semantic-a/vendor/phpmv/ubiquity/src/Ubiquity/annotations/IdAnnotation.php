@@ -3,9 +3,11 @@
 namespace Ubiquity\annotations;
 
 /**
- * Annotation Id
+ * Annotation Id.
+ * usage : id
+ *
  * @author jc
- * @version 1.0.0.1
+ * @version 1.0.1
  */
 class IdAnnotation extends BaseAnnotation {
 }
