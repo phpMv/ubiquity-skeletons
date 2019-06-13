@@ -1,4 +1,5 @@
-# ubiquity-devtools
+![img](https://github.com/phpmv/ubiquity-devtools/blob/master/.github/images/devtools.png?raw=true)
+
 [![Latest Stable Version](https://poser.pugx.org/phpmv/ubiquity-devtools/v/stable)](https://packagist.org/packages/phpmv/ubiquity-devtools)
 [![Total Downloads](https://poser.pugx.org/phpmv/ubiquity-devtools/downloads)](https://packagist.org/packages/phpmv/ubiquity-devtools)
 [![License](https://poser.pugx.org/phpmv/ubiquity-devtools/license)](https://packagist.org/packages/phpmv/ubiquity-devtools)
@@ -21,8 +22,26 @@ composer global require phpmv/ubiquity-devtools
 ```
 Make sure to place the `~/.composer/vendor/bin` directory in your PATH so the **Ubiquity** executable can be located by your system.
 
->To confirm Ubiquity was succefully installed, type *Ubiquity help* to get a list of available commands (sample below)
->If you got a command not found error, you *must* set your Ubiquity *bin* installation dir to you *system path variable*
+To confirm **Ubiquity** was successfully installed, type ``Ubiquity version``:
+
+![img](https://github.com/phpmv/ubiquity-devtools/blob/master/.github/images/devtools-version.png)
+
+<details>
+        <summary>If you get the message <b>Ubiquity command not found</b></summary>
+        Add composer's <code>bin</code> directory to the system path
+        <ul>
+                <li>On windows
+                        <ul><li>
+                                by adding the value <code>%USERPROFILE%\AppData\Roaming\Composer\vendor\bin</code> to the system PATH variable
+                        </li></ul>
+                </li>
+                <li>On other systems
+                        <ul><li>
+                                by placing <code>export PATH="$HOME/.composer/vendor/bin:$PATH"</code> into your <code>~/.bash_profile</code> (Mac OS users) or into your <code>~/.bashrc</code> (Linux users).
+                        </li></ul>
+                </li>
+        </ul>
+</details>
 
 ## II Devtools commands
 ### Information
@@ -33,7 +52,7 @@ Ubiquity help
 This command should display something similar to:
 
 ```bash
-Ubiquity devtools (1.2.0)
+Ubiquity devtools (1.2.4)
 
 ■ project [projectName] =>
         · Creates a new #ubiquity project.
@@ -80,7 +99,7 @@ Ubiquity devtools (1.2.0)
                   · Ubiquity new blog -a -m -b=blogDB
 
 ■ serve [] =>
-        · Start the php web server.
+        · Start a web server.
         · Parameters :
                 -h      shortcut of --host
                         Sets the host ip address.
@@ -90,9 +109,17 @@ Ubiquity devtools (1.2.0)
                         Sets the listen port number.
                         Default : [8090]
 
+                -t      shortcut of --type
+                        Sets the server type.
+                        Possibles values :
+                        php,react
+                        Default : [php]
+
         × Samples :
-                Starts the server at 127.0.0.1:8090
+                Starts a php server at 127.0.0.1:8090
                   · Ubiquity serve
+                Starts a reactPHP server at 127.0.0.1:8080
+                  · Ubiquity serve -t=react
 
 ■ help [?] =>
         · Get some help about a dev-tools command.
@@ -445,7 +472,7 @@ Ubiquity new blog
 ```
 You can see more options about installation by reading the [Project creation section](http://micro-framework.readthedocs.io/en/latest/install.html).
 
-### Testing
+### Running
 You can test with the php web server,
 from the root folder of your web application, run :
 ```
@@ -458,20 +485,7 @@ make sure that the database is configured properly in app/config/config.php file
 Ubiquity config -f=database
 ```
 
-```bash
-     ┌──────────┬─────────────────────────────┐
-     │ field    │ value                       │
-     ├──────────┼─────────────────────────────┤
-     │ database │ · type : 'mysql'            │
-     │          │ · dbName : 'blog'           │
-     │          │ · serverName : '127.0.0.1'  │
-     │          │ · port : 3306               │
-     │          │ · user : 'root'             │
-     │          │ · password : ''             │
-     │          │ · options : []              │
-     │          │ · cache : false             │
-     └──────────┴─────────────────────────────┘
-```
+![img](https://github.com/phpmv/ubiquity-devtools/blob/master/.github/images/db-conf.png)
 
 Execute the command, make sure you are also in the project folder or one of its subfolders :
 ```bash
