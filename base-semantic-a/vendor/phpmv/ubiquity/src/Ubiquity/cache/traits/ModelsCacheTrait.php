@@ -15,7 +15,7 @@ use Ubiquity\contents\validation\ValidatorsManager;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.0
+ * @version 1.0.1
  * @property \Ubiquity\cache\system\AbstractDataCache $cache
  */
 trait ModelsCacheTrait {
@@ -63,6 +63,28 @@ trait ModelsCacheTrait {
 		if (! $silent) {
 			echo "Models cache reset\n";
 		}
+	}
+
+	/**
+	 * Checks if the models cache is up to date
+	 *
+	 * @param array $config
+	 * @return boolean|array
+	 */
+	public static function modelsCacheUpdated(&$config) {
+		$result = false;
+		$files = self::getModelsFiles ( $config, true );
+		foreach ( $files as $file ) {
+			if (is_file ( $file )) {
+				$model = ClassUtils::getClassFullNameFromFile ( $file );
+				$p = new ModelParser ();
+				$p->parse ( $model );
+				if (! self::modelCacheExists ( $model ) || self::getOrmModelCache ( $model ) != $p->asArray ()) {
+					$result [$model] = true;
+				}
+			}
+		}
+		return $result;
 	}
 
 	/**

@@ -1,2 +1,2 @@
 {"require":{"php":"^7.1","twig\/twig":"^2.0","mindplay\/annotations":"^1.3","phpmv\/ubiquity":"^2.1","phpmv\/php-mv-ui":"^2.2.6","twitter\/bootstrap":"^4.3","fortawesome\/font-awesome":"^5.7","zurb\/foundation":"^6.5","semantic\/ui":"^2.4",
-        "phpmv/ubiquity-devtools": "^1.2"},"require-dev":{"monolog\/monolog":"^1.24","czproject\/git-php":"^3.13"},"autoload":{"psr-4":{"":"app\/"}}}
+        "phpmv/ubiquity-devtools": "^1.2"},"require-dev":{"phpmv\/ubiquity-webtools":"^2.2","monolog\/monolog":"^1.24","czproject\/git-php":"^3.13"},"autoload":{"psr-4":{"":"app\/"}}}

@@ -3,12 +3,12 @@
 namespace Ubiquity\controllers;
 
 use Ubiquity\cache\CacheManager;
-use Ubiquity\utils\http\URequest;
-use Ubiquity\utils\base\UString;
-use Ubiquity\log\Logger;
-use Ubiquity\controllers\traits\RouterModifierTrait;
 use Ubiquity\controllers\traits\RouterAdminTrait;
+use Ubiquity\controllers\traits\RouterModifierTrait;
 use Ubiquity\controllers\traits\RouterTestTrait;
+use Ubiquity\log\Logger;
+use Ubiquity\utils\base\UString;
+use Ubiquity\utils\http\URequest;
 
 /**
  * Router manager.
@@ -16,7 +16,7 @@ use Ubiquity\controllers\traits\RouterTestTrait;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.5
+ * @version 1.0.8
  *
  */
 class Router {
@@ -55,7 +55,7 @@ class Router {
 	protected static function checkRouteName($routeDetails, $name) {
 		if (! isset ( $routeDetails ["name"] )) {
 			foreach ( $routeDetails as $methodRouteDetail ) {
-				if (isset ( $methodRouteDetail ["name"] ) && $methodRouteDetail == $name)
+				if (isset ( $methodRouteDetail ["name"] ) && $methodRouteDetail ["name"] == $name)
 					return true;
 			}
 		}
@@ -111,9 +111,9 @@ class Router {
 	 * @param boolean $cachedResponse
 	 * @return boolean|mixed[]|string
 	 */
-	public static function getRoute($path, $cachedResponse = true) {
+	public static function getRoute($path, $cachedResponse = true, $debug = false) {
 		$path = self::slashPath ( $path );
-		if (isset ( self::$routes [$path] )) {
+		if (isset ( self::$routes [$path] ) && ! $debug) { // No direct access to route in debug mode (for maintenance mode activation)
 			return self::getRoute_ ( self::$routes [$path], $path, [ $path ], $cachedResponse );
 		}
 		foreach ( self::$routes as $routePath => $routeDetails ) {
@@ -186,6 +186,12 @@ class Router {
 		}
 		if (! $cached || ! $cachedResponse) {
 			Logger::info ( 'Router', sprintf ( 'Route found for %s : %s', $routeArray ["path"], $resultStr ), 'getRouteUrlParts' );
+			if (isset ( $routeDetails ['callback'] )) {
+				// Used for maintenance mode
+				if (is_callable ( $routeDetails ['callback'] )) {
+					return $routeDetails ['callback'] ( $result );
+				}
+			}
 			return $result;
 		}
 		Logger::info ( 'Router', sprintf ( 'Route found for %s (from cache) : %s', $routeArray ["path"], $resultStr ), 'getRouteUrlParts' );

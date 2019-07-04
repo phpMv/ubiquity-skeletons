@@ -5,7 +5,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unrelease]
-- nothing
+Nothing
+
+## [2.2.0] - 2019-07-03
+### Added
+- Web-tools
+  - Maintenance mode (see https://github.com/phpMv/ubiquity/issues/49)
+  - Updates checking for caches
+  - Customization (tools)
+
+### Deleted/updated
+- Webtools removed from Ubiquity main repository and are in there own repo
+
+Use ``composer require phpmv/ubiquity-webtools`` to install them.
+
+#### Breaking change possible:
+Classes relocation
+- ``Ubiquity\controllers\admin\utils\CodeUtils``->``Ubiquity\utils\base\CodeUtils``
+- ``Ubiquity\controllers\admin\interfaces\HasModelViewerInterface``->``Ubiquity\controllers\crud\interfaces\HasModelViewerInterface``
+- ``Ubiquity\controllers\admin\viewers\ModelViewer``->``Ubiquity\controllers\crud\viewers\ModelViewer``
+- ``Ubiquity\controllers\admin\popo\CacheFile`` -> ``Ubiquity\cache\CacheFile``
+- ``Ubiquity\controllers\admin\popo\ControllerSeo`` -> ``Ubiquity\seo\ControllerSeo``
+- ``Ubiquity\controllers\admin\traits\UrlsTrait`` -> ``Ubiquity\controllers\crud\traits\UrlsTrait``
+  
+#### Migration 
+- For new projects, update devtools: ``composer global update``
+- In existing projects:
+``composer require phpmv/ubiquity-webtools`` for webtools installation.
+
+### Fixed
+- Router: pb with route priority attribute see [#54](https://github.com/phpMv/ubiquity/issues/54)
+
+## [2.1.4] - 2019-06-13
+### Added
+- `Translate` module in webtools
+- `transChoice` method for translations with pluralization (`tc` in twig templates)
+- Transactions and nested transactions in `Database` and `DAO` classes see [#42](https://github.com/phpMv/ubiquity/issues/42)
+- `getById` method in `DAO` class (optimization)
+- `Ubiquity-swoole` server (``Ubiquity serve --type=swoole``)
+### Fixed
+- Fatal error in startup (not 404) fix [#43](https://github.com/phpMv/ubiquity/issues/43)
+- Version 2.1.3 displays the number of version 2.1.2
 
 ## [2.1.3] - 2019-05-09
 ### Added

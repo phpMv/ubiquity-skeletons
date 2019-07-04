@@ -15,17 +15,18 @@ use Ubiquity\orm\traits\DAORelationsPrepareTrait;
 use Ubiquity\exceptions\DAOException;
 use Ubiquity\orm\traits\DAORelationsAssignmentsTrait;
 use Ubiquity\orm\parser\Reflexion;
+use Ubiquity\orm\traits\DAOTransactionsTrait;
 
 /**
  * Gateway class between database and object model.
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.7
+ * @version 1.1.9
  *
  */
 class DAO {
-	use DAOCoreTrait,DAOUpdatesTrait,DAORelationsTrait,DAORelationsPrepareTrait,DAORelationsAssignmentsTrait,DAOUQueries;
+	use DAOCoreTrait,DAOUpdatesTrait,DAORelationsTrait,DAORelationsPrepareTrait,DAORelationsAssignmentsTrait,DAOUQueries,DAOTransactionsTrait;
 
 	/**
 	 *
@@ -34,6 +35,7 @@ class DAO {
 	public static $db;
 	public static $useTransformers = false;
 	public static $transformerOp = 'transform';
+	private static $conditionParsers = [ ];
 
 	/**
 	 * Loads member associated with $instance by a ManyToOne relationship
@@ -46,7 +48,7 @@ class DAO {
 	public static function getManyToOne($instance, $member, $included = false, $useCache = NULL) {
 		$classname = self::getClass_ ( $instance );
 		if (is_array ( $instance )) {
-			$instance = self::getOne ( $classname, $instance [1], false, null, $useCache );
+			$instance = self::getById ( $classname, $instance [1], false, $useCache );
 		}
 		$fieldAnnot = OrmUtils::getMemberJoinColumns ( $classname, $member );
 		if ($fieldAnnot !== null) {
@@ -55,7 +57,7 @@ class DAO {
 			$value = Reflexion::getMemberValue ( $instance, $member );
 			$key = OrmUtils::getFirstKey ( $annotationArray ["className"] );
 			$kv = array ($key => $value );
-			$obj = self::getOne ( $annotationArray ["className"], $kv, $included, null, $useCache );
+			$obj = self::getById ( $annotationArray ["className"], $kv, $included, $useCache );
 			if ($obj !== null) {
 				Logger::info ( "DAO", "Loading the member " . $member . " for the object " . $classname, "getManyToOne" );
 				$accesseur = "set" . ucfirst ( $member );
@@ -191,6 +193,29 @@ class DAO {
 	}
 
 	/**
+	 * Returns an instance of $className from the database, from $keyvalues values of the primary key or with a condition
+	 *
+	 * @param String $className complete classname of the model to load
+	 * @param Array|string $condition condition or primary key values
+	 * @param boolean|array $included if true, charges associate members with association
+	 * @param array|null $parameters the request parameters
+	 * @param boolean|null $useCache use cache if true
+	 * @return object the instance loaded or null if not found
+	 */
+	public static function getOne($className, $condition, $included = true, $parameters = null, $useCache = NULL) {
+		$conditionParser = new ConditionParser ();
+		if (! isset ( $parameters )) {
+			$conditionParser->addKeyValues ( $condition, $className );
+		} elseif (! is_array ( $condition )) {
+			$conditionParser->setCondition ( $condition );
+			$conditionParser->setParams ( $parameters );
+		} else {
+			throw new DAOException ( "The \$keyValues parameter should not be an array if \$parameters is not null" );
+		}
+		return self::_getOne ( $className, $conditionParser, $included, $useCache );
+	}
+
+	/**
 	 * Returns an instance of $className from the database, from $keyvalues values of the primary key
 	 *
 	 * @param String $className complete classname of the model to load
@@ -200,17 +225,19 @@ class DAO {
 	 * @param boolean|null $useCache use cache if true
 	 * @return object the instance loaded or null if not found
 	 */
-	public static function getOne($className, $keyValues, $included = true, $parameters = null, $useCache = NULL) {
-		$conditionParser = new ConditionParser ();
-		if (! isset ( $parameters )) {
+	public static function getById($className, $keyValues, $included = true, $useCache = NULL) {
+		return self::_getOne ( $className, self::getConditionParser ( $className, $keyValues ), $included, $useCache );
+	}
+
+	protected static function getConditionParser($className, $keyValues) {
+		if (! isset ( self::$conditionParsers [$className] )) {
+			$conditionParser = new ConditionParser ();
 			$conditionParser->addKeyValues ( $keyValues, $className );
-		} elseif (! is_array ( $keyValues )) {
-			$conditionParser->setCondition ( $keyValues );
-			$conditionParser->setParams ( $parameters );
+			self::$conditionParsers [$className] = $conditionParser;
 		} else {
-			throw new DAOException ( "The \$keyValues parameter should not be an array if \$parameters is not null" );
+			self::$conditionParsers [$className]->setKeyValues ( $keyValues );
 		}
-		return self::_getOne ( $className, $conditionParser, $included, $useCache );
+		return self::$conditionParsers [$className];
 	}
 
 	/**
@@ -256,7 +283,19 @@ class DAO {
 		return self::$db !== null && (self::$db instanceof Database) && self::$db->isConnected ();
 	}
 
+	/**
+	 * Sets the transformer operation
+	 *
+	 * @param string $op
+	 */
 	public static function setTransformerOp($op) {
 		self::$transformerOp = $op;
+	}
+
+	/**
+	 * Closes the active pdo connection to the database
+	 */
+	public static function closeDb() {
+		self::$db->close ();
 	}
 }

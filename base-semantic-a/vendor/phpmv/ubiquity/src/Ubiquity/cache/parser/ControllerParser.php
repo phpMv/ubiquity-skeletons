@@ -6,7 +6,6 @@ use Ubiquity\orm\parser\Reflexion;
 use Ubiquity\utils\base\UString;
 use Ubiquity\annotations\router\RouteAnnotation;
 use Ubiquity\cache\ClassUtils;
-use Ubiquity\utils\base\UArray;
 
 /**
  * Scans a controller to detect routes defined by annotations.
@@ -14,7 +13,7 @@ use Ubiquity\utils\base\UArray;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.4
+ * @version 1.0.7
  *
  */
 class ControllerParser {
@@ -32,7 +31,6 @@ class ControllerParser {
 		$restAnnotsClass = [ ];
 		$reflect = new \ReflectionClass ( $controllerClass );
 		if (! $reflect->isAbstract () && $reflect->isSubclassOf ( "Ubiquity\controllers\Controller" )) {
-			$instance = new $controllerClass ();
 			try {
 				$annotsClass = Reflexion::getAnnotationClass ( $controllerClass, "@route" );
 				$restAnnotsClass = Reflexion::getAnnotationClass ( $controllerClass, "@rest" );
@@ -40,12 +38,12 @@ class ControllerParser {
 				// When controllerClass generates an exception
 			}
 			$this->rest = \sizeof ( $restAnnotsClass ) > 0;
-			if (isset($annotsClass) && \sizeof ( $annotsClass ) > 0) {
+			if (isset ( $annotsClass ) && \sizeof ( $annotsClass ) > 0) {
 				$this->mainRouteClass = $annotsClass [0];
 				$inherited = $this->mainRouteClass->inherited;
 				$automated = $this->mainRouteClass->automated;
 			}
-			$methods = Reflexion::getMethods ( $instance, \ReflectionMethod::IS_PUBLIC );
+			$methods = Reflexion::getMethods ( $controllerClass, \ReflectionMethod::IS_PUBLIC );
 			$this->parseMethods ( $methods, $controllerClass, $inherited, $automated );
 		}
 	}
@@ -111,10 +109,6 @@ class ControllerParser {
 				self::parseRouteArray ( $result, $this->controllerClass, $params, $arrayAnnotsMethod ["method"], $method, $prefix, $httpMethods );
 			}
 		}
-		uasort ( $result, function ($item1, $item2) {
-			return UArray::getRecursive ( $item2, "priority", 0 ) <=> UArray::getRecursive ( $item1, "priority", 0 );
-		} );
-		UArray::removeRecursive ( $result, "priority" );
 		return $result;
 	}
 
@@ -132,19 +126,28 @@ class ControllerParser {
 		$path = $pathParameters ["path"];
 		$parameters = $pathParameters ["parameters"];
 		$priority = $routeArray ["priority"];
+		$callback = $routeArray ["callback"] ?? null;
 		$path = self::cleanpath ( $prefix, $path );
 		if (isset ( $routeArray ["methods"] ) && \is_array ( $routeArray ["methods"] )) {
-			self::createRouteMethod ( $result, $controllerClass, $path, $routeArray ["methods"], $methodName, $parameters, $name, $cache, $duration, $priority );
+			self::createRouteMethod ( $result, $controllerClass, $path, $routeArray ["methods"], $methodName, $parameters, $name, $cache, $duration, $priority, $callback );
 		} elseif (\is_array ( $httpMethods )) {
-			self::createRouteMethod ( $result, $controllerClass, $path, $httpMethods, $methodName, $parameters, $name, $cache, $duration, $priority );
+			self::createRouteMethod ( $result, $controllerClass, $path, $httpMethods, $methodName, $parameters, $name, $cache, $duration, $priority, $callback );
 		} else {
-			$result [$path] = [ "controller" => $controllerClass,"action" => $methodName,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration,"priority" => $priority ];
+			$v = [ "controller" => $controllerClass,"action" => $methodName,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration,"priority" => $priority ];
+			if (isset ( $callback )) {
+				$v ['callback'] = $callback;
+			}
+			$result [$path] = $v;
 		}
 	}
 
-	private static function createRouteMethod(&$result, $controllerClass, $path, $httpMethods, $method, $parameters, $name, $cache, $duration, $priority) {
+	private static function createRouteMethod(&$result, $controllerClass, $path, $httpMethods, $method, $parameters, $name, $cache, $duration, $priority, $callback = null) {
 		foreach ( $httpMethods as $httpMethod ) {
-			$result [$path] [$httpMethod] = [ "controller" => $controllerClass,"action" => $method,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration,"priority" => $priority ];
+			$v = [ "controller" => $controllerClass,"action" => $method,"parameters" => $parameters,"name" => $name,"cache" => $cache,"duration" => $duration,"priority" => $priority ];
+			if (isset ( $callback )) {
+				$v ['callback'] = $callback;
+			}
+			$result [$path] [$httpMethod] = $v;
 		}
 	}
 

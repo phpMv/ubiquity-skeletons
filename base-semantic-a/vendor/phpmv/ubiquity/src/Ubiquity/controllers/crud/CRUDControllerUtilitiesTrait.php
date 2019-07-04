@@ -4,11 +4,11 @@ namespace Ubiquity\controllers\crud;
 
 use Ubiquity\utils\http\URequest;
 use Ubiquity\orm\DAO;
-use Ubiquity\controllers\admin\viewers\ModelViewer;
 use Ajax\semantic\widgets\datatable\Pagination;
 use Ajax\common\html\HtmlContentOnly;
 use Ubiquity\orm\OrmUtils;
 use Ajax\semantic\html\collections\HtmlMessage;
+use Ubiquity\controllers\crud\viewers\ModelViewer;
 
 /**
  *
@@ -73,7 +73,7 @@ trait CRUDControllerUtilitiesTrait {
 			}
 		}
 		DAO::$useTransformers = $transform;
-		$instance = DAO::getOne ( $this->model, $ids, $included );
+		$instance = DAO::getById ( $this->model, $ids, $included );
 		if (isset ( $instance )) {
 			return $instance;
 		}
@@ -113,7 +113,7 @@ trait CRUDControllerUtilitiesTrait {
 			$btOkay = $form->getAction ( 0 );
 			$btOkay->addClass ( "green" )->setValue ( "Validate modifications" );
 			$form->onHidden ( "$('#modal-frmEdit').remove();" );
-			echo $form->compile ( $this->jquery);
+			echo $form->compile ( $this->jquery );
 			echo $this->jquery->compile ( $this->view );
 		}
 	}

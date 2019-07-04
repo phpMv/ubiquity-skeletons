@@ -15,6 +15,7 @@ Ubiquity User guide
    
 .. sidebar:: New in documentation
 
+   - :ref:`Rich client<richclient>`
    - :ref:`REST module<rest>`
    - :ref:`Data transformers<transformers>`
    - :ref:`Dependency injection<di>`
@@ -80,6 +81,13 @@ Ubiquity User guide
 
 .. toctree::
    :maxdepth: 1
+   :caption: RichClient
+   
+   richClient/semantic
+   richClient/vuejs
+
+.. toctree::
+   :maxdepth: 1
    :caption: Contents
    
    contents/normalizers
@@ -93,6 +101,11 @@ Ubiquity User guide
    
    rest/index
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Webtools
+   
+   webtools/index
 
 .. toctree::
    :maxdepth: 1

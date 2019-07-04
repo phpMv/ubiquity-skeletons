@@ -87,6 +87,8 @@ class Command {
 				"h"=>Parameter::create("themes", "Install themes.", ["semantic","bootstrap","foundation"],""),
 				"m"=>Parameter::create("all-models", "Creates all models from database.", [],""),
 				"a"=>Parameter::create("admin", "Adds UbiquityMyAdmin tool.", ["true","false"],"false"),
+				"i"=>Parameter::create("siteUrl", "Sets the site base URL.", []),
+				"e"=>Parameter::create("rewriteBase", "Sets .htaccess file rewriteBase.", []),
 		],['Creates a new project'=>'Ubiquity new blog','With admin interface'=>'Ubiquity new blog -a','and models generation'=>'Ubiquity new blog -a -m -b=blogDB']);
 	}
 
@@ -125,7 +127,7 @@ class Command {
 
 	public static function clearCache(){
 		return new Command("clear-cache", "","Clear models cache.",[],["t"=>Parameter::create("type", "Defines the type of cache to reset.",
-				["all","annotations","controller","rest","models","queries","views"])],
+				["all","annotations","controllers","rest","models","queries","views"])],
 				['Clear all caches'=>'Ubiquity clear-cache -t=all',
 				 'Clear models cache'=>'Ubiquity clear-cache -t=models'
 				]);
@@ -133,7 +135,7 @@ class Command {
 
 	public static function initCache(){
 		return new Command("init-cache", "","Init the cache for models, router, rest.",[],["t"=>Parameter::create("type", "Defines the type of cache to create.",
-				["all","controller","rest","models"])],
+				["all","controllers","rest","models"])],
 				['Init all caches'=>'Ubiquity init-cache',
 				 'Init models cache'=>'Ubiquity init-cache -t=models'
 				]

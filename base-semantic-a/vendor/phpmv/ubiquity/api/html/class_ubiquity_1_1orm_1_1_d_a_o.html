@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Ubiquity
-   &#160;<span id="projectnumber">2.1.2</span>
+   &#160;<span id="projectnumber">2.2.0</span>
    </div>
    <div id="projectbrief">php rapid development framework</div>
   </td>
@@ -84,7 +84,9 @@ $(document).ready(function(){initNavTree('class_ubiquity_1_1orm_1_1_d_a_o.html',
 <div class="header">
   <div class="summary">
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pub-static-attribs">Static Public Attributes</a>  </div>
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a>  </div>
   <div class="headertitle">
 <div class="title">DAO Class Reference</div>  </div>
 </div><!--header-->
@@ -101,11 +103,12 @@ $(document).ready(function(){initNavTree('class_ubiquity_1_1orm_1_1_d_a_o.html',
   <img src="class_ubiquity_1_1orm_1_1_d_a_o.png" usemap="#DAO_map" alt=""/>
   <map id="DAO_map" name="DAO_map">
 <area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html" alt="DAOCoreTrait" shape="rect" coords="0,0,186,24"/>
-<area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait.html" title="Trait for DAO Updates (Create, Update, Delete) Ubiquity$DAOUpdatesTrait This class is part of Ubiquit..." alt="DAOUpdatesTrait" shape="rect" coords="196,0,382,24"/>
+<area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait.html" alt="DAOUpdatesTrait" shape="rect" coords="196,0,382,24"/>
 <area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait.html" alt="DAORelationsTrait" shape="rect" coords="392,0,578,24"/>
 <area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_prepare_trait.html" title="Used by DAO class, prepare relations for loading. " alt="DAORelationsPrepareTrait" shape="rect" coords="588,0,774,24"/>
 <area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_assignments_trait.html" title="Used by DAO class, realize relations assignments. " alt="DAORelationsAssignmentsTrait" shape="rect" coords="784,0,970,24"/>
 <area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html" alt="DAOUQueries" shape="rect" coords="980,0,1166,24"/>
+<area href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html" alt="DAOTransactionsTrait" shape="rect" coords="1176,0,1362,24"/>
 </map>
  </div></div>
 <table class="memberdecls">
@@ -132,9 +135,12 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a1eab6a63d6d9d1a0b526179756adb34b"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a1eab6a63d6d9d1a0b526179756adb34b">count</a> ($className, $condition='', $parameters=null)</td></tr>
 <tr class="memdesc:a1eab6a63d6d9d1a0b526179756adb34b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of objects of $className from the database respecting the condition possibly passed as parameter.  <a href="#a1eab6a63d6d9d1a0b526179756adb34b">More...</a><br /></td></tr>
 <tr class="separator:a1eab6a63d6d9d1a0b526179756adb34b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af55f4bc22edd15a6e6a090ecc6f1bb60"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#af55f4bc22edd15a6e6a090ecc6f1bb60">getOne</a> ($className, $keyValues, $included=true, $parameters=null, $useCache=NULL)</td></tr>
-<tr class="memdesc:af55f4bc22edd15a6e6a090ecc6f1bb60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an instance of $className from the database, from $keyvalues values of the primary key.  <a href="#af55f4bc22edd15a6e6a090ecc6f1bb60">More...</a><br /></td></tr>
-<tr class="separator:af55f4bc22edd15a6e6a090ecc6f1bb60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a449309169ca3c735db65d2089d935615"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a449309169ca3c735db65d2089d935615">getOne</a> ($className, $condition, $included=true, $parameters=null, $useCache=NULL)</td></tr>
+<tr class="memdesc:a449309169ca3c735db65d2089d935615"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an instance of $className from the database, from $keyvalues values of the primary key or with a condition.  <a href="#a449309169ca3c735db65d2089d935615">More...</a><br /></td></tr>
+<tr class="separator:a449309169ca3c735db65d2089d935615"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b016f0dc89d73fc569bf2318e384b2d"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a8b016f0dc89d73fc569bf2318e384b2d">getById</a> ($className, $keyValues, $included=true, $useCache=NULL)</td></tr>
+<tr class="memdesc:a8b016f0dc89d73fc569bf2318e384b2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an instance of $className from the database, from $keyvalues values of the primary key.  <a href="#a8b016f0dc89d73fc569bf2318e384b2d">More...</a><br /></td></tr>
+<tr class="separator:a8b016f0dc89d73fc569bf2318e384b2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7df7b1ae9c85c48c1f9a8c7e90465433"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a7df7b1ae9c85c48c1f9a8c7e90465433">connect</a> ($dbType, $dbName, $serverName='127.0.0.1', $port='3306', $user='root', $password='', $options=[], $cache=false)</td></tr>
 <tr class="memdesc:a7df7b1ae9c85c48c1f9a8c7e90465433"><td class="mdescLeft">&#160;</td><td class="mdescRight">Establishes the connection to the database using the past parameters.  <a href="#a7df7b1ae9c85c48c1f9a8c7e90465433">More...</a><br /></td></tr>
 <tr class="separator:a7df7b1ae9c85c48c1f9a8c7e90465433"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,7 +151,11 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:ae7f9fc68bf9bcc98ec93bfd1017b1818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the connection to the database is established.  <a href="#ae7f9fc68bf9bcc98ec93bfd1017b1818">More...</a><br /></td></tr>
 <tr class="separator:ae7f9fc68bf9bcc98ec93bfd1017b1818"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc1a442aba5ff0af67d9024d03c277d7"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#adc1a442aba5ff0af67d9024d03c277d7">setTransformerOp</a> ($op)</td></tr>
+<tr class="memdesc:adc1a442aba5ff0af67d9024d03c277d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the transformer operation.  <a href="#adc1a442aba5ff0af67d9024d03c277d7">More...</a><br /></td></tr>
 <tr class="separator:adc1a442aba5ff0af67d9024d03c277d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c08641b1120ac8743ecb0177ee3cd63"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a3c08641b1120ac8743ecb0177ee3cd63">closeDb</a> ()</td></tr>
+<tr class="memdesc:a3c08641b1120ac8743ecb0177ee3cd63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the active pdo connection to the database.  <a href="#a3c08641b1120ac8743ecb0177ee3cd63">More...</a><br /></td></tr>
+<tr class="separator:a3c08641b1120ac8743ecb0177ee3cd63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait.html">DAOUpdatesTrait</a></td></tr>
 <tr class="memitem:a51f3b41ecc14ae0bf5c55a6a3440bec8 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait.html#a51f3b41ecc14ae0bf5c55a6a3440bec8">remove</a> ($instance)</td></tr>
 <tr class="memdesc:a51f3b41ecc14ae0bf5c55a6a3440bec8 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes the object $instance from the database.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_updates_trait.html#a51f3b41ecc14ae0bf5c55a6a3440bec8">More...</a><br /></td></tr>
@@ -180,6 +190,31 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ae15aa33653345ba3779c2d3ba1c161de inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html#ae15aa33653345ba3779c2d3ba1c161de">uGetOne</a> ($className, $ucondition, $included=true, $parameters=null, $useCache=NULL)</td></tr>
 <tr class="memdesc:ae15aa33653345ba3779c2d3ba1c161de inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an instance of $className from the database, from $keyvalues values of the primary key.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html#ae15aa33653345ba3779c2d3ba1c161de">More...</a><br /></td></tr>
 <tr class="separator:ae15aa33653345ba3779c2d3ba1c161de inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html">DAOTransactionsTrait</a></td></tr>
+<tr class="memitem:acede846ed83753b53f6b99ad1c4df87c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#acede846ed83753b53f6b99ad1c4df87c">beginTransaction</a> ()</td></tr>
+<tr class="memdesc:acede846ed83753b53f6b99ad1c4df87c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initiates a transaction.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#acede846ed83753b53f6b99ad1c4df87c">More...</a><br /></td></tr>
+<tr class="separator:acede846ed83753b53f6b99ad1c4df87c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af657076a4e4db3e3aec5d4a1a7494310 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#af657076a4e4db3e3aec5d4a1a7494310">commit</a> ()</td></tr>
+<tr class="memdesc:af657076a4e4db3e3aec5d4a1a7494310 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Commits a transaction.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#af657076a4e4db3e3aec5d4a1a7494310">More...</a><br /></td></tr>
+<tr class="separator:af657076a4e4db3e3aec5d4a1a7494310 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63ccf83e37afa8db75bed69b1fe3801c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a63ccf83e37afa8db75bed69b1fe3801c">commitToLevel</a> ($transactionLevel)</td></tr>
+<tr class="memdesc:a63ccf83e37afa8db75bed69b1fe3801c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Commits nested transactions up to level $transactionLevel.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a63ccf83e37afa8db75bed69b1fe3801c">More...</a><br /></td></tr>
+<tr class="separator:a63ccf83e37afa8db75bed69b1fe3801c inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4920d330ba6988be7d849f45b352450 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#ab4920d330ba6988be7d849f45b352450">commitAll</a> ()</td></tr>
+<tr class="memdesc:ab4920d330ba6988be7d849f45b352450 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Commits all nested transactions (up to level 0)  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#ab4920d330ba6988be7d849f45b352450">More...</a><br /></td></tr>
+<tr class="separator:ab4920d330ba6988be7d849f45b352450 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a7792c3bfcee5ac7122ff9bd1d80b62 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a0a7792c3bfcee5ac7122ff9bd1d80b62">rollBack</a> ()</td></tr>
+<tr class="memdesc:a0a7792c3bfcee5ac7122ff9bd1d80b62 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rolls back a transaction.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a0a7792c3bfcee5ac7122ff9bd1d80b62">More...</a><br /></td></tr>
+<tr class="separator:a0a7792c3bfcee5ac7122ff9bd1d80b62 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a400967f2891fafd2dbcfa6fbf892c7d6 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a400967f2891fafd2dbcfa6fbf892c7d6">rollBackToLevel</a> ($transactionLevel)</td></tr>
+<tr class="memdesc:a400967f2891fafd2dbcfa6fbf892c7d6 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rolls back nested transactions up to level $transactionLevel.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a400967f2891fafd2dbcfa6fbf892c7d6">More...</a><br /></td></tr>
+<tr class="separator:a400967f2891fafd2dbcfa6fbf892c7d6 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af10c75045ef84279e985d9a39cde30fd inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#af10c75045ef84279e985d9a39cde30fd">rollBackAll</a> ()</td></tr>
+<tr class="memdesc:af10c75045ef84279e985d9a39cde30fd inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rolls back all nested transactions (up to level 0)  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#af10c75045ef84279e985d9a39cde30fd">More...</a><br /></td></tr>
+<tr class="separator:af10c75045ef84279e985d9a39cde30fd inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99efb982cd5c952d4cb456b440263579 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a99efb982cd5c952d4cb456b440263579">callInTransaction</a> ($callback,... $parameters)</td></tr>
+<tr class="memdesc:a99efb982cd5c952d4cb456b440263579 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call a callback with an array of parameters in a transaction.  <a href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait.html#a99efb982cd5c952d4cb456b440263579">More...</a><br /></td></tr>
+<tr class="separator:a99efb982cd5c952d4cb456b440263579 inherit pub_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_transactions_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -190,8 +225,10 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a4bd818b03aa10d8275f1a42bb7a5f6a5"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a4bd818b03aa10d8275f1a42bb7a5f6a5">$transformerOp</a> = 'transform'</td></tr>
 <tr class="separator:a4bd818b03aa10d8275f1a42bb7a5f6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-methods"></a>
+Static Protected Member Functions</h2></td></tr>
+<tr class="memitem:a1188ef1824c74fe4060e050c08fe4327"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a1188ef1824c74fe4060e050c08fe4327">getConditionParser</a> ($className, $keyValues)</td></tr>
+<tr class="separator:a1188ef1824c74fe4060e050c08fe4327"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td colspan="2" onclick="javascript:toggleInherit('pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait')"><img src="closed.png" alt="-"/>&#160;Static Protected Member Functions inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html">DAOCoreTrait</a></td></tr>
 <tr class="memitem:af41c44382be642def03d2eba533b740f inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html#af41c44382be642def03d2eba533b740f">_affectsRelationObjects</a> ($className, $classPropKey, $manyToOneQueries, $oneToManyQueries, $manyToManyParsers, $objects, $included, $useCache)</td></tr>
 <tr class="separator:af41c44382be642def03d2eba533b740f inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -217,6 +254,8 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a2d1282b5e4184c7e131c86f988b71de5 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2afe65f39e5ce2bec1dc079276164a50 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html#a2afe65f39e5ce2bec1dc079276164a50">_getAll</a> ($className, <a class="el" href="class_ubiquity_1_1orm_1_1parser_1_1_condition_parser.html">ConditionParser</a> $conditionParser, $included=true, $useCache=NULL)</td></tr>
 <tr class="separator:a2afe65f39e5ce2bec1dc079276164a50 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5f736b3d9c56d365eea51a277ba6b16 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html#aa5f736b3d9c56d365eea51a277ba6b16">getFieldList</a> ($tableName, $metaDatas)</td></tr>
+<tr class="separator:aa5f736b3d9c56d365eea51a277ba6b16 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait"><td colspan="2" onclick="javascript:toggleInherit('pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait')"><img src="closed.png" alt="-"/>&#160;Static Protected Member Functions inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait.html">DAORelationsTrait</a></td></tr>
 <tr class="memitem:a2afe65f39e5ce2bec1dc079276164a50 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait.html#a2afe65f39e5ce2bec1dc079276164a50">_getAll</a> ($className, <a class="el" href="class_ubiquity_1_1orm_1_1parser_1_1_condition_parser.html">ConditionParser</a> $conditionParser, $included=true, $useCache=NULL)</td></tr>
 <tr class="separator:a2afe65f39e5ce2bec1dc079276164a50 inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_relations_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,9 +293,19 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:aa19120a3ba0f383ebfbd156c0560723f inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88619b1ae55cdf390f5271fc97764a1a inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html#a88619b1ae55cdf390f5271fc97764a1a">uGetExpressions</a> ($condition)</td></tr>
 <tr class="separator:a88619b1ae55cdf390f5271fc97764a1a inherit pro_static_methods_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:a0a645d47a332ca442ac611a821d910d5"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html#a0a645d47a332ca442ac611a821d910d5">$conditionParsers</a> = [ ]</td></tr>
+<tr class="separator:a0a645d47a332ca442ac611a821d910d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td colspan="2" onclick="javascript:toggleInherit('pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait')"><img src="closed.png" alt="-"/>&#160;Static Protected Attributes inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html">DAOCoreTrait</a></td></tr>
 <tr class="memitem:af2a5c7931f51c95db786937292c398ab inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html#af2a5c7931f51c95db786937292c398ab">$accessors</a> = [ ]</td></tr>
 <tr class="separator:af2a5c7931f51c95db786937292c398ab inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2303c817e3b402b77b7f99627b9c319 inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait.html#ab2303c817e3b402b77b7f99627b9c319">$fields</a> = [ ]</td></tr>
+<tr class="separator:ab2303c817e3b402b77b7f99627b9c319 inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_core_trait"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td colspan="2" onclick="javascript:toggleInherit('pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries')"><img src="closed.png" alt="-"/>&#160;Static Protected Attributes inherited from <a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html">DAOUQueries</a></td></tr>
 <tr class="memitem:a403d04bc3fa6e3595fbdb748d931d4fa inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memItemLeft" align="right" valign="top">static&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries.html#a403d04bc3fa6e3595fbdb748d931d4fa">$annotFieldsInRelations</a> =[]</td></tr>
 <tr class="separator:a403d04bc3fa6e3595fbdb748d931d4fa inherit pro_static_attribs_class_ubiquity_1_1orm_1_1traits_1_1_d_a_o_u_queries"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,9 +314,9 @@ Additional Inherited Members</h2></td></tr>
 <div class="textblock"><p>Gateway class between database and object model. </p>
 <p>This class is part of <a class="el" href="namespace_ubiquity.html">Ubiquity</a></p>
 <dl class="section author"><dt>Author</dt><dd>jcheron <a href="#" onclick="location.href='mai'+'lto:'+'mya'+'dd'+'res'+'sm'+'ail'+'@g'+'mai'+'l.'+'com'; return false;">myadd<span style="display: none;">.nosp@m.</span>ress<span style="display: none;">.nosp@m.</span>mail@<span style="display: none;">.nosp@m.</span>gmai<span style="display: none;">.nosp@m.</span>l.com</a> </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.1.7 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>1.1.9 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00027">27</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00028">28</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a264632fa509d595d6e92ebf19d33a82c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a264632fa509d595d6e92ebf19d33a82c">&#9670;&nbsp;</a></span>affectsManyToManys()</h2>
@@ -317,7 +366,36 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00133">133</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00135">135</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+
+</div>
+</div>
+<a id="a3c08641b1120ac8743ecb0177ee3cd63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c08641b1120ac8743ecb0177ee3cd63">&#9670;&nbsp;</a></span>closeDb()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static closeDb </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Closes the active pdo connection to the database. </p>
+
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00297">297</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -406,7 +484,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00227">227</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00254">254</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -461,7 +539,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>int|false count of objects </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00185">185</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00187">187</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -530,7 +608,108 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>array </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00153">153</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00155">155</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+
+</div>
+</div>
+<a id="a8b016f0dc89d73fc569bf2318e384b2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b016f0dc89d73fc569bf2318e384b2d">&#9670;&nbsp;</a></span>getById()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static getById </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$className</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$keyValues</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$included</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$useCache</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns an instance of $className from the database, from $keyvalues values of the primary key. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramtype">String</td><td class="paramname">$className</td><td>complete classname of the model to load </td></tr>
+    <tr><td class="paramtype">Array&#160;|&#160;string</td><td class="paramname">$keyValues</td><td>primary key values or condition </td></tr>
+    <tr><td class="paramtype">boolean&#160;|&#160;array</td><td class="paramname">$included</td><td>if true, charges associate members with association </td></tr>
+    <tr><td class="paramtype">array&#160;|&#160;null</td><td class="paramname">$parameters</td><td>the request parameters </td></tr>
+    <tr><td class="paramtype">boolean&#160;|&#160;null</td><td class="paramname">$useCache</td><td>use cache if true </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>object the instance loaded or null if not found </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00227">227</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+
+</div>
+</div>
+<a id="a1188ef1824c74fe4060e050c08fe4327"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1188ef1824c74fe4060e050c08fe4327">&#9670;&nbsp;</a></span>getConditionParser()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static getConditionParser </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$className</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>$keyValues</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00231">231</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -599,7 +778,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00108">108</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00110">110</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -660,12 +839,12 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00045">45</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00047">47</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
-<a id="af55f4bc22edd15a6e6a090ecc6f1bb60"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af55f4bc22edd15a6e6a090ecc6f1bb60">&#9670;&nbsp;</a></span>getOne()</h2>
+<a id="a449309169ca3c735db65d2089d935615"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a449309169ca3c735db65d2089d935615">&#9670;&nbsp;</a></span>getOne()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -683,7 +862,7 @@ Additional Inherited Members</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>$keyValues</em>, </td>
+          <td class="paramname"><em>$condition</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -716,11 +895,11 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Returns an instance of $className from the database, from $keyvalues values of the primary key. </p>
+<p>Returns an instance of $className from the database, from $keyvalues values of the primary key or with a condition. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramtype">String</td><td class="paramname">$className</td><td>complete classname of the model to load </td></tr>
-    <tr><td class="paramtype">Array&#160;|&#160;string</td><td class="paramname">$keyValues</td><td>primary key values or condition </td></tr>
+    <tr><td class="paramtype">Array&#160;|&#160;string</td><td class="paramname">$condition</td><td>condition or primary key values </td></tr>
     <tr><td class="paramtype">boolean&#160;|&#160;array</td><td class="paramname">$included</td><td>if true, charges associate members with association </td></tr>
     <tr><td class="paramtype">array&#160;|&#160;null</td><td class="paramname">$parameters</td><td>the request parameters </td></tr>
     <tr><td class="paramtype">boolean&#160;|&#160;null</td><td class="paramname">$useCache</td><td>use cache if true </td></tr>
@@ -729,7 +908,7 @@ Additional Inherited Members</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>object the instance loaded or null if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00202">202</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00204">204</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -797,7 +976,7 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00079">79</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00081">81</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -835,7 +1014,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00164">164</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00166">166</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -865,7 +1044,7 @@ Additional Inherited Members</h2></td></tr>
 <p>Returns true if the connection to the database is established. </p>
 <dl class="section return"><dt>Returns</dt><dd>boolean </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00254">254</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00281">281</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -921,7 +1100,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00157">157</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00159">159</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -949,7 +1128,15 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00258">258</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p>Sets the transformer operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramtype">string</td><td class="paramname">$op</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00290">290</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -985,11 +1172,35 @@ Additional Inherited Members</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00242">242</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00269">269</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Field Documentation</h2>
+<a id="a0a645d47a332ca442ac611a821d910d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a645d47a332ca442ac611a821d910d5">&#9670;&nbsp;</a></span>$conditionParsers</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">$conditionParsers = [ ]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00037">37</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+
+</div>
+</div>
 <a id="a1fa3127fc82f96b1436d871ef02be319"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1fa3127fc82f96b1436d871ef02be319">&#9670;&nbsp;</a></span>$db</h2>
 
@@ -1010,7 +1221,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00033">33</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00034">34</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -1034,7 +1245,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00035">35</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00036">36</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -1058,7 +1269,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00034">34</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_d_a_o_8php_source.html#l00035">35</a> of file <a class="el" href="_d_a_o_8php_source.html">DAO.php</a>.</p>
 
 </div>
 </div>
@@ -1072,7 +1283,7 @@ Additional Inherited Members</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespace_ubiquity.html">Ubiquity</a></li><li class="navelem"><a class="el" href="namespace_ubiquity_1_1orm.html">orm</a></li><li class="navelem"><a class="el" href="class_ubiquity_1_1orm_1_1_d_a_o.html">DAO</a></li>
-    <li class="footer"><small>Generated on Sat Apr 27 2019 02:13:06 for <a href="https://ubiquity.kobject.net/">Ubiquity</a>
+    <li class="footer"><small>Generated on Wed Jul 3 2019 17:55:37 for <a href="https://ubiquity.kobject.net/">Ubiquity</a>
  by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.13
 </small></li>
   </ul>

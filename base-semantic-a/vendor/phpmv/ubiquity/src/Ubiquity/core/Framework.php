@@ -5,24 +5,23 @@
  * Ubiquity\core
  * This class is part of Ubiquity
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.3
+ * @version 1.0.4
  *
  */
 namespace Ubiquity\core;
 
-use Ubiquity\controllers\Startup;
+use Ubiquity\assets\AssetsManager;
+use Ubiquity\contents\normalizers\NormalizersManager;
 use Ubiquity\controllers\Router;
-use Ubiquity\utils\http\URequest;
-use Ubiquity\utils\http\USession;
-use Ubiquity\utils\http\UCookie;
+use Ubiquity\controllers\Startup;
 use Ubiquity\orm\OrmUtils;
 use Ubiquity\translation\TranslatorManager;
-use Ubiquity\contents\normalizers\NormalizersManager;
-use Ubiquity\assets\AssetsManager;
-use Ubiquity\controllers\Controller;
+use Ubiquity\utils\http\UCookie;
+use Ubiquity\utils\http\URequest;
+use Ubiquity\utils\http\USession;
 
 class Framework {
-	public const version = '2.1.2';
+	public const version = '2.2.0';
 
 	public static function getVersion() {
 		return self::version;
@@ -79,7 +78,7 @@ class Framework {
 	/**
 	 * Returns an instance of JsUtils initialized with Semantic (for di injection)
 	 *
-	 * @param Controller $controller
+	 * @param \Ubiquity\controllers\Controller $controller
 	 * @param array $options
 	 * @return \Ajax\php\ubiquity\JsUtils
 	 */
@@ -93,7 +92,7 @@ class Framework {
 	/**
 	 * Returns an instance of JsUtils initialized with Bootstrap (for di injection)
 	 *
-	 * @param Controller $controller
+	 * @param \Ubiquity\controllers\Controller $controller
 	 * @param array $options
 	 * @return \Ajax\php\ubiquity\JsUtils
 	 */

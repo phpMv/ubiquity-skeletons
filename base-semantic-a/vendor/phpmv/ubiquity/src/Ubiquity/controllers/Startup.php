@@ -2,19 +2,19 @@
 
 namespace Ubiquity\controllers;
 
-use Ubiquity\utils\base\UString;
-use Ubiquity\views\engine\TemplateEngine;
-use Ubiquity\utils\http\USession;
-use Ubiquity\log\Logger;
-use Ubiquity\controllers\traits\StartupConfigTrait;
 use Ubiquity\controllers\di\DiManager;
+use Ubiquity\controllers\traits\StartupConfigTrait;
+use Ubiquity\log\Logger;
+use Ubiquity\utils\base\UString;
+use Ubiquity\utils\http\USession;
+use Ubiquity\views\engine\TemplateEngine;
 
 /**
  * Starts the framework.
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.1
+ * @version 1.1.2
  *
  */
 class Startup {
@@ -29,8 +29,8 @@ class Startup {
 		if (\class_exists ( $u [0] )) {
 			self::runAction ( $u, $initialize, $finalize );
 		} else {
-			self::$httpInstance->header ( 'HTTP/1.0 404 Not Found', '', true, 404 );
-			Logger::warn ( "Startup", "The controller `" . $u [0] . "` doesn't exists! <br/>", "forward" );
+			self::getHttpInstance ()->header ( 'HTTP/1.0 404 Not Found', '', true, 404 );
+			Logger::warn ( 'Startup', 'The controller `' . $u [0] . '` doesn\'t exists! <br/>', '_preRunAction' );
 		}
 	}
 
@@ -82,9 +82,9 @@ class Startup {
 	 */
 	public static function forward($url, $initialize = true, $finalize = true) {
 		$u = self::parseUrl ( $url );
-		if (is_array ( Router::getRoutes () ) && ($ru = Router::getRoute ( $url )) !== false) {
+		if (\is_array ( Router::getRoutes () ) && ($ru = Router::getRoute ( $url, true, self::$config ['debug'] ?? false)) !== false) {
 			if (\is_array ( $ru )) {
-				if (is_callable ( $ru [0] )) {
+				if (\is_callable ( $ru [0] )) {
 					self::runCallable ( $ru );
 				} else {
 					self::_preRunAction ( $ru, $initialize, $finalize );
@@ -155,15 +155,15 @@ class Startup {
 	public static function runCallable(array &$u) {
 		self::$actionParams = [ ];
 		if (\sizeof ( $u ) > 1) {
-			self::$actionParams = array_slice ( $u, 1 );
+			self::$actionParams = \array_slice ( $u, 1 );
 		}
 		if (isset ( self::$config ['di'] )) {
 			$di = self::$config ['di'];
 			if (\is_array ( $di )) {
-				self::$actionParams = array_merge ( self::$actionParams, $di );
+				self::$actionParams = \array_merge ( self::$actionParams, $di );
 			}
 		}
-		call_user_func_array ( $u [0], self::$actionParams );
+		\call_user_func_array ( $u [0], self::$actionParams );
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Startup {
 		if ($di !== false) {
 			foreach ( $di as $k => $v ) {
 				$setter = 'set' . ucfirst ( $k );
-				if (method_exists ( $controller, $setter )) {
+				if (\method_exists ( $controller, $setter )) {
 					$controller->$setter ( $v ( $controller ) );
 				} else {
 					$controller->$k = $v ( $controller );
@@ -207,22 +207,22 @@ class Startup {
 	}
 
 	private static function callController(Controller $controller, array &$u) {
-		$urlSize = sizeof ( $u );
+		$urlSize = \sizeof ( $u );
 		switch ($urlSize) {
 			case 1 :
 				$controller->index ();
 				break;
 			case 2 :
 				$action = $u [1];
-				// Appel de la méthode (2ème élément du tableau)
+				// action without parameters
 				if (\method_exists ( $controller, $action )) {
 					$controller->$action ();
 				} else {
-					Logger::warn ( "Startup", "The method `{$action}` doesn't exists on controller `" . $u [0] . "`", "callController" );
+					Logger::warn ( "Startup", "The method `{$action}` doesn't exists on controller `{$u [0]}`", "callController" );
 				}
 				break;
 			default :
-				// Appel de la méthode en lui passant en paramètre le reste du tableau
+				// action with parameters
 				\call_user_func_array ( array ($controller,$u [1] ), self::$actionParams );
 				break;
 		}
@@ -306,6 +306,6 @@ class Startup {
 	 * @return string
 	 */
 	public static function getApplicationName() {
-		return basename ( \dirname ( \ROOT ) );
+		return \basename ( \dirname ( \ROOT ) );
 	}
 }

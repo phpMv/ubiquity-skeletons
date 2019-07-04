@@ -9,28 +9,37 @@ Coding guide
 
 Design choices
 --------------
+Fetching and using Services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Dependency injections
-^^^^^^^^^^^^^^^^^^^^^
+*********************
 Avoid using dependency injection for all parts of the framework, internally. |br|
 Dependency injection is a resource-intensive mechanism:
 
 - it needs to identify the element to instantiate ;
 - then to proceed to its instantiation ;
-- to finally assign it to a member of a class.
+- to finally assign it to a variable.
 
-In addition to this problematic resource consumption, the dependency injection poses another problem during development. |br|
-Access to injected resources returns an element without type, not easy to handle for the developer.
+Getting services from a container
+*********************************
+Also avoid public access to services registered in a service container. |br|
+This type of access involves manipulating objects whose return type is unknown, not easy to handle for the developer.
 
 For example,
-It's hard to manipulate the untyped return of ``$this->serviceContainer->get('translator')``,
+It's hard to manipulate the untyped return of ``$this->serviceContainer->get('translator')``, as some frameworks allow,
 and know which methods to call on it.
 
-The use of classes with static methods avoids all the disadvantages mentioned above:
+When possible, and when it does not reduce flexibility too much, the use of static classes is suggested:
 
-For a developer, the ``TranslatorManager`` class is accessible from an entire project. |br|
-It exposes its public interface and allows code completion.
+For a developer, the ``TranslatorManager`` class is accessible from an entire project without any object instantiation. |br|
+It exposes its public interface and allows code completion:
 
+- The translator does not need to be injected to be used;
+- It does not need to be retrieved from a service container.
 
+The use of static classes inevitably creates a strong dependency and affects flexibility. |br|
+But to come back to the Translator example, there is no reason to change it if it is satisfying. |br|
+It is not desirable to want to provide flexibility at all costs when it is not necessary, and then for the user to see that its application is a little slow.
 
 Optimization
 ------------
@@ -73,12 +82,13 @@ It is also important to maintain an acceptable coverage, which may drop if a new
 
 Code Documentation
 ------------------
-//TODO
+The current code is not yet fully documented, feel free to contribute in order to fill this gap.
 
 Coding standards
 ----------------
 
-Ubiquity coding standards are based on the `PSR-1 <https://www.php-fig.org/psr/psr-1/>`_ , `PSR-2 <https://www.php-fig.org/psr/psr-2/>`_ and `PSR-4 <https://www.php-fig.org/psr/psr-4/>`_ standards, so you may already know most of them.
+Ubiquity coding standards are mainly based on the `PSR-1 <https://www.php-fig.org/psr/psr-1/>`_ , `PSR-2 <https://www.php-fig.org/psr/psr-2/>`_ and `PSR-4 <https://www.php-fig.org/psr/psr-4/>`_ standards, so you may already know most of them. |br|
+The few intentional exceptions to the standards are normally reported in this guide.
 
 Naming Conventions
 ^^^^^^^^^^^^^^^^^^
@@ -89,16 +99,16 @@ Naming Conventions
 - Suffix interfaces with ``Interface``;
 - Suffix traits with ``Trait``;
 - Suffix exceptions with ``Exception``;
-- Suffix core classes manager with ``Manager`` (e.g. CacheManager, TanslatorManager);
+- Suffix core classes manager with ``Manager`` (e.g. CacheManager, TranslatorManager);
 - Prefix Utility classes with ``U`` (e.g. UString, URequest);
 - Use UpperCamelCase for naming PHP files (e.g. CacheManager.php);
-- Use uppercase for constants (e.g. const SESSION_NAME='Ubiquity'
+- Use uppercase for constants (e.g. const SESSION_NAME='Ubiquity').
 
 Indentation, tabs, braces
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Use Tabs, not spaces;
-- Use brace always on the same line;
+- Use Tabs, not spaces; (!PSR-2)
+- Use brace always on the same line; (!PSR-2)
 - Use braces to indicate control structure body regardless of the number of statements it contains;
 
 Classes
@@ -131,7 +141,7 @@ Example
 	 * Ubiquity\namespace$Example
 	 * This class is part of Ubiquity
 	 *
-	 * @author jcheron <myaddressmail@gmail.com>
+	 * @author authorName <authorMail>
 	 * @version 1.0.0
 	 * @since Ubiquity x.x.x
 	 */
@@ -173,9 +183,10 @@ Example
 
 .. important::
    
-   If you work with Eclipse, you can import this standardization file that integrates all these rules:
-   :download:`phpMv-coding-standards.xml </contributing/phpMv-coding-standards.xml>`
-
+   You can import this standardization files that integrates all these rules in your IDE:
+     - :download:`Eclipse </contributing/phpMv-coding-standards.xml>`
+     - :download:`PhpStorm </contributing/phpMv-coding-standards-storm.xml>`
+    If your preferred IDE is not listed, you can submit the associated standardization file by creating a new PR.
 
 .. |br| raw:: html
 

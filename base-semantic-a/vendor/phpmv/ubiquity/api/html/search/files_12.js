@@ -8,7 +8,6 @@ var searchData=
   ['templateparser_2ephp',['TemplateParser.php',['../_template_parser_8php.html',1,'']]],
   ['themesexception_2ephp',['ThemesException.php',['../_themes_exception_8php.html',1,'']]],
   ['themesmanager_2ephp',['ThemesManager.php',['../_themes_manager_8php.html',1,'']]],
-  ['themestrait_2ephp',['ThemesTrait.php',['../_themes_trait_8php.html',1,'']]],
   ['timevalidator_2ephp',['TimeValidator.php',['../_time_validator_8php.html',1,'']]],
   ['transformerannotation_2ephp',['TransformerAnnotation.php',['../_transformer_annotation_8php.html',1,'']]],
   ['transformerexception_2ephp',['TransformerException.php',['../_transformer_exception_8php.html',1,'']]],

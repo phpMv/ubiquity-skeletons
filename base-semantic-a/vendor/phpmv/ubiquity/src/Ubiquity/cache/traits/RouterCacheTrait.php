@@ -16,7 +16,7 @@ use Ubiquity\controllers\di\DiManager;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.3
+ * @version 1.0.5
  * @property \Ubiquity\cache\system\AbstractDataCache $cache
  *
  */
@@ -35,7 +35,7 @@ trait RouterCacheTrait {
 		return [ ];
 	}
 
-	private static function initRouterCache(&$config, $silent = false) {
+	private static function parseControllerFiles(&$config, $silent = false) {
 		$routes = [ "rest" => [ ],"default" => [ ] ];
 		$files = self::getControllersFiles ( $config, $silent );
 		foreach ( $files as $file ) {
@@ -52,12 +52,40 @@ trait RouterCacheTrait {
 				}
 			}
 		}
+		self::sortByPriority ( $routes ['default'] );
+		self::sortByPriority ( $routes ['rest'] );
+		return $routes;
+	}
+
+	protected static function sortByPriority(&$array) {
+		uasort ( $array, function ($item1, $item2) {
+			return UArray::getRecursive ( $item2, "priority", 0 ) <=> UArray::getRecursive ( $item1, "priority", 0 );
+		} );
+		UArray::removeRecursive ( $array, "priority" );
+	}
+
+	private static function initRouterCache(&$config, $silent = false) {
+		$routes = self::parseControllerFiles ( $config, $silent );
 		self::$cache->store ( "controllers/routes.default", "return " . UArray::asPhpArray ( $routes ["default"], "array" ) . ";", 'controllers' );
 		self::$cache->store ( "controllers/routes.rest", "return " . UArray::asPhpArray ( $routes ["rest"], "array" ) . ";", 'controllers' );
 		DiManager::init ( $config );
 		if (! $silent) {
 			echo "Router cache reset\n";
 		}
+	}
+
+	public static function controllerCacheUpdated(&$config) {
+		$result = false;
+		$newRoutes = self::parseControllerFiles ( $config, true );
+		$ctrls = self::getControllerCache ();
+		if ($newRoutes ['default'] != $ctrls) {
+			$result ['default'] = true;
+		}
+		$ctrls = self::getControllerCache ( true );
+		if ($newRoutes ['rest'] != $ctrls) {
+			$result ['rest'] = true;
+		}
+		return $result;
 	}
 
 	public static function storeDynamicRoutes($isRest = false) {
@@ -153,10 +181,10 @@ trait RouterCacheTrait {
 		return $result;
 	}
 
-	public static function addRoute($path, $controller, $action = "index", $methods = null, $name = "") {
-		$controllerCache = self::getControllerCache ();
-		Router::addRouteToRoutes ( $controllerCache, $path, $controller, $action, $methods, $name );
-		self::$cache->store ( "controllers/routes.default", "return " . UArray::asPhpArray ( $controllerCache, "array" ) . ";", 'controllers' );
+	public static function addRoute($path, $controller, $action = "index", $methods = null, $name = "", $isRest = false, $priority = 0, $callback = null) {
+		$controllerCache = self::getControllerCache ( $isRest );
+		Router::addRouteToRoutes ( $controllerCache, $path, $controller, $action, $methods, $name, false, null, [ ], $priority, $callback );
+		self::$cache->store ( 'controllers/routes.' . ($isRest ? 'rest' : 'default'), "return " . UArray::asPhpArray ( $controllerCache, "array" ) . ";", 'controllers' );
 	}
 
 	public static function addRoutes($pathArray, $controller, $action = "index", $methods = null, $name = "") {

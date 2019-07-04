@@ -143,7 +143,7 @@ class AdminCest extends BaseAcceptance {
 		$this->gotoAdminModule ( "Admin/Seo", $I );
 		$I->click ( "#generateRobots" );
 		$I->waitForText ( "Can not generate robots.txt if no SEO controller is selected.", self::TIMEOUT, "body" );
-		$this->waitAndclick ( $I, "#addNewSeo", "body" );
+		$this->waitAndclick ( $I, ".addNewSeo", "body" );
 		$I->waitForText ( "Creating a new Seo controller", self::TIMEOUT, "body" );
 		$I->fillField ( "#controllerName", "TestSEOController" );
 		$this->waitAndclick ( $I, "#action-modalNewSeo-0" );
@@ -166,5 +166,83 @@ class AdminCest extends BaseAcceptance {
 	// tests
 	public function tryGotoAdminTranslate(AcceptanceTester $I) {
 		$this->gotoAdminModule ( "Admin/Translate", $I );
+		$I->fillField ( "#frmLocale [name='localeName']", 'tu_TU' );
+		$this->waitAndclick ( $I, "#action-field-localeName", "body" );
+		$I->waitForText ( 'tu_TU', self::TIMEOUT, '#menulocales' );
+		$I->fillField ( "#name-tuTU", 'messages' );
+		$this->waitAndclick ( $I, "#action-field-name-tuTU", "body" );
+		$I->waitForText ( 'messages', self::TIMEOUT, '#dt-tuTU' );
+		$this->waitAndclick ( $I, "button._edit.tu_TU[data-ajax='messages']", 'body' );
+		$I->waitForText ( 'Back to domains' );
+		$I->fillField ( '#dtDomain-tuTU-messages input:nth-of-type(1)', 'bt.okay' );
+		$I->waitForText ( '±1' );
+
+		$this->waitAndclick ( $I, '#button-bt-save' );
+		$I->waitForText ( 'Modifications saved for domain messages of locale tu_TU.' );
+
+		$I->fillField ( "#frmLocale [name='localeName']", 'ta_TA' );
+		$this->waitAndclick ( $I, "#action-field-localeName", "body" );
+		$I->waitForText ( 'ta_TA', self::TIMEOUT, '#menulocales' );
+		$I->fillField ( "#name-taTA", 'messages' );
+		$this->waitAndclick ( $I, "#action-field-name-taTA", "body" );
+		$I->waitForText ( 'messages', self::TIMEOUT, '#dt-taTA' );
+		$this->waitAndclick ( $I, "button._edit.ta_TA[data-ajax='messages']", 'body' );
+		$I->waitForText ( 'Back to domains' );
+		$this->waitAndclick ( $I, "._ddAddMessages" );
+		$this->waitAndclick ( $I, "._addMessages" );
+		$I->waitForText ( "key-value separator" );
+		$I->fillField ( "#form-ta_TAmessages textarea", "a=one A\nb=one B\nc=one C" );
+		$this->waitAndclick ( $I, "#validate-multiple-messages-ta_TAmessages" );
+		$I->waitForText ( "+3" );
+		$I->waitForText ( "one A" );
+		$I->waitForText ( "one B" );
+		$I->waitForText ( "one C" );
+
+		$this->waitAndclick ( $I, "#dd-locales-taTA" );
+		$this->waitAndclick ( $I, ".item[data-value='tu_TU']" );
+		$this->waitAndclick ( $I, "#compare-to-ta_TA" );
+		// $I->waitForText ( "bt.okay" );
+
+		$this->waitAndclick ( $I, "#bt-load-translations-cache" );
+		$I->waitForText ( "Cache loaded for locales", self::TIMEOUT );
+
+		$this->waitAndclick ( $I, "#bt-delete-translations-cache-en" );
+		$I->waitForText ( "Cache deleted for locale" );
+
+		$this->waitAndclick ( $I, "#bt-delete-translations-cache" );
+		$I->waitForText ( "Cache deleted for all locales" );
+	}
+
+	// tests
+	public function tryGotoAdminMaintenance(AcceptanceTester $I) {
+		$I->amOnPage ( "/Admin/Maintenance" );
+		$I->seeInCurrentUrl ( "Admin/Maintenance" );
+		$I->waitForText ( "Maintenance mode", self::TIMEOUT );
+		$this->waitAndclick ( $I, "#add-maintenance-btn", "body" );
+		$I->waitForText ( 'Maintenance modifier' );
+		$I->fillField ( "#maintenance-frm [name='id']", 'newMaintenance' );
+		$I->fillField ( "#maintenance-frm [name='action']", 'comingSoon' );
+		$I->fillField ( "#maintenance-frm [name='title']", 'Coming soon' );
+		$I->fillField ( "#maintenance-frm [name='message']", 'Soon available' );
+		$I->fillField ( "#maintenance-frm [name='message']", 'Soon available' );
+		$this->waitAndclick ( $I, "#ck-ck-active", "body" );
+		$this->waitAndclick ( $I, "#validate-btn", "body" );
+		$I->waitForText ( 'newMaintenance' );
+		$I->waitForElement ( "#bt-de-activate" );
+
+		$I->amOnPage ( "/TestCrudOrgas" );
+		$I->waitForText ( "Coming soon" );
+		$I->waitForText ( "Soon available" );
+		$I->waitForElement ( "#remind" );
+		$I->waitForElement ( "#action-field-mail" );
+
+		$I->amOnPage ( "/Admin/Maintenance" );
+		$I->seeInCurrentUrl ( "Admin/Maintenance" );
+		$I->waitForText ( "Maintenance mode", self::TIMEOUT );
+		$this->waitAndclick ( $I, "#bt-de-activate", "body" );
+		$I->waitForText ( 'successfully deactivated!' );
+
+		$I->amOnPage ( "/TestCrudOrgas" );
+		$I->see ( "lecnam.net" );
 	}
 }

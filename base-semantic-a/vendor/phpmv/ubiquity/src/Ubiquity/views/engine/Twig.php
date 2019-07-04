@@ -25,7 +25,7 @@ use Ubiquity\assets\AssetsManager;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.8
+ * @version 1.0.9
  *
  */
 class Twig extends TemplateEngine {
@@ -40,7 +40,7 @@ class Twig extends TemplateEngine {
 		if (isset ( $options ["cache"] ) && $options ["cache"] === true) {
 			$options ["cache"] = CacheManager::getCacheSubDirectory ( "views" );
 		}
-		
+
 		$this->twig = new Environment ( $loader, $options );
 
 		if (isset ( $options ["activeTheme"] )) {
@@ -73,10 +73,17 @@ class Twig extends TemplateEngine {
 			return AssetsManager::js ( $resource, $parameters, $absolute );
 		}, true );
 
-		$this->addFunction ( 't', function ($context, $id, array $parameters = array(), $domain = null, $locale = null) {
+		$t = new TwigFunction ( 't', function ($context, $id, array $parameters = array(), $domain = null, $locale = null) {
 			$trans = TranslatorManager::trans ( $id, $parameters, $domain, $locale );
 			return $this->twig->createTemplate ( $trans )->render ( $context );
 		}, [ 'needs_context' => true ] );
+
+		$tc = new TwigFunction ( 'tc', function ($context, $id, array $choice, array $parameters = array(), $domain = null, $locale = null) {
+			$trans = TranslatorManager::transChoice ( $id, $choice, $parameters, $domain, $locale );
+			return $this->twig->createTemplate ( $trans )->render ( $context );
+		}, [ 'needs_context' => true ] );
+		$this->twig->addFunction ( $t );
+		$this->twig->addFunction ( $tc );
 
 		$test = new TwigTest ( 'instanceOf', function ($var, $class) {
 			return $var instanceof $class;
@@ -157,5 +164,15 @@ class Twig extends TemplateEngine {
 		} else {
 			throw new ThemesException ( sprintf ( 'The path `%s` does not exists!', $path ) );
 		}
+	}
+
+	/**
+	 * Checks if we have the source code of a template, given its name.
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function exists($name) {
+		return $this->twig->getLoader ()->exists ( $name );
 	}
 }
