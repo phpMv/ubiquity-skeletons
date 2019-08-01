@@ -224,14 +224,218 @@ In the folowing example, the parameters passed to the **attributes** variable of
 
 Classical ajax requests
 +++++++++++++++++++++++
+For this example, create the following database:
+
+.. code-block:: sql
+   
+   CREATE DATABASE `uguide` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+   USE `uguide`;
+   
+   CREATE TABLE `user` (
+     `id` int(11) NOT NULL,
+     `firstname` varchar(30) NOT NULL,
+     `lastname` varchar(30) NOT NULL
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+   
+   INSERT INTO `user` (`id`, `firstname`, `lastname`) VALUES
+   (1, 'You', 'Evan'),
+   (2, 'Potencier', 'Fabien'),
+   (3, 'Otwell', 'Taylor');
+
+Connect the application to the database, and generate the `User` class:
+
+With devtools:
+
+.. code-block:: bash
+   
+   Ubiquity config:set --database.dbName=uguide
+   Ubiquity all-models
+
+Create a new Controller `UsersJqueryController`
+
+.. code-block:: bash
+   
+   Ubiquity controller UsersJqueryController -v
+   
+Create the folowing actions in `UsersJqueryController`:
+
+.. image:: /_static/images/richclient/semantic/UsersJqueryControllerStructure.png
+
+Index action
+############
+
+The `index` action must display a button to obtain the list of users, loaded via an ajax request:
+
+.. code-block:: php
+   :linenos:
+   :caption: app/controllers/UsersJqueryController.php
+   
+   namespace controllers;
+   
+   /**
+    * Controller UsersJqueryController
+    *
+    * @property \Ajax\php\ubiquity\JsUtils $jquery
+    * @route("users")
+    */
+   class UsersJqueryController extends ControllerBase {
+   
+   	/**
+   	 *
+   	 * {@inheritdoc}
+   	 * @see \Ubiquity\controllers\Controller::index()
+   	 * @get
+   	 */
+   	public function index() {
+   		$this->jquery->getOnClick('#users-bt', Router::path('display.users'), '#users', [
+   			'hasLoader' => 'internal'
+   		]);
+   		$this->jquery->renderDefaultView();
+   	}
+   }
+
+The default view associated to `index` action:
+
+.. code-block:: html
+   :caption: app/views/UsersJqueryController/index.html
+   
+   <div class="ui container">
+   	<div id="users-bt" class="ui button">
+   		<i class="ui users icon"></i>
+   		Display <b>users</b>
+   	</div>
+   	<p></p>
+   	<div id="users">
+   	</div>
+   </div>
+   {{ script_foot | raw }}
 
 
+displayUsers action
+###################
+All users are displayed, and a click on a user must display the user details via a posted ajax request:
+
+.. code-block:: php
+   :linenos:
+   :caption: app/controllers/UsersJqueryController.php
+   :emphasize-lines: 11-27
+   
+   namespace controllers;
+   
+   /**
+    * Controller UsersJqueryController
+    *
+    * @property \Ajax\php\ubiquity\JsUtils $jquery
+    * @route("users")
+    */
+   class UsersJqueryController extends ControllerBase {
+   ...
+	/**
+	 *
+	 * @get("all","name"=>"display.users","cache"=>true)
+	 */
+	public function displayUsers() {
+		$users = DAO::getAll(User::class);
+		$this->jquery->click('#close-bt', '$("#users").html("");');
+		$this->jquery->postOnClick('li[data-ajax]', Router::path('display.one.user', [
+			""
+		]), '{}', '#user-detail', [
+			'attr' => 'data-ajax',
+			'hasLoader' => false
+		]);
+		$this->jquery->renderDefaultView([
+			'users' => $users
+		]);
+	}
+
+The view associated to `displayUsers` action:
+
+.. code-block:: html
+   :caption: app/views/UsersJqueryController/displayUsers.html
+   
+   <div class="ui top attached header">
+   	<i class="users circular icon"></i>
+   	<div class="content">Users</div>
+   </div>
+   <div class="ui attached segment">
+   	<ul id='users-content'>
+   	{% for user in users %}
+   		<li data-ajax="{{user.id}}">{{user.firstname }} {{user.lastname}}</li>
+   	{% endfor %}
+   	</ul>
+   	<div id='user-detail'></div>
+   </div>
+   <div class="ui bottom attached inverted segment">
+   <div id="close-bt" class="ui inverted button">Close</div>
+   </div>
+   {{ script_foot | raw }}
+
+
+displayOneUser action
+###################
+
+.. code-block:: php
+   :linenos:
+   :caption: app/controllers/UsersJqueryController.php
+   :emphasize-lines: 11-27
+   
+   namespace controllers;
+   
+   /**
+    * Controller UsersJqueryController
+    *
+    * @property \Ajax\php\ubiquity\JsUtils $jquery
+    * @route("users")
+    */
+   class UsersJqueryController extends ControllerBase {
+   ...
+   	/**
+   	 *
+   	 * @post("{userId}","name"=>"display.one.user","cache"=>true,"duration"=>3600)
+   	 */
+   	public function displayOneUser($userId) {
+   		$user = DAO::getById(User::class, $userId);
+   		$this->jquery->hide('#users-content', '', '', true);
+   		$this->jquery->click('#close-user-bt', '$("#user-detail").html("");$("#users-content").show();');
+   		$this->jquery->renderDefaultView([
+   			'user' => $user
+   		]);
+   	}
+
+The view associated to `displayOneUser` action:
+
+.. code-block:: html
+   :caption: app/views/UsersJqueryController/displayUsers.html
+   
+   <div class="ui label">
+   	<i class="ui user icon"></i>
+   	Id
+   	<div class="detail">{{user.id}}</div>
+   </div>
+   <div class="ui label">
+   	Firstname
+   	<div class="detail">{{user.firstname}}</div>
+   </div>
+   <div class="ui label">
+   	Lastname
+   	<div class="detail">{{user.lastname}}</div>
+   </div>
+   <p></p>
+   <div id="close-user-bt" class="ui black button">
+   	<i class="ui users icon"></i>
+   	Return to users
+   </div>
+   {{ script_foot | raw }}
 
 Semantic components
 -------------------
 
+//todo
 HtmlButton sample
 +++++++++++++++++
 
+//todo
+DataTable sample
++++++++++++++++++
 
 

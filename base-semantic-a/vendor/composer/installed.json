@@ -45,20 +45,20 @@
     },
     {
         "name": "fortawesome/font-awesome",
-        "version": "5.9.0",
-        "version_normalized": "5.9.0.0",
+        "version": "5.10.0",
+        "version_normalized": "5.10.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/FortAwesome/Font-Awesome.git",
-            "reference": "ba907eaec40fab01d410c3023a5572b2cb46cea6"
+            "reference": "5c06ed077887b54064d3cb32cd7b6150cf21ca15"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/FortAwesome/Font-Awesome/zipball/ba907eaec40fab01d410c3023a5572b2cb46cea6",
-            "reference": "ba907eaec40fab01d410c3023a5572b2cb46cea6",
+            "url": "https://api.github.com/repos/FortAwesome/Font-Awesome/zipball/5c06ed077887b54064d3cb32cd7b6150cf21ca15",
+            "reference": "5c06ed077887b54064d3cb32cd7b6150cf21ca15",
             "shasum": ""
         },
-        "time": "2019-06-04T21:18:16+00:00",
+        "time": "2019-07-29T16:25:20+00:00",
         "type": "library",
         "installation-source": "dist",
         "notification-url": "https://packagist.org/downloads/",
@@ -267,17 +267,17 @@
     },
     {
         "name": "phpmv/php-mv-ui",
-        "version": "2.2.15",
-        "version_normalized": "2.2.15.0",
+        "version": "2.2.17",
+        "version_normalized": "2.2.17.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/phpMv-UI.git",
-            "reference": "6f52f874a44ea0eff33083ff35adc7be9e6e5c8c"
+            "reference": "d2596cc87781b274349397b83fd57e2f293142b2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/6f52f874a44ea0eff33083ff35adc7be9e6e5c8c",
-            "reference": "6f52f874a44ea0eff33083ff35adc7be9e6e5c8c",
+            "url": "https://api.github.com/repos/phpMv/phpMv-UI/zipball/d2596cc87781b274349397b83fd57e2f293142b2",
+            "reference": "d2596cc87781b274349397b83fd57e2f293142b2",
             "shasum": ""
         },
         "require": {
@@ -289,7 +289,7 @@
             "semantic/ui": "~2.2.1",
             "twitter/bootstrap": "~3.3"
         },
-        "time": "2019-07-01T23:29:25+00:00",
+        "time": "2019-07-27T23:01:18+00:00",
         "type": "phpmv-ui",
         "extra": {
             "branch-alias": {
@@ -309,8 +309,8 @@
         "authors": [
             {
                 "name": "Jean-Christophe HERON",
-                "email": "myaddressmail@gmail.com",
-                "role": "Developer"
+                "role": "Developer",
+                "email": "myaddressmail@gmail.com"
             }
         ],
         "description": "A JQuery and UI library for php and php MVC frameworks",
@@ -330,17 +330,17 @@
     },
     {
         "name": "phpmv/ubiquity",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "2.3.0",
+        "version_normalized": "2.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity.git",
-            "reference": "e5ac96bde4a7dd8c09b26a54bb93739cb25e6fed"
+            "reference": "f68b84798947c82ea79c73214c659adee7e508fb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/e5ac96bde4a7dd8c09b26a54bb93739cb25e6fed",
-            "reference": "e5ac96bde4a7dd8c09b26a54bb93739cb25e6fed",
+            "url": "https://api.github.com/repos/phpMv/ubiquity/zipball/f68b84798947c82ea79c73214c659adee7e508fb",
+            "reference": "f68b84798947c82ea79c73214c659adee7e508fb",
             "shasum": ""
         },
         "require": {
@@ -349,13 +349,14 @@
         "require-dev": {
             "phpmv/php-mv-ui": "^2.2",
             "phpmv/ubiquity-codeception": "^1.0",
+            "phpmv/ubiquity-dev": "^0.0",
             "phpmv/ubiquity-devtools": "^1.2"
         },
-        "time": "2019-07-03T16:03:20+00:00",
+        "time": "2019-08-01T00:09:16+00:00",
         "type": "framework",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.3.x-dev"
+                "dev-master": "2.4.x-dev"
             }
         },
         "installation-source": "source",
@@ -371,8 +372,8 @@
         "authors": [
             {
                 "name": "Jean-Christophe HERON",
-                "email": "myaddressmail@gmail.com",
-                "role": "Lead developer"
+                "role": "Lead developer",
+                "email": "myaddressmail@gmail.com"
             }
         ],
         "description": "Ubiquity-framework",
@@ -384,24 +385,76 @@
         ]
     },
     {
-        "name": "phpmv/ubiquity-devtools",
-        "version": "1.2.7",
-        "version_normalized": "1.2.7.0",
+        "name": "phpmv/ubiquity-dev",
+        "version": "0.0.3",
+        "version_normalized": "0.0.3.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/phpMv/ubiquity-devtools.git",
-            "reference": "4debc343f3a64855076872fd641544589cdbf503"
+            "url": "https://github.com/phpMv/ubiquity-dev.git",
+            "reference": "a9eb7167c5d175724788d1b63c6c6e58c29c7100"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity-devtools/zipball/4debc343f3a64855076872fd641544589cdbf503",
-            "reference": "4debc343f3a64855076872fd641544589cdbf503",
+            "url": "https://api.github.com/repos/phpMv/ubiquity-dev/zipball/a9eb7167c5d175724788d1b63c6c6e58c29c7100",
+            "reference": "a9eb7167c5d175724788d1b63c6c6e58c29c7100",
             "shasum": ""
         },
         "require": {
             "php": ">7.0"
         },
-        "time": "2019-07-03T15:23:03+00:00",
+        "time": "2019-07-29T22:16:30+00:00",
+        "type": "extension",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Ubiquity\\": "src/Ubiquity/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            {
+                "name": "Jean-Christophe HERON",
+                "role": "Lead developer",
+                "email": "myaddressmail@gmail.com"
+            }
+        ],
+        "description": "dev classes for Ubiquity framework",
+        "keywords": [
+            "framework",
+            "mvc",
+            "orm",
+            "php",
+            "php-framework",
+            "tools"
+        ]
+    },
+    {
+        "name": "phpmv/ubiquity-devtools",
+        "version": "v1.2.8",
+        "version_normalized": "1.2.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phpMv/ubiquity-devtools.git",
+            "reference": "b582f770638d9051c03d05f580714d68a1f985d7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/phpMv/ubiquity-devtools/zipball/b582f770638d9051c03d05f580714d68a1f985d7",
+            "reference": "b582f770638d9051c03d05f580714d68a1f985d7",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">7.0"
+        },
+        "time": "2019-08-01T00:43:31+00:00",
         "bin": [
             "src/Ubiquity"
         ],
@@ -424,8 +477,8 @@
         "authors": [
             {
                 "name": "Jean-Christophe HERON",
-                "email": "myaddressmail@gmail.com",
-                "role": "Lead developer"
+                "role": "Lead developer",
+                "email": "myaddressmail@gmail.com"
             }
         ],
         "description": "Command line tools for ubiquity-framework",
@@ -436,30 +489,29 @@
     },
     {
         "name": "phpmv/ubiquity-webtools",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "2.3.0",
+        "version_normalized": "2.3.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/phpMv/ubiquity-webtools.git",
-            "reference": "1637c23f74188caa7054f6d4b51fd87dd8479776"
+            "reference": "ac46af66019e3b510794ae3975a5f90393b05a95"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/phpMv/ubiquity-webtools/zipball/1637c23f74188caa7054f6d4b51fd87dd8479776",
-            "reference": "1637c23f74188caa7054f6d4b51fd87dd8479776",
+            "url": "https://api.github.com/repos/phpMv/ubiquity-webtools/zipball/ac46af66019e3b510794ae3975a5f90393b05a95",
+            "reference": "ac46af66019e3b510794ae3975a5f90393b05a95",
             "shasum": ""
         },
         "require": {
-            "php": ">7.0"
+            "php": ">7.0",
+            "phpmv/php-mv-ui": "^2.2.14",
+            "phpmv/ubiquity-dev": "^0.0"
         },
-        "require-dev": {
-            "phpmv/php-mv-ui": "^2.2.14"
-        },
-        "time": "2019-07-03T16:32:14+00:00",
+        "time": "2019-08-01T00:17:22+00:00",
         "type": "extension",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.3.x-dev"
+                "dev-master": "2.4.x-dev"
             }
         },
         "installation-source": "dist",
@@ -475,8 +527,8 @@
         "authors": [
             {
                 "name": "Jean-Christophe HERON",
-                "email": "myaddressmail@gmail.com",
-                "role": "Lead developer"
+                "role": "Lead developer",
+                "email": "myaddressmail@gmail.com"
             }
         ],
         "description": "Webtools for Ubiquity framework",

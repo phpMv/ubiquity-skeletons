@@ -11,13 +11,14 @@ use Ubiquity\exceptions\CacheException;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  * @property \PDO $pdoObject
  * @property mixed $cache
  * @property array $options
  */
 trait DatabaseOperationsTrait {
 	private $statements = [ ];
+	private $updateStatements = [ ];
 
 	abstract public function getDSN();
 
@@ -73,11 +74,20 @@ trait DatabaseOperationsTrait {
 		return $result;
 	}
 
-	public function prepareAndFetchAll($sql, $parameters = null) {
+	public function prepareAndFetchAll($sql, $parameters = null, $mode = null) {
 		$statement = $this->getStatement ( $sql );
 		if ($statement->execute ( $parameters )) {
 			Logger::info ( "Database", $sql, "prepareAndFetchAll", $parameters );
-			return $statement->fetchAll ();
+			return $statement->fetchAll ( $mode );
+		}
+		return false;
+	}
+
+	public function prepareAndFetchOne($sql, $parameters = null, $mode = null) {
+		$statement = $this->getStatement ( $sql );
+		if ($statement->execute ( $parameters )) {
+			Logger::info ( "Database", $sql, "prepareAndFetchOne", $parameters );
+			return $statement->fetch ( $mode );
 		}
 		return false;
 	}
@@ -111,6 +121,29 @@ trait DatabaseOperationsTrait {
 			$this->statements [$sql]->setFetchMode ( \PDO::FETCH_ASSOC );
 		}
 		return $this->statements [$sql];
+	}
+
+	/**
+	 *
+	 * @param string $sql
+	 * @return \PDOStatement
+	 */
+	private function getUpdateStatement($sql) {
+		if (! isset ( $this->updateStatements [$sql] )) {
+			$this->updateStatements [$sql] = $this->pdoObject->prepare ( $sql );
+		}
+		return $this->updateStatements [$sql];
+	}
+
+	/**
+	 * Prepares a statement and execute a query for update (INSERT, UPDATE, DELETE...)
+	 *
+	 * @param string $sql
+	 * @param array|null $parameters
+	 * @return boolean
+	 */
+	public function prepareAndExecuteUpdate($sql, $parameters = null) {
+		return $this->getUpdateStatement ( $sql )->execute ( $parameters );
 	}
 
 	/**
@@ -176,8 +209,8 @@ trait DatabaseOperationsTrait {
 		return $this->query ( $query )->fetchColumn ( $columnNumber );
 	}
 
-	public function fetchAll($query) {
-		return $this->query ( $query )->fetchAll ();
+	public function fetchAll($query, $mode = null) {
+		return $this->query ( $query )->fetchAll ( $mode );
 	}
 
 	public function isConnected() {

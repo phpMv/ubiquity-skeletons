@@ -18,7 +18,7 @@ use Ubiquity\utils\base\CodeUtils;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.3
+ * @version 1.0.4
  *
  */
 abstract class ScaffoldController {
@@ -27,7 +27,9 @@ abstract class ScaffoldController {
 							"CRUD" => [ "index" => "@framework/crud/index.html","form" => "@framework/crud/form.html","display" => "@framework/crud/display.html" ],
 							"auth" => [ "index" => "@framework/auth/index.html","info" => "@framework/auth/info.html","noAccess" => "@framework/auth/noAccess.html","disconnected" => "@framework/auth/disconnected.html","message" => "@framework/auth/message.html","baseTemplate" => "@framework/auth/baseTemplate.html" ] ];
 
-	public abstract function getTemplateDir();
+	public function getTemplateDir() {
+		return \dirname(__DIR__) . "/scaffolding/templates/";
+	}
 
 	public function _refreshRest($refresh = false) {
 	}

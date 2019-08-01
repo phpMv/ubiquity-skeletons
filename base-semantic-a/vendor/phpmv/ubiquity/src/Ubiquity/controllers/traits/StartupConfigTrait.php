@@ -10,17 +10,18 @@ use Ubiquity\utils\http\session\PhpSession;
 use Ubiquity\utils\http\session\AbstractSession;
 use Ubiquity\utils\base\UArray;
 use Ubiquity\utils\base\CodeUtils;
+use Ubiquity\orm\DAO;
 
 /**
  * Ubiquity\controllers\traits$StartupConfigTrait
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.0
+ * @version 1.1.2
  *
  */
 trait StartupConfigTrait {
-	protected static $config;
+	public static $config;
 	protected static $ctrlNS;
 	protected static $httpInstance;
 	protected static $sessionInstance;
@@ -50,26 +51,22 @@ trait StartupConfigTrait {
 	}
 
 	public static function getNS($part = 'controllers') {
-		$config = self::$config;
-		$ns = $config ['mvcNS'] [$part];
-		if ($ns !== "" && $ns !== null) {
-			$ns .= "\\";
-		}
-		return $ns;
+		$ns = self::$config ['mvcNS'] [$part];
+		return ($ns != null) ? $ns .= "\\" : $ns;
 	}
 
 	protected static function setCtrlNS() {
-		self::$ctrlNS = self::getNS ();
+		return self::$ctrlNS = self::getNS ();
 	}
 
-	public static function checkDbConfig() {
+	public static function checkDbConfig($offset = 'default') {
 		$config = self::$config;
 		$result = [ ];
-		$needs = [ 'type','dbName','serverName' ];
-		if (! isset ( $config ['database'] )) {
-			$result [] = 'database';
+		$needs = [ "type","dbName","serverName" ];
+		if (! isset ( $config ["database"] )) {
+			$result [] = "database";
 		} else {
-			self::needsKeyInConfigArray ( $result, $config ['database'], $needs );
+			self::needsKeyInConfigArray ( $result, DAO::getDbOffset ( $config, $offset ), $needs );
 		}
 		return $result;
 	}

@@ -16,7 +16,7 @@ use Ubiquity\utils\http\URequest;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.8
+ * @version 1.0.9
  *
  */
 class Router {
@@ -172,9 +172,10 @@ class Router {
 	}
 
 	public static function getRouteUrlParts($routeArray, $params, $cached = false, $duration = NULL, $cachedResponse = true) {
+		$realPath = \current ( $params );
 		\array_shift ( $params );
 		$routeDetails = $routeArray ["details"];
-		if (is_callable ( $routeDetails ["controller"] )) {
+		if ($routeDetails ["controller"] instanceof \Closure) {
 			$result = [ $routeDetails ["controller"] ];
 			$resultStr = "callable function";
 		} else {
@@ -188,14 +189,14 @@ class Router {
 			Logger::info ( 'Router', sprintf ( 'Route found for %s : %s', $routeArray ["path"], $resultStr ), 'getRouteUrlParts' );
 			if (isset ( $routeDetails ['callback'] )) {
 				// Used for maintenance mode
-				if (is_callable ( $routeDetails ['callback'] )) {
+				if ($routeDetails ['callback'] instanceof \Closure) {
 					return $routeDetails ['callback'] ( $result );
 				}
 			}
 			return $result;
 		}
-		Logger::info ( 'Router', sprintf ( 'Route found for %s (from cache) : %s', $routeArray ["path"], $resultStr ), 'getRouteUrlParts' );
-		return CacheManager::getRouteCache ( $routeArray ["path"], $result, $duration );
+		Logger::info ( 'Router', sprintf ( 'Route found for %s (from cache) : %s', $realPath, $resultStr ), 'getRouteUrlParts' );
+		return CacheManager::getRouteCache ( $realPath, $result, $duration );
 	}
 
 	/**

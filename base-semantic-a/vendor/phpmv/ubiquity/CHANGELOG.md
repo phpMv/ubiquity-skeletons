@@ -5,7 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unrelease]
-Nothing
+- Nothing
+
+## [2.3.0] 2019-08-01
+### Added
+- `multi databases` feature on a [proposal](https://github.com/phpMv/ubiquity/issues/60) from [@Gildonei](https://github.com/gildonei)
+### Changed
+- `Startup` class optimization
+
+#### Breaking change possible
+Induced by multi database functionality:
+- Database startup with `DAO::startDatabase($config)` in `services.php` file is useless, no need to start the database, the connection is made automatically at the first request.
+- Use `DAO::start()` in `services.php` file when using several databases (with `multi db` feature)
+
+For optimization reasons:
+- the classes used only in development (common to devtools and webtools) have been relocated in the [phpmv/ubiquity-dev](https://github.com/phpMv/ubiquity-dev) package.
+
+#### Migration 
+- Update devtools: ``composer global update``
+
+### Fixed
+- route caching pb for routes with variables (no open issue)
+
+### Documentation
+- Add [Jquery and Semantic-UI part](https://micro-framework.readthedocs.io/en/latest/richClient/semantic.html)
+- Add [Webtools presentation](https://micro-framework.readthedocs.io/en/latest/webtools/index.html)
 
 ## [2.2.0] - 2019-07-03
 ### Added
@@ -29,13 +53,39 @@ Classes relocation
 - ``Ubiquity\controllers\admin\traits\UrlsTrait`` -> ``Ubiquity\controllers\crud\traits\UrlsTrait``
   
 #### Migration 
-- For new projects, update devtools: ``composer global update``
+- Update devtools: ``composer global update``
 - In existing projects:
 ``composer require phpmv/ubiquity-webtools`` for webtools installation.
 
 ### Fixed
 - Router: pb with route priority attribute see [#54](https://github.com/phpMv/ubiquity/issues/54)
 
+### Changes
+- Models generation (Engineering-Forward) by UbiquityMyadmin interface was updated to avoid wrong outputs from `__toString()` function. [#58](https://github.com/phpMv/ubiquity/issues/58)
+    - Field name is checked on different names which could be a hint for a password field.
+    - The following field names are supported:
+        - American English: password 
+        - Brazilian Portuguese: senha 
+        - Croatian: lozinka 
+        - Czech: heslotajne OR helslo_tajne
+        - Danish: password 
+        - Dutch: wachtwoord 
+        - European Spanish: contrasena
+        - Finnish: salasana 
+        - French: motdepasse OR mot_de_passe
+        - German: passwort
+        - Italian: password 
+        - Norwegian: passord 
+        - Polish: haslo
+        - European Portuguese: senha 
+        - Romanian: parola
+        - Russian: naponb
+        - Latin American Spanish: contrasena
+        - Swedish: loesenord OR losenord
+        - Turkish: sifre
+        - Ukrainian: naponb
+        - Vietnamese: matkhau OR mat_khau
+    
 ## [2.1.4] - 2019-06-13
 ### Added
 - `Translate` module in webtools
