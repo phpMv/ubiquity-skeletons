@@ -5,6 +5,8 @@ namespace Ubiquity\orm\traits;
 use Ubiquity\orm\OrmUtils;
 use Ubiquity\log\Logger;
 use Ubiquity\orm\parser\Reflexion;
+use Ubiquity\orm\parser\ConditionParser;
+use Ubiquity\orm\parser\ManyToManyParser;
 
 /**
  * Used by DAO class, realize relations assignments.
@@ -12,7 +14,7 @@ use Ubiquity\orm\parser\Reflexion;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  *
  */
 trait DAORelationsAssignmentsTrait {
@@ -32,7 +34,7 @@ trait DAORelationsAssignmentsTrait {
 		return false;
 	}
 
-	protected static function _affectsRelationObjects($className, $classPropKey, $manyToOneQueries, $oneToManyQueries, $manyToManyParsers, $objects, $included, $useCache) {
+	public static function _affectsRelationObjects($className, $classPropKey, $manyToOneQueries, $oneToManyQueries, $manyToManyParsers, $objects, $included, $useCache): void {
 		if (\sizeof ( $manyToOneQueries ) > 0) {
 			self::_affectsObjectsFromArray ( $manyToOneQueries, $included, function ($object, $member, $manyToOneObjects, $fkField, $accessor) {
 				self::affectsManyToOneFromArray ( $object, $member, $manyToOneObjects, $fkField, $accessor );
@@ -85,7 +87,7 @@ trait DAORelationsAssignmentsTrait {
 			}
 			foreach ( $objectsParsers as $objectsConditionParser ) {
 				$objectsConditionParser->compileParts ();
-				$relationObjects = self::_getAll ( $class, $objectsConditionParser->getConditionParser (), $includedNext, $useCache );
+				$relationObjects = self::_getAll ( self::getDb ( $class ), $class, $objectsConditionParser->getConditionParser (), $includedNext, $useCache );
 				$objects = $objectsConditionParser->getObjects ();
 				if ($accessor = self::getAccessor ( $member, current ( $objects ), $part )) {
 					foreach ( $objects as $object ) {
@@ -106,7 +108,7 @@ trait DAORelationsAssignmentsTrait {
 			}
 			$myPkValues = [ ];
 			$cParser = self::generateManyToManyParser ( $parser, $myPkValues );
-			$relationObjects = self::_getAll ( $class, $cParser, $includedNext, $useCache );
+			$relationObjects = self::_getAll ( self::getDb ( $class ), $class, $cParser, $includedNext, $useCache );
 			if ($accessor = self::getAccessor ( $member, current ( $objects ), 'getManyToMany' )) {
 				foreach ( $objects as $object ) {
 					$pkV = Reflexion::getPropValue ( $object, $prop );
@@ -117,6 +119,45 @@ trait DAORelationsAssignmentsTrait {
 				}
 			}
 		}
+	}
+
+	private static function _getOneToManyFromArray(&$ret, $array, $fkv, $elementAccessor, $prop) {
+		foreach ( $array as $element ) {
+			$elementRef = $element->$elementAccessor ();
+			if (($elementRef == $fkv) || (\is_object ( $elementRef ) && Reflexion::getPropValue ( $elementRef, $prop ) == $fkv)) {
+				$ret [] = $element;
+			}
+		}
+	}
+
+	private static function generateManyToManyParser(ManyToManyParser $parser, &$myPkValues): ConditionParser {
+		$sql = $parser->generateConcatSQL ();
+		$result = self::getDb ( $parser->getTargetEntityClass () )->prepareAndFetchAll ( $sql, $parser->getWhereValues () );
+		$condition = $parser->getParserWhereMask ( ' ?' );
+		$cParser = new ConditionParser ();
+		foreach ( $result as $row ) {
+			$values = explode ( ',', $row ['_concat'] );
+			$myPkValues [$row ['_field']] = $values;
+			$cParser->addParts ( $condition, $values );
+		}
+		$cParser->compileParts ();
+		return $cParser;
+	}
+
+	private static function _getIncludedNext($included, $member) {
+		return (isset ( $included [$member] )) ? (\is_bool ( $included [$member] ) ? $included [$member] : [ $included [$member] ]) : false;
+	}
+
+	private static function getManyToManyFromArrayIds($objectClass, $relationObjects, $ids): array {
+		$ret = [ ];
+		$prop = OrmUtils::getFirstPropKey ( $objectClass );
+		foreach ( $relationObjects as $targetEntityInstance ) {
+			$id = Reflexion::getPropValue ( $targetEntityInstance, $prop );
+			if (\array_search ( $id, $ids ) !== false) {
+				\array_push ( $ret, $targetEntityInstance );
+			}
+		}
+		return $ret;
 	}
 }
 

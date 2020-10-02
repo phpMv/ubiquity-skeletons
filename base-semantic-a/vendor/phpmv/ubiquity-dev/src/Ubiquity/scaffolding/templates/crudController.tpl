@@ -4,7 +4,7 @@
 
  /**
  * CRUD Controller %controllerName%%route%
- **/
+ */
 class %controllerName% extends %baseClass%{
 
 	public function __construct(){

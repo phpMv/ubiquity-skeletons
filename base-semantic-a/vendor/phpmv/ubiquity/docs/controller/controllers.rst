@@ -197,7 +197,7 @@ Variables can also be passed before the view is loaded:
 .. code-block:: php
    
    //passing one variable
-   $this->view->setVar("title"=>"Message");
+   $this->view->setVar("title","Message");
    //passing an array of 2 variables
    $this->view->setVars(["message"=>$message,"recipient"=>$name]);
    //loading the view that now contains 3 variables
@@ -280,6 +280,7 @@ Access control to a controller can be performed manually, using the `isValid` an
 The `isValid` method must return a boolean wich determine if access to the `action` passed as a parameter is possible:
 
 In the following example, access to the actions of the **IndexController** controller is only possible if an **activeUser** session variable exists:
+
 .. code-block:: php
    :caption: app/controllers/IndexController.php
    :emphasize-lines: 3-5
@@ -364,6 +365,18 @@ The controller namespace is defined by default to `controllers` in the `app/conf
 Super class
 -----------
 
-The use of inheritance can be used to factorize controller behavior. |br|
+Inheritance can be used to factorize controller behavior. |br|
 The `BaseController` class created with a new project is present for this purpose.
 
+Specific controller base classes
+--------------------------------
+
++----------------------------+----------------------------------------------------------------------------------+
+| Controller class           | role                                                                             |
++============================+==================================================================================+
+| Controller                 | Base class for all controllers                                                   |
++----------------------------+----------------------------------------------------------------------------------+
+| SimpleViewController       | Base class associated with a php template engine (for using with micro-services) |
++----------------------------+----------------------------------------------------------------------------------+
+| SimpleViewAsyncController  | Base class associated with a php template engine for async servers               |
++----------------------------+----------------------------------------------------------------------------------+

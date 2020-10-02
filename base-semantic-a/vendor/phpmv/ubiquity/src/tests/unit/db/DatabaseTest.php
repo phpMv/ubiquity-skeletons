@@ -1,9 +1,12 @@
 <?php
 use Ubiquity\db\Database;
-use Ubiquity\cache\database\TableCache;
 use Ubiquity\exceptions\CacheException;
 use Ubiquity\exceptions\DBException;
 use Ubiquity\db\SqlUtils;
+use Ubiquity\db\providers\pdo\PDOWrapper;
+use Ubiquity\orm\DAO;
+use Ubiquity\cache\database\QueryCache;
+use Ubiquity\cache\database\MemoryCache;
 
 /**
  * Database test case.
@@ -25,10 +28,10 @@ class DatabaseTest extends BaseTest {
 	 */
 	protected function _before() {
 		parent::_before ();
-		$db = $this->config ["database"];
+		$db = DAO::getDbOffset ( $this->config );
 		$this->dbType = $db ['type'];
 		$this->dbName = $db ['dbName'];
-		$this->database = new Database ( $this->dbType, $this->dbName, $this->db_server );
+		$this->database = new Database ( $this->getWrapper (), $this->dbType, $this->dbName, $this->db_server );
 	}
 
 	/**
@@ -36,6 +39,10 @@ class DatabaseTest extends BaseTest {
 	 */
 	protected function _after() {
 		$this->database = null;
+	}
+
+	protected function getWrapper() {
+		return PDOWrapper::class;
 	}
 
 	protected function beforeQuery() {
@@ -51,14 +58,14 @@ class DatabaseTest extends BaseTest {
 	public function test__construct() {
 		$this->assertEquals ( $this->dbName, $this->database->getDbName () );
 		$this->assertEquals ( '3306', $this->database->getPort () );
-		$db = new Database ( $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], TableCache::class );
+		$db = new Database ( $this->getWrapper (), $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], QueryCache::class );
 		$this->assertTrue ( $db->connect () );
-		$db = new Database ( $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], function () {
-			return new TableCache ();
+		$db = new Database ( $this->getWrapper (), $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], function () {
+			return new MemoryCache ();
 		} );
 		$this->assertTrue ( $db->connect () );
 		$this->expectException ( CacheException::class );
-		$db = new Database ( $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], "notExistingClass" );
+		$db = new Database ( $this->getWrapper (), $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], "notExistingClass" );
 		$this->assertTrue ( $db->connect () );
 	}
 
@@ -101,7 +108,7 @@ class DatabaseTest extends BaseTest {
 	 * Tests Database->getDSN()
 	 */
 	public function testGetDSN() {
-		$db = new Database ( $this->dbType, "dbname" );
+		$db = new Database ( $this->getWrapper (), $this->dbType, "dbname" );
 		$dsn = $db->getDSN ();
 		$this->assertEquals ( $this->dbType . ':dbname=dbname;host=127.0.0.1;charset=UTF8;port=3306', $dsn );
 		$db->setDbType ( "mongo" );
@@ -140,7 +147,7 @@ class DatabaseTest extends BaseTest {
 		} catch ( Exception $e ) {
 			// Nothing
 		}
-		$db = new Database ( $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], TableCache::class );
+		$db = new Database ( $this->getWrapper (), $this->dbType, $this->dbName, $this->db_server, 3306, 'root', '', [ "quote" => "`" ], MemoryCache::class );
 		$db->connect ();
 		$response = $db->prepareAndExecute ( "User", "WHERE `email`='benjamin.sherman@gmail.com'", $fields, null, true );
 		$this->assertEquals ( sizeof ( $response ), 1 );
@@ -329,12 +336,12 @@ class DatabaseTest extends BaseTest {
 	}
 
 	/**
-	 * Tests Database->getPdoObject()
+	 * Tests Database->getDbObject()
 	 */
-	public function testGetPdoObject() {
-		$this->assertNull ( $this->database->getPdoObject () );
+	public function testGetDbObject() {
+		$this->assertNull ( $this->database->getDbObject () );
 		$this->beforeQuery ();
-		$pdoo = $this->database->getPdoObject ();
+		$pdoo = $this->database->getDbObject ();
 		$this->assertNotNull ( $pdoo );
 		$this->assertInstanceOf ( PDO::class, $pdoo );
 	}

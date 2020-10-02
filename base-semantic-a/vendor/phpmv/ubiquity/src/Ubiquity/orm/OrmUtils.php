@@ -4,8 +4,6 @@ namespace Ubiquity\orm;
 
 use Ubiquity\orm\parser\Reflexion;
 use Ubiquity\cache\CacheManager;
-use Ubiquity\utils\base\UString;
-use Ubiquity\utils\base\UArray;
 use Ubiquity\controllers\rest\ResponseFormatter;
 use Ubiquity\orm\traits\OrmUtilsRelationsTrait;
 use Ubiquity\orm\traits\OrmUtilsFieldsTrait;
@@ -14,7 +12,7 @@ use Ubiquity\orm\traits\OrmUtilsFieldsTrait;
  * Object/relational mapping utilities
  *
  * @author jc
- * @version 1.0.3
+ * @version 1.0.6
  */
 class OrmUtils {
 
@@ -22,18 +20,15 @@ class OrmUtils {
 	private static $modelsMetadatas;
 
 	public static function getModelMetadata($className) {
-		if (! isset ( self::$modelsMetadatas [$className] )) {
-			self::$modelsMetadatas [$className] = CacheManager::getOrmModelCache ( $className );
-		}
-		return self::$modelsMetadatas [$className];
+		return self::$modelsMetadatas [$className] ??= CacheManager::getOrmModelCache ( $className );
 	}
 
 	public static function isSerializable($class, $member) {
-		return ! self::_is ( $class, $member, "#notSerializable" );
+		return ! self::_is ( $class, $member, '#notSerializable' );
 	}
 
 	public static function isNullable($class, $member) {
-		return self::_is ( $class, $member, "#nullable" );
+		return self::_is ( $class, $member, '#nullable' );
 	}
 
 	protected static function _is($class, $member, $like) {
@@ -45,29 +40,24 @@ class OrmUtils {
 	}
 
 	public static function getFieldName($class, $member) {
-		$ret = self::getAnnotationInfo ( $class, "#fieldNames" );
-		if ($ret === false || ! isset ( $ret [$member] )) {
-			return $member;
-		}
-		return $ret [$member];
+		return (self::getAnnotationInfo ( $class, '#fieldNames' ) [$member]) ?? $member;
 	}
 
 	public static function getTableName($class) {
-		if (isset ( self::getModelMetadata ( $class ) ["#tableName"] ))
-			return self::getModelMetadata ( $class ) ["#tableName"];
+		return self::getModelMetadata ( $class ) ['#tableName'];
 	}
 
 	public static function getKeyFieldsAndValues($instance) {
-		$class = get_class ( $instance );
-		$kf = self::getAnnotationInfo ( $class, "#primaryKeys" );
-		return self::getFieldsAndValues_ ( $instance, $kf );
+		$class = \get_class ( $instance );
+		return self::getFieldsAndValues_ ( $instance, self::getKeyMembers ( $class ) );
 	}
 
 	public static function getFieldsAndValues_($instance, $members) {
 		$ret = [ ];
+		$fieldnames = self::getAnnotationInfo ( \get_class ( $instance ), '#fieldNames' );
 		foreach ( $members as $member ) {
 			$v = Reflexion::getMemberValue ( $instance, $member );
-			$ret [$member] = $v;
+			$ret [$fieldnames [$member] ?? $member] = $v;
 		}
 		return $ret;
 	}
@@ -82,16 +72,17 @@ class OrmUtils {
 	}
 
 	public static function getMembers($className) {
-		$fieldNames = self::getAnnotationInfo ( $className, "#fieldNames" );
-		if ($fieldNames !== false)
+		$fieldNames = self::getAnnotationInfo ( $className, '#fieldNames' );
+		if ($fieldNames !== false) {
 			return \array_keys ( $fieldNames );
+		}
 		return [ ];
 	}
 
 	public static function getMembersAndValues($instance, $members = NULL) {
 		$ret = array ();
-		$className = get_class ( $instance );
-		if (is_null ( $members ))
+		$className = \get_class ( $instance );
+		if (\is_null ( $members ))
 			$members = self::getMembers ( $className );
 		foreach ( $members as $member ) {
 			if (self::isSerializable ( $className, $member )) {
@@ -106,37 +97,34 @@ class OrmUtils {
 	}
 
 	public static function isNotNullOrNullAccepted($v, $className, $member) {
-		$notNull = UString::isNotNull ( $v );
+		$notNull = (isset ( $v ) && NULL !== $v && '' !== $v);
 		return ($notNull) || (! $notNull && self::isNullable ( $className, $member ));
 	}
 
 	public static function getFirstKeyValue($instance) {
-		$prop = OrmUtils::getFirstPropKey ( get_class ( $instance ) );
-		return Reflexion::getPropValue ( $instance, $prop );
+		$prop = OrmUtils::getFirstPropKey ( \get_class ( $instance ) );
+		return $prop->getValue ( $instance );
 	}
 
 	public static function getFirstKeyValue_($instance, $members) {
-		$fkv = self::getFieldsAndValues_ ( $instance, $members );
-		return \current ( $fkv );
+		return \current ( self::getFieldsAndValues_ ( $instance, $members ) );
 	}
 
 	public static function getKeyValues($instance) {
 		$fkv = self::getKeyFieldsAndValues ( $instance );
-		return implode ( "_", $fkv );
+		return \implode ( '_', $fkv );
 	}
 
 	public static function getPropKeyValues($instance, $props) {
 		$values = [ ];
 		foreach ( $props as $prop ) {
-			$values [] = Reflexion::getPropValue ( $instance, $prop );
+			$values [] = $prop->getValue ( $instance );
 		}
-		return implode ( "_", $values );
+		return \implode ( '_', $values );
 	}
 
 	public static function getMembersWithAnnotation($class, $annotation) {
-		if (isset ( self::getModelMetadata ( $class ) [$annotation] ))
-			return self::getModelMetadata ( $class ) [$annotation];
-		return [ ];
+		return (self::getModelMetadata ( $class ) [$annotation]) ?? [ ];
 	}
 
 	/**
@@ -147,8 +135,8 @@ class OrmUtils {
 	 * @return boolean
 	 */
 	public static function exists($instance, $memberKey, $array) {
-		$accessor = "get" . ucfirst ( $memberKey );
-		if (method_exists ( $instance, $accessor )) {
+		$accessor = 'get' . \ucfirst ( $memberKey );
+		if (\method_exists ( $instance, $accessor )) {
 			foreach ( $array as $value ) {
 				if ($value->$accessor () == $instance->$accessor ())
 					return true;
@@ -158,16 +146,13 @@ class OrmUtils {
 	}
 
 	public static function getAnnotationInfo($class, $keyAnnotation) {
-		$metas = self::getModelMetadata ( $class );
-		if (isset ( $metas [$keyAnnotation] ))
-			return $metas [$keyAnnotation];
-		return false;
+		return self::getModelMetadata ( $class ) [$keyAnnotation] ?? false;
 	}
 
 	public static function getAnnotationInfoMember($class, $keyAnnotation, $member) {
 		$info = self::getAnnotationInfo ( $class, $keyAnnotation );
 		if ($info !== false) {
-			if (UArray::isAssociative ( $info )) {
+			if (! isset ( $info [0] )) { // isAssociative
 				if (isset ( $info [$member] )) {
 					return $info [$member];
 				}
@@ -191,20 +176,31 @@ class OrmUtils {
 	public static function objectAsJSON($instance) {
 		$formatter = new ResponseFormatter ();
 		$datas = $formatter->cleanRestObject ( $instance );
-		return $formatter->format ( [ "pk" => self::getFirstKeyValue ( $instance ),"object" => $datas ] );
+		return $formatter->format ( [ 'pk' => self::getFirstKeyValue ( $instance ),'object' => $datas ] );
 	}
 
 	public static function getTransformers($class) {
-		if (isset ( self::getModelMetadata ( $class ) ["#transformers"] ))
-			return self::getModelMetadata ( $class ) ["#transformers"];
+		if (isset ( self::getModelMetadata ( $class ) ['#transformers'] ))
+			return self::getModelMetadata ( $class ) ['#transformers'];
 	}
 
 	public static function getAccessors($class) {
-		if (isset ( self::getModelMetadata ( $class ) ["#accessors"] ))
-			return self::getModelMetadata ( $class ) ["#accessors"];
+		if (isset ( self::getModelMetadata ( $class ) ['#accessors'] ))
+			return self::getModelMetadata ( $class ) ['#accessors'];
 	}
 
 	public static function clearMetaDatas() {
 		self::$modelsMetadatas = [ ];
+	}
+
+	public static function hasAllMembersPublic($className) {
+		$members = self::getMembers ( $className );
+		foreach ( $members as $memberName ) {
+			$field = new \ReflectionProperty ( $className, $memberName );
+			if (! $field->isPublic ()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

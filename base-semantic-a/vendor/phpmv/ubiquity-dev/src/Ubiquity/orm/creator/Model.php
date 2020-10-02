@@ -1,6 +1,7 @@
 <?php
-
 namespace Ubiquity\orm\creator;
+
+use Ubiquity\annotations\OneToManyAnnotation;
 
 /**
  * Allows the creation of a model class.
@@ -8,51 +9,101 @@ namespace Ubiquity\orm\creator;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.4
+ * @package ubiquity.dev
  *
  */
 class Model {
+
+	private $simpleMembers;
+
 	private $members;
+
 	private $name;
+
+	private $table;
+
 	private $namespace;
+
 	private $database;
 
-	public function __construct($name, $namespace = "models") {
-		$this->name = \ucfirst ( $name );
-		$this->members = array ();
+	private $memberAccess;
+
+	private function generateUniqName($member) {
+		$i = 1;
+		do {
+			$name = $member . $i;
+			$i ++;
+		} while (isset($this->members[$name]));
+		return $name;
+	}
+
+	private function checkForUniqName(&$member) {
+		if (isset($this->members[$member]) && \array_search($member, $this->simpleMembers) === false) {
+			$member = $this->generateUniqName($member);
+		}
+	}
+
+	public function __construct($name, $namespace = "models", $memberAccess = 'private') {
+		$this->table = $name;
+		$this->name = \ucfirst($name);
+		$this->members = array();
 		$this->namespace = $namespace;
+		$this->memberAccess = $memberAccess;
 	}
 
 	public function addMember(Member $member) {
-		$this->members [$member->getName ()] = $member;
+		$this->members[$member->getName()] = $member;
 		return $this;
 	}
 
 	public function addManyToOne($member, $name, $className, $nullable = false) {
-		if (\array_key_exists ( $member, $this->members ) === false) {
-			$this->addMember ( new Member ( $member ) );
-			$this->removeMember ( $name );
+		$this->checkForUniqName($member);
+		if (\array_key_exists($member, $this->members) === false) {
+			$this->addMember(new Member($member, $this->memberAccess));
+			$this->removeMember($name);
 		}
-		$this->members [$member]->addManyToOne ( $name, $className, $nullable );
+		$this->members[$member]->addManyToOne($name, $className, $nullable);
 	}
 
 	public function removeMember($memberName) {
-		if (isset ( $this->members [$memberName] ) && $this->members [$memberName]->isPrimary () === false)
-			unset ( $this->members [$memberName] );
+		if (isset($this->members[$memberName]) && $this->members[$memberName]->isPrimary() === false)
+			unset($this->members[$memberName]);
+	}
+
+	public function removeOneToManyMemberByClassAssociation($className) {
+		$toDelete = [];
+		foreach ($this->members as $name => $member) {
+			$annotations = $member->getAnnotations();
+			foreach ($annotations as $annotation) {
+				if ($annotation instanceof OneToManyAnnotation) {
+					if ($annotation->className === $className) {
+						$toDelete[] = $name;
+						break;
+					}
+				}
+			}
+		}
+		foreach ($toDelete as $name) {
+			unset($this->members[$name]);
+		}
 	}
 
 	public function addOneToMany($member, $mappedBy, $className) {
-		if (\array_key_exists ( $member, $this->members ) === false) {
-			$this->addMember ( new Member ( $member ) );
+		$this->checkForUniqName($member);
+		if (\array_key_exists($member, $this->members) === false) {
+			$this->addMember(new Member($member, $this->memberAccess));
 		}
-		$this->members [$member]->addOneToMany ( $mappedBy, $className );
+		$this->members[$member]->addOneToMany($mappedBy, $className);
 	}
 
 	public function addManyToMany($member, $targetEntity, $inversedBy, $joinTable, $joinColumns = [], $inverseJoinColumns = []) {
-		if (\array_key_exists ( $member, $this->members ) === false) {
-			$this->addMember ( new Member ( $member ) );
+		$this->checkForUniqName($member);
+		if (\array_key_exists($member, $this->members) === false) {
+			$this->addMember(new Member($member, $this->memberAccess));
 		}
-		$this->members [$member]->addManyToMany ( $targetEntity, $inversedBy, $joinTable, $joinColumns, $inverseJoinColumns );
+		$this->members[$member]->addManyToMany($targetEntity, $inversedBy, $joinTable, $joinColumns, $inverseJoinColumns);
+		return $member;
 	}
 
 	public function __toString() {
@@ -61,19 +112,22 @@ class Model {
 			$result .= "namespace " . $this->namespace . ";\n";
 		}
 		if ($this->database != null && $this->database !== 'default') {
-			$result .= $this->getAnnotation ( "database('{$this->database}')" );
+			$result .= $this->getAnnotation("database('{$this->database}')");
 		}
-		$result .= "class " . ucfirst ( $this->name ) . "{";
+		if ($this->table !== $this->name) {
+			$result .= $this->getAnnotation("table('{$this->table}')");
+		}
+		$result .= "class " . ucfirst($this->name) . "{";
 		$members = $this->members;
-		\array_walk ( $members, function ($item) {
+		\array_walk($members, function ($item) {
 			return $item . "";
-		} );
-		$result .= \implode ( "", $members );
-		foreach ( $members as $member ) {
-			$result .= $member->getGetter ();
-			$result .= $member->getSetter ();
+		});
+		$result .= \implode("", $members);
+		foreach ($members as $member) {
+			$result .= $member->getGetter();
+			$result .= $member->getSetter();
 		}
-		$result .= $this->getToString ();
+		$result .= $this->getToString();
 		$result .= "\n}";
 		return $result;
 	}
@@ -95,17 +149,17 @@ class Model {
 
 	public function isAssociation() {
 		$count = 0;
-		foreach ( $this->members as $member ) {
-			if ($member->isManyToOne () === true || $member->isPrimary () === true) {
+		foreach ($this->members as $member) {
+			if ($member->isManyToOne() === true || $member->isPrimary() === true) {
 				$count ++;
 			}
 		}
-		return $count == \sizeof ( $this->members );
+		return $count == \sizeof($this->members);
 	}
 
 	public function getPrimaryKey() {
-		foreach ( $this->members as $member ) {
-			if ($member->isPrimary () === true) {
+		foreach ($this->members as $member) {
+			if ($member->isPrimary() === true) {
 				return $member;
 			}
 		}
@@ -113,9 +167,9 @@ class Model {
 	}
 
 	public function getPkName() {
-		$pk = $this->getPrimaryKey ();
-		if (isset ( $pk ))
-			return $pk->getName ();
+		$pk = $this->getPrimaryKey();
+		if (isset($pk))
+			return $pk->getName();
 		return null;
 	}
 
@@ -124,10 +178,10 @@ class Model {
 	}
 
 	public function getManyToOneMembers() {
-		$result = array ();
-		foreach ( $this->members as $member ) {
-			if ($member->isManyToOne () === true) {
-				$result [] = $member;
+		$result = array();
+		foreach ($this->members as $member) {
+			if ($member->isManyToOne() === true) {
+				$result[] = $member;
 			}
 		}
 		return $result;
@@ -135,12 +189,11 @@ class Model {
 
 	private function getToStringField() {
 		$result = null;
-		// Array of multiple translations of the word "password" which could be taken as name of the table field in database
-		$pwArray = array ('password','senha','lozinka','heslotajne','helslo_tajne','wachtwoord','contrasena','salasana','motdepasse','mot_de_passe','passwort','passord','haslo','senha','parola','naponb','contrasena','loesenord','losenord','sifre','naponb','matkhau','mat_khau' );
-		foreach ( $this->members as $member ) {
-			if ($member->getDbType () !== 'mixed' && $member->isNullable () !== true && ! $member->isPrimary ()) {
-				$memberName = $member->getName ();
-				if (! \in_array ( $memberName, $pwArray )) {
+
+		foreach ($this->members as $member) {
+			if ($member->getDbType() !== 'mixed' && $member->isNullable() !== true && ! $member->isPrimary()) {
+				$memberName = $member->getName();
+				if (! $member->isPassword()) {
 					$result = $memberName;
 				}
 			}
@@ -152,12 +205,16 @@ class Model {
 		return "/**\n * @{$content}\n*/\n";
 	}
 
+	public function setSimpleMembers($members) {
+		$this->simpleMembers = $members;
+	}
+
 	public function getToString() {
-		$field = $this->getToStringField ();
-		if (isset ( $field )) {
-			$corps = '$this->' . $field;
-		} elseif (($pkName = $this->getPkName ()) !== null) {
-			$corps = '$this->' . $pkName;
+		$field = $this->getToStringField();
+		if (isset($field)) {
+			$corps = '($this->' . $field . "??'no value').''";
+		} elseif (($pkName = $this->getPkName()) !== null) {
+			$corps = '$this->' . $pkName . ".''";
 		} else {
 			$corps = '"' . $this->name . '@"' . '.\spl_object_hash($this)';
 		}

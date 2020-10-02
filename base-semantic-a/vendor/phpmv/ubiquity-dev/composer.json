@@ -6,12 +6,12 @@
 		"php",
 		"framework",
 		"mvc",
-		"orm",
 		"tools",
+		"mailer",
 		"php-framework"
 	],
 	"require" : {
-		"php" : ">7.0"
+		"php" : "^7.4"
 	},
 	"license" : "Apache-2.0",
 	"authors" : [{

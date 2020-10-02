@@ -14,10 +14,14 @@ use Ubiquity\utils\base\UFileSystem;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.2
+ * @version 1.0.3
  *
  */
 class UMonolog extends Logger {
+	/**
+	 *
+	 * @var \Monolog\Logger
+	 */
 	private $loggerInstance;
 	private $handler;
 
@@ -37,27 +41,27 @@ class UMonolog extends Logger {
 	}
 
 	public function _log($level, $context, $message, $part, $extra) {
-		return $this->loggerInstance->log ( $level, $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->log ( $level, $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _info($context, $message, $part, $extra) {
-		return $this->loggerInstance->info ( $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->info ( $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _warn($context, $message, $part, $extra) {
-		return $this->loggerInstance->warn ( $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->warning ( $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _error($context, $message, $part, $extra) {
-		return $this->loggerInstance->error ( $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->error ( $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _alert($context, $message, $part, $extra) {
-		return $this->loggerInstance->alert ( $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->alert ( $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _critical($context, $message, $part, $extra) {
-		return $this->loggerInstance->critical ( $message, $this->createContext ( $context, $part, $extra ) );
+		$this->loggerInstance->critical ( $message, $this->createContext ( $context, $part, $extra ) );
 	}
 
 	public function _asObjects($reverse = true, $maxlines = 10, $contexts = null) {
@@ -65,7 +69,19 @@ class UMonolog extends Logger {
 			$jso = json_decode ( $line );
 			if ($jso !== null) {
 				if ($contexts === null || self::inContext ( $contexts, $jso->context->context )) {
-					LogMessage::addMessage ( $objects, new LogMessage ( $jso->message, $jso->context->context, $jso->context->part, $jso->level, $jso->datetime->date, $jso->context->extra ) );
+					if (isset ( $jso->context->extra )) {
+						if (is_object ( $jso->context->extra )) {
+							$extra = [ ];
+							foreach ( $jso->context->extra as $k => $v ) {
+								if (is_object ( $v )) {
+									$v = json_encode ( $v );
+								}
+								$extra [] = "$k: $v";
+							}
+							$jso->context->extra = $extra;
+						}
+					}
+					LogMessage::addMessage ( $objects, new LogMessage ( $jso->message, $jso->context->context, $jso->context->part, $jso->level, $jso->datetime, $jso->context->extra ) );
 				}
 			}
 		} );
@@ -74,6 +90,10 @@ class UMonolog extends Logger {
 	public function _clearAll() {
 		$this->handler->close ();
 		UFileSystem::deleteFile ( $this->handler->getUrl () );
+	}
+
+	public function _close() {
+		$this->handler->close ();
 	}
 
 	public function _registerError() {

@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=micro-framework
+set SPHINXPROJ=ubiquity-framework
 
 if "%1" == "" goto help
 

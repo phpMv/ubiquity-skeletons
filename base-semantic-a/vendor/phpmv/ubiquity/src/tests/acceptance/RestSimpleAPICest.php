@@ -82,20 +82,24 @@ class RestSimpleAPICest extends BaseAcceptance {
 
 	// tests
 	public function tryToAddUpdateAndDelete(AcceptanceTester $I) {
-		$I->amOnPage ( "/RestTester" );
-		$I->fillField ( '#url', '/rest/simple/orgas/' );
-		$I->fillField ( '#method', 'post' );
-		$I->fillField ( '#datas', "{name:'microsoftXX',domain:'microsoftXX.com'}" );
-		$this->waitAndclick ( $I, "#btSubmit" );
-		$I->waitForText ( 'inserted', self::TIMEOUT );
-		$id = $I->grabTextFrom ( "#newId" );
-		$I->fillField ( '#url', '/rest/simple/orgas/' . $id );
-		$I->fillField ( '#method', 'patch' );
-		$I->fillField ( '#datas', "{name:'microsoftYY',domain:'microsoftYY.com'}" );
-		$this->waitAndclick ( $I, "#btSubmit" );
-		$I->waitForText ( 'updated', self::TIMEOUT );
-		$I->fillField ( '#method', 'delete' );
-		$this->waitAndclick ( $I, "#btSubmit" );
-		$I->waitForText ( 'deleted', self::TIMEOUT );
+
+		  $I->amOnPage ( "/RestTester" );
+		  $uuid = uniqid ();
+		  $I->fillField ( '#url', '/rest/simple/orgas/' );
+		  $I->fillField ( '#method', 'post' );
+		  $I->fillField ( '#datas', "{name:'microsoft" . $uuid . "',domain:'microsoft" . $uuid . ".com'}" );
+		  $this->waitAndclick($I, "#btSubmitJSON" );
+		  $I->waitForText ( 'inserted', self::TIMEOUT );
+		  $I->waitForElement ( "#newId span", self::TIMEOUT );
+		  $id = $I->grabTextFrom ( "#newId span" );
+		  $uuid = uniqid ();
+		  $I->fillField ( '#url', '/rest/simple/orgas/' . $id );
+		  $I->fillField ( '#method', 'patch' );
+		  $I->fillField ( '#datas', "{name:'microsoft" . $uuid . "',domain:'microsoft" . $uuid . ".com'}" );
+		  $this->waitAndclick($I, "#btSubmitJSON" );
+		  $I->waitForText ( 'updated', self::TIMEOUT );
+		  $I->fillField ( '#method', 'delete' );
+		  $this->waitAndclick($I,  "#btSubmitJSON" );
+		  $I->waitForText ( 'deleted', self::TIMEOUT );
 	}
 }

@@ -27,12 +27,12 @@ trait DatabaseTrait {
 
 	abstract public function loadView($viewName, $pData = NULL, $asString = false);
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	protected function getModels() {
-		$db=$this->getActiveDb();
+		$db = $this->getActiveDb();
 		$config = Startup::getConfig();
-		$models = CacheManager::getModels($config, true,$db);
+		$models = CacheManager::getModels($config, true, $db);
 		$result = [];
 		foreach ($models as $model) {
 			$table = OrmUtils::getTableName($model);
@@ -45,14 +45,14 @@ trait DatabaseTrait {
 		return $result;
 	}
 
-	public function createSQLScript() {
+	public function _createSQLScript() {
 		if (URequest::isPost()) {
 			$db = $_POST["dbName"];
-			$activeDb=$this->getActiveDb();
+			$activeDb = $this->getActiveDb();
 			if (DAO::isConnected($activeDb)) {
 				$actualDb = DAO::$db[$activeDb]->getDbName();
 			}
-			$generator = new DatabaseReversor(new DbGenerator(),$activeDb);
+			$generator = new DatabaseReversor(new DbGenerator(), $activeDb);
 			$generator->createDatabase($db);
 			$frm = $this->jquery->semantic()->htmlForm("form-sql");
 			$text = $frm->addElement("sql", $generator->__toString(), "SQL script", "div", "ui segment editor");
@@ -63,7 +63,7 @@ trait DatabaseTrait {
 				$btExport = $bts->addElement("Export datas script : " . $actualDb . " => " . $db);
 				$btExport->addIcon("exchange");
 				$btExport->postOnClick($this->_getFiles()
-					->getAdminBaseRoute() . "/exportDatasScript", "{}", "#div-datas");
+					->getAdminBaseRoute() . "/_exportDatasScript", "{}", "#div-datas");
 			}
 			$frm->addDivider();
 			$this->jquery->exec("setAceEditor('sql');", true);
@@ -73,7 +73,7 @@ trait DatabaseTrait {
 		}
 	}
 
-	public function exportDatasScript() {
+	public function _exportDatasScript() {
 		$dbExport = new DbExport();
 		$frm = $this->jquery->semantic()->htmlForm("form-sql-datas");
 		$text = $frm->addElement("datas-sql", $dbExport->exports(), "Datas export script", "div", "ui segment editor");

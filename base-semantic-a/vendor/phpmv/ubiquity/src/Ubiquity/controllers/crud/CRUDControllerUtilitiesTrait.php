@@ -131,13 +131,14 @@ trait CRUDControllerUtilitiesTrait {
 	 * @param string $action
 	 * @param string $target the css selector for refreshing
 	 * @param callable|string $condition the callback for generating the SQL where (for deletion) with the parameter data, or a simple string
+	 * @param array $params The statement parameters for a prepared query
 	 */
-	protected function _deleteMultiple($data, $action, $target, $condition) {
+	protected function _deleteMultiple($data, $action, $target, $condition, $params = [ ]) {
 		if (URequest::isPost ()) {
 			if (\is_callable ( $condition )) {
 				$condition = $condition ( $data );
 			}
-			$rep = DAO::deleteAll ( $this->model, $condition );
+			$rep = DAO::deleteAll ( $this->model, $condition, $params );
 			if ($rep) {
 				$message = new CRUDMessage ( "Deleting {count} objects", "Deletion", "info", "info circle", 4000 );
 				$message = $this->_getEvents ()->onSuccessDeleteMultipleMessage ( $message, $rep );
@@ -187,7 +188,7 @@ trait CRUDControllerUtilitiesTrait {
 		return new ModelViewer ( $this );
 	}
 
-	private function _getModelViewer(): ModelViewer {
+	protected function _getModelViewer(): ModelViewer {
 		return $this->getSingleton ( $this->modelViewer, "getModelViewer" );
 	}
 
@@ -228,7 +229,7 @@ trait CRUDControllerUtilitiesTrait {
 		return $value;
 	}
 
-	private function crudLoadView($viewName, $vars = []) {
+	private function crudLoadView($viewName, $vars = [ ]) {
 		$this->_getEvents ()->beforeLoadView ( $viewName, $vars );
 		if (! URequest::isAjax ()) {
 			$files = $this->_getFiles ();

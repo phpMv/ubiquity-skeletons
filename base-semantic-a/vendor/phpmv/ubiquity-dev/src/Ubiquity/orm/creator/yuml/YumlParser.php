@@ -2,6 +2,14 @@
 
 namespace Ubiquity\orm\creator\yuml;
 
+/**
+ * Ubiquity\orm\creator\yuml$YumlParser
+ * This class is part of Ubiquity
+ * @author jcheron <myaddressmail@gmail.com>
+ * @version 1.0.0
+ * @package ubiquity.dev
+ *
+ */
 class YumlParser {
 	private $stereotypes = [ "pk" => "«pk»","null" => "«null»" ];
 	private $defaultType = "varchar(30)";

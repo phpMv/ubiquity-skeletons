@@ -40,11 +40,11 @@ trait CheckTrait {
 
 	abstract protected function displayModelsMessages($type, $messagesToDisplay);
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	abstract public function _isModelsCompleted();
 
-	abstract public function getConfig();
+	abstract public function _getConfig();
 
 	/**
 	 *
@@ -52,7 +52,7 @@ trait CheckTrait {
 	 */
 	abstract public function _getFiles();
 
-	public function createModels($singleTable = null) {
+	public function _createModels($singleTable = null) {
 		$config = Startup::getConfig();
 		$offset = $this->getActiveDb();
 		\ob_start();
@@ -85,6 +85,7 @@ trait CheckTrait {
 		$config = Startup::getConfig();
 		switch ($name) {
 			case "Conf":
+			case "Database":
 				if ($this->missingKeyInConfigMessage("Database is not well configured in <b>app/config/config.php</b>", Startup::checkDbConfig($activeDb)) === false) {
 					$this->_addInfoMessage("settings", "Database is well configured");
 				}
@@ -119,7 +120,7 @@ trait CheckTrait {
 			try {
 				if ($db["dbName"] !== "") {
 					$this->_addInfoMessage($infoIcon, "Attempt to connect to the database <b>" . $db["dbName"] . "</b> ...");
-					$db = new Database($db["type"], $db["dbName"], @$db["serverName"], @$db["port"], @$db["user"], @$db["password"], @$db["options"], @$db["cache"]);
+					$db = new Database($db['wrapper'] ?? \Ubiquity\db\providers\pdo\PDOWrapper::class, $db["type"], $db["dbName"], @$db["serverName"], @$db["port"], @$db["user"], @$db["password"], @$db["options"], @$db["cache"]);
 					$db->connect();
 				}
 			} catch (\Exception $e) {
@@ -270,6 +271,13 @@ trait CheckTrait {
 		$buttons = $this->jquery->semantic()->htmlButtonGroups("step-actions");
 		$step = $this->getActiveModelStep();
 		switch ($step[1]) {
+			case "Connexion":
+			case "Database":
+				if ($this->engineering === "reverse")
+					$buttons->addItem("(Re-)Create database")
+						->getOnClick($this->_getFiles()
+						->getAdminBaseRoute() . "/_showDatabaseCreation", "#main-content")
+						->addIcon("database");
 			case "Conf":
 				$buttons->addItem("Show config file")
 					->getOnClick($this->_getFiles()
@@ -278,16 +286,12 @@ trait CheckTrait {
 				$buttons->addItem("Edit config file")
 					->addClass("orange")
 					->getOnClick($this->_getFiles()
-					->getAdminBaseRoute() . "/formConfig/check", "#action-response")
+					->getAdminBaseRoute() . "/_formConfig/check", "#action-response")
 					->addIcon("edit");
-				break;
-			case "Connexion":
-			case "Database":
-				if ($this->engineering === "reverse")
-					$buttons->addItem("(Re-)Create database")
-						->getOnClick($this->_getFiles()
-						->getAdminBaseRoute() . "/showDatabaseCreation", "#main-content")
-						->addIcon("database");
+				$buttons->addItem('Import from SQL file')
+					->getOnClick($this->_getFiles()
+					->getAdminBaseRoute() . "/_importSQL", "#action-response")
+					->addIcon("file code");
 				break;
 			case "Models":
 				if ($this->engineering === "forward") {
@@ -295,14 +299,14 @@ trait CheckTrait {
 						$ddBtn = new HtmlDropdown("ddTables", "Create models for new tables", array_combine($tables, $tables));
 						$ddBtn->asButton();
 						$ddBtn->getOnClick($this->_getFiles()
-							->getAdminBaseRoute() . "/createModels", "#main-content", [
+							->getAdminBaseRoute() . "/_createModels", "#main-content", [
 							"attr" => "data-value"
 						]);
 						$buttons->addItem($ddBtn);
 					}
 					$buttons->addItem("(Re-)Create all models")
 						->getOnClick($this->_getFiles()
-						->getAdminBaseRoute() . "/createModels", "#main-content", [
+						->getAdminBaseRoute() . "/_createModels", "#main-content", [
 						"attr" => ""
 					])
 						->addIcon("sticky note");

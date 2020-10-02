@@ -5,7 +5,7 @@ use Ubiquity\controllers\seo\SeoController;
 
  /**
  * SEO Controller %controllerName%
- **/
+ */
 class %controllerName% extends SeoController {
 
 	public function __construct(){

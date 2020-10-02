@@ -1,6 +1,7 @@
 Ubiquity dependencies
 =====================
-- ``^php 7.1``
+- ``^php 7.4``
+- ``phpmv/ubiquity`` => Ubiquity core
 In production
 -------------
 Templating
@@ -13,6 +14,7 @@ In development
 --------------
 Webtools
 ^^^^^^^^
+- ``phpmv/ubiquity-dev`` => dev classes for webtools and devtools since v2.3.0
 - ``phpmv/php-mv-ui`` => Front library
 - ``mindplay/annotations`` => Annotations library, required for generating models, cache...
 - ``monolog/monolog`` => Logging
@@ -21,6 +23,7 @@ Webtools
 Devtools
 ^^^^^^^^
 - ``phpmv/ubiquity-devtools`` => Cli console
+- ``phpmv/ubiquity-dev`` => dev classes for webtools and devtools since v2.3.0
 - ``mindplay/annotations`` => Annotations library, required for generating models, cache...
 
 Testing

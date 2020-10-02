@@ -48,7 +48,7 @@
 
             <fieldset>
               <legend>email</legend>
-              <input type="email" required value="foundation@zurb.com">
+              <input type="email" required value="contact@get.foundation">
               <input type="email" required value="notanemail.lol">
             </fieldset>
 
@@ -83,8 +83,8 @@
 
             <fieldset>
               <legend>url</legend>
-              <input type="url" required value="http://foundation.zurb.com">
-              <input type="url" required value="foundation@zurb.com">
+              <input type="url" required value="https://get.foundation">
+              <input type="url" required value="contact@get.foundation">
             </fieldset>
 
             <fieldset>
@@ -104,6 +104,23 @@
           <form data-abide novalidate>
             <input required type="text" pattern="customPattern">
             <button type="submit" class="button">Submit</button>
+            <button type="reset" class="button">Reset</button>
+          </form>
+
+          <hr>
+
+          <p>
+            This from contains a submit with the attribute <code>formnovalidate</code> and one without (for comparison).<br>
+            <a href="https://www.w3schools.com/tags/att_input_formnovalidate.asp">https://www.w3schools.com/tags/att_input_formnovalidate.asp</a>
+          </p>
+
+          <form data-abide novalidate>
+            <input required type="text" name="firstname" placeholder="First name (required)">
+            <input required type="text" name="lastname" placeholder="Last name (required)">
+            <button type="submit" class="button">Submit (validate)</button>
+            <input required type="email" name="email" placeholder="Email (required)">
+            <input type="text" name="age" placeholder="Age">
+            <button type="submit" class="button" formnovalidate>Submit (novalidate)</button>
             <button type="reset" class="button">Reset</button>
           </form>
         </div>

@@ -73,8 +73,7 @@ class Slider extends Plugin {
     this.$input = this.inputs.length ? this.inputs.eq(0) : $(`#${this.$handle.attr('aria-controls')}`);
     this.$fill = this.$element.find('[data-slider-fill]').css(this.options.vertical ? 'height' : 'width', 0);
 
-    var isDbl = false,
-        _this = this;
+    var _this = this;
     if (this.options.disabled || this.$element.hasClass(this.options.disabledClass)) {
       this.options.disabled = true;
       this.$element.addClass(this.options.disabledClass);
@@ -94,7 +93,6 @@ class Slider extends Plugin {
       if (!this.inputs[1]) {
         this.inputs = this.inputs.add(this.$input2);
       }
-      isDbl = true;
 
       // this.$handle.triggerHandler('click.zf.slider');
       this._setInitAttr(1);
@@ -108,11 +106,11 @@ class Slider extends Plugin {
 
   setHandles() {
     if(this.handles[1]) {
-      this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true, () => {
-        this._setHandlePos(this.$handle2, this.inputs.eq(1).val(), true);
+      this._setHandlePos(this.$handle, this.inputs.eq(0).val(), () => {
+        this._setHandlePos(this.$handle2, this.inputs.eq(1).val());
       });
     } else {
-      this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true);
+      this._setHandlePos(this.$handle, this.inputs.eq(0).val());
     }
   }
 
@@ -153,7 +151,15 @@ class Slider extends Plugin {
       pctOfBar = this._logTransform(pctOfBar);
       break;
     }
-    var value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
+
+    var value
+    if (this.options.vertical) {
+      // linear interpolation which is working with negative values for start
+      // https://math.stackexchange.com/a/1019084
+      value = parseFloat(this.options.end) + pctOfBar * (this.options.start - this.options.end)
+    } else {
+      value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
+    }
 
     return value
   }
@@ -186,7 +192,7 @@ class Slider extends Plugin {
    * @fires Slider#moved
    * @fires Slider#changed
    */
-  _setHandlePos($hndl, location, noInvert, cb) {
+  _setHandlePos($hndl, location, cb) {
     // don't move if the slider has been disabled since its initialization
     if (this.$element.hasClass(this.options.disabledClass)) {
       return;
@@ -199,12 +205,6 @@ class Slider extends Plugin {
     else if (location > this.options.end) { location = this.options.end; }
 
     var isDbl = this.options.doubleSided;
-
-    //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
-    //for click and drag events, it's weird due to the scale(-1, 1) css property
-    if (this.options.vertical && !noInvert) {
-      location = this.options.end - location;
-    }
 
     if (isDbl) { //this block is to prevent 2 handles from crossing eachother. Could/should be improved.
       if (this.handles.index($hndl) === 0) {
@@ -364,10 +364,8 @@ class Slider extends Plugin {
           param = vertical ? 'height' : 'width',
           direction = vertical ? 'top' : 'left',
           eventOffset = vertical ? e.pageY : e.pageX,
-          halfOfHandle = this.$handle[0].getBoundingClientRect()[param] / 2,
           barDim = this.$element[0].getBoundingClientRect()[param],
           windowScroll = vertical ? $(window).scrollTop() : $(window).scrollLeft();
-
 
       var elemOffset = this.$element.offset()[direction];
 
@@ -405,7 +403,7 @@ class Slider extends Plugin {
       hasVal = true;
     }
 
-    this._setHandlePos($handle, value, hasVal);
+    this._setHandlePos($handle, value);
   }
 
   /**
@@ -461,8 +459,7 @@ class Slider extends Plugin {
    */
   _eventsForHandle($handle) {
     var _this = this,
-        curHandle,
-        timer;
+        curHandle;
 
       const handleChangeEvent = function(e) {
         const idx = _this.inputs.index($(this));
@@ -553,7 +550,7 @@ class Slider extends Plugin {
         },
         handled: function() { // only set handle pos when event was handled specially
           e.preventDefault();
-          _this._setHandlePos(_$handle, newValue, true);
+          _this._setHandlePos(_$handle, newValue);
         }
       });
       /*if (newValue) { // if pressed key has special function, update value

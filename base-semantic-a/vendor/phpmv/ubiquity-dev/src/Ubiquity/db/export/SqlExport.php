@@ -4,6 +4,14 @@ namespace Ubiquity\db\export;
 
 use Ubiquity\orm\DAO;
 
+/**
+ * Ubiquity\db\export$SqlExport
+ * This class is part of Ubiquity
+ * @author jcheron <myaddressmail@gmail.com>
+ * @version 1.0.0
+ * @package ubiquity.dev
+ *
+ */
 class SqlExport extends DataExport {
 
 	public function __construct($batchSize=5) {

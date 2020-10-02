@@ -14,6 +14,7 @@ use Ubiquity\db\SqlUtils;
  *
  * @author jcheron <myaddressmail@gmail.com>
  * @version 1.0.1
+ * @package ubiquity.dev
  *
  */
 class DbExport {

@@ -34,7 +34,7 @@ Not all projects require Prototyping Utilities and adding utility classes like t
 	</p>
 </div>
 
-If you're using the CSS version of Foundation, you can generate a <a href="https://foundation.zurb.com/sites/download">custom download of Foundation</a> with prototype mode enabled. If you're using the Sass version of Foundation, you can enable prototype mode in two ways:
+If you're using the CSS version of Foundation, you can generate a <a href="https://download.get.foundation/sites/download">custom download of Foundation</a> with prototype mode enabled. If you're using the Sass version of Foundation, you can enable prototype mode in two ways:
 
 If you use the `foundation-everything()` mixin in your main Sass file, just pass in `$prototype: true` to enable the prototype mode.
 
@@ -109,7 +109,7 @@ $prototype-transformation-breakpoints: true;
 These `.radius`, `.rounded`, `.bordered` & `.shadow` classes can be used independently or together to style the component by rounding its corners, giving light borders, and creating shadow to it respectively. Mostly used in buttons, cards, tables, images and many more.
 
 <div class="primary callout">
-	**Sass Tip**: You can use [Shadow](#shadow) mixin to create something like `shadow-hover-focus`. [Codepen example](http://codepen.io/IamManchanda/pen/XMRMwo)
+	**Sass Tip**: You can use [Shadow](#shadow) mixin to create something like `shadow-hover-focus`. [Codepen example](https://codepen.io/IamManchanda/pen/XMRMwo)
 </div>
 
 <p>
@@ -128,12 +128,12 @@ These `.radius`, `.rounded`, `.bordered` & `.shadow` classes can be used indepen
 
 #### Switches
 
-Please note that you need to add `rounded` class with `switch-paddle` and not `switch`.
+Add the `.rounded` class to `.switch` to make it rounded.
 
 ```html_example
-<div class="switch">
+<div class="switch rounded">
   <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch">
-  <label class="switch-paddle rounded" for="exampleSwitch">
+  <label class="switch-paddle" for="exampleSwitch">
     <span class="show-for-sr">Download Kittens</span>
   </label>
 </div>
@@ -304,7 +304,7 @@ This creates a tiny separator below the heading of an element and is usually use
 
 ## Font Styling
 
-You can use font styling to style your text. You can change the font styling by adding `font-normal`, `font-bold`, `font-italic` to an element. You can also wider the text of an element with `font-wide`.
+You can use font styling to style your text. You can change the font styling by adding `font-normal`, `font-bold`, `font-italic` to an element. You can also larger the text of an element with `font-wide`.
 
 ```html_example
 <p class="font-wide">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
@@ -827,4 +827,3 @@ These relational mixins helps you to manage styling of :nth-child’ified elemen
 @include odd-between($first, $last) {} // applies style to all odd children except first and last
 @include number-between($num, $first, $last) {} // applies style to every n children from first child and last child
 ```
-

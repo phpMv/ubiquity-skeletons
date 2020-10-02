@@ -3,71 +3,48 @@
 namespace Ubiquity\orm\creator\database;
 
 use Ubiquity\orm\creator\ModelsCreator;
+use Ubiquity\db\Database;
 
 /**
- * Generates models from database.
+ * Generates models from a database.
  * Ubiquity\orm\creator\database$DbModelsCreator
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
+ * @package ubiquity.dev
  *
  */
 class DbModelsCreator extends ModelsCreator {
-	private $pdoObject;
+
+	/**
+	 * @var Database
+	 */
+	private $database;
 
 	protected function init($config, $offset = 'default') {
 		parent::init ( $config, $offset );
 		$this->connect ( $this->config );
 	}
 
-	/**
-	 * Réalise la connexion à la base de données
-	 */
-	private function connect($config) {
-		try {
-			$this->pdoObject = new \PDO ( $config ["type"] . ':host=' . $config ["serverName"] . ';dbname=' . $config ["dbName"] . ';port=' . $config ["port"], $config ["user"], $config ["password"] );
-			$this->pdoObject->setAttribute ( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-			$this->pdoObject->exec ( "SET CHARACTER SET utf8" );
-		} catch ( \PDOException $e ) {
-			print "Error!: " . $e->getMessage () . "<br/>";
-		}
+	private function connect($dbConfig) {
+		$this->database=new Database($dbConfig ['wrapper'] ?? \Ubiquity\db\providers\pdo\PDOWrapper::class, $dbConfig ['type'], $dbConfig ['dbName'], $dbConfig ['serverName'] ?? '127.0.0.1', $dbConfig ['port'] ?? 3306, $dbConfig ['user'] ?? 'root', $dbConfig ['password'] ?? '', $dbConfig ['options'] ?? [ ], $dbConfig ['cache'] ?? false);
+		$this->database->connect();
 	}
 
 	protected function getTablesName() {
-		$sql = 'SHOW TABLES';
-		$query = $this->pdoObject->query ( $sql );
-		return $query->fetchAll ( \PDO::FETCH_COLUMN );
+		return $this->database->getTablesName();
 	}
 
 	protected function getFieldsInfos($tableName) {
-		$fieldsInfos = array ();
-		$recordset = $this->pdoObject->query ( "SHOW COLUMNS FROM `{$tableName}`" );
-		$fields = $recordset->fetchAll ( \PDO::FETCH_ASSOC );
-		foreach ( $fields as $field ) {
-			$fieldsInfos [$field ['Field']] = [ "Type" => $field ['Type'],"Nullable" => $field ["Null"] ];
-		}
-		return $fieldsInfos;
+		return $this->database->getFieldsInfos($tableName);
 	}
 
 	protected function getPrimaryKeys($tableName) {
-		$fieldkeys = array ();
-		$recordset = $this->pdoObject->query ( "SHOW KEYS FROM `{$tableName}` WHERE Key_name = 'PRIMARY'" );
-		$keys = $recordset->fetchAll ( \PDO::FETCH_ASSOC );
-		foreach ( $keys as $key ) {
-			$fieldkeys [] = $key ['Column_name'];
-		}
-		return $fieldkeys;
+		return $this->database->getPrimaryKeys($tableName);
 	}
 
-	protected function getForeignKeys($tableName, $pkName) {
-		$recordset = $this->pdoObject->query ( "SELECT *
-												FROM
-												 information_schema.KEY_COLUMN_USAGE
-												WHERE
-												 REFERENCED_TABLE_NAME = '" . $tableName . "'
-												 AND REFERENCED_COLUMN_NAME = '" . $pkName . "'
-												 AND TABLE_SCHEMA = '" . $this->config ["dbName"] . "';" );
-		return $recordset->fetchAll ( \PDO::FETCH_ASSOC );
+	protected function getForeignKeys($tableName, $pkName,$dbName=null) {
+		return $this->database->getForeignKeys($tableName, $pkName,$dbName);
 	}
 }

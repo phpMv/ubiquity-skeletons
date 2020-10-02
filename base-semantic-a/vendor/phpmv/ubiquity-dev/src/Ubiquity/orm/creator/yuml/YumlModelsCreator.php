@@ -11,6 +11,7 @@ use Ubiquity\orm\creator\ModelsCreator;
  *
  * @author jcheron <myaddressmail@gmail.com>
  * @version 1.0.1
+ * @package ubiquity.dev
  *
  */
 class YumlModelsCreator extends ModelsCreator {
@@ -45,7 +46,7 @@ class YumlModelsCreator extends ModelsCreator {
 		return $this->yumlParser->getPrimaryKeys ( $tableName );
 	}
 
-	protected function getForeignKeys($tableName, $pkName) {
+	protected function getForeignKeys($tableName, $pkName,$dbName=null) {
 		return $this->yumlParser->getForeignKeys ( $tableName );
 	}
 }

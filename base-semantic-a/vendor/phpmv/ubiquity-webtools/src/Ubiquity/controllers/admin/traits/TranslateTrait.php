@@ -25,11 +25,11 @@ use Ubiquity\utils\http\USession;
  *
  * @property \Ajax\php\ubiquity\JsUtils $jquery
  * @author jcheron <myaddressmail@gmail.com>
- *        
+ *
  */
 trait TranslateTrait {
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	protected $newTransRowId;
 
@@ -69,17 +69,17 @@ trait TranslateTrait {
 			->asSubmit();
 		$bt = $fields->addButton('bt-delete-translations-cache', 'Remove cache', 'basic red');
 		$bt->setTagName('div')->addIcon('remove');
-		$bt->getOnClick($baseRoute . '/deleteTranslationCache', '#translations-refresh', [
+		$bt->getOnClick($baseRoute . '/_deleteTranslationCache', '#translations-refresh', [
 			'jqueryDone' => 'replaceWith',
 			'hasLoader' => 'internal'
 		]);
 		$bt = $fields->addButton('bt-load-translations-cache', 'Load all translations cache', 'basic blue');
 		$bt->setTagName('div')->addIcon('refresh');
-		$bt->getOnClick($baseRoute . '/loadTranslationCache', '#translations-refresh', [
+		$bt->getOnClick($baseRoute . '/_loadTranslationCache', '#translations-refresh', [
 			'jqueryDone' => 'replaceWith',
 			'hasLoader' => 'internal'
 		]);
-		$frm->setSubmitParams($baseRoute . '/createLocale', '#translations-refresh', [
+		$frm->setSubmitParams($baseRoute . '/_createLocale', '#translations-refresh', [
 			'jqueryDone' => 'replaceWith',
 			'hasLoader' => 'internal'
 		]);
@@ -105,6 +105,7 @@ trait TranslateTrait {
 			"inline" => true
 		]);
 		$fields = $frm->addFields();
+		$fields->setInline();
 		$input = $fields->addInput("name-" . $locale, null, "text", "", "Domain name")
 			->addRules([
 			[
@@ -120,12 +121,12 @@ trait TranslateTrait {
 		$input->addAction("Add domain", true, "plus", true)
 			->addClass("teal")
 			->asSubmit();
-		$frm->setSubmitParams($baseRoute . "/addDomain/" . $locale, "#translations-refresh");
+		$frm->setSubmitParams($baseRoute . "/_addDomain/" . $locale, "#translations-refresh");
 		if (TranslatorManager::cacheExist($locale)) {
 			$bt = $fields->addButton('bt-delete-translations-cache-' . $locale, null, 'basic red');
 			$bt->setTagName('div')->asIcon('remove');
 			$bt->setProperty('title', "Delete {$locale} cache");
-			$bt->getOnClick($baseRoute . '/deleteTranslationLocaleCache/' . $locale, '#translations-refresh', [
+			$bt->getOnClick($baseRoute . '/_deleteTranslationLocaleCache/' . $locale, '#translations-refresh', [
 				'jqueryDone' => 'replaceWith',
 				'hasLoader' => 'internal'
 			]);
@@ -133,7 +134,7 @@ trait TranslateTrait {
 		$bt = $fields->addButton('bt-load-translations-cache-' . $locale, null, 'basic blue');
 		$bt->setTagName('div')->asIcon('refresh');
 		$bt->setProperty('title', "Load {$locale} cache");
-		$bt->getOnClick($baseRoute . '/loadTranslationLocaleCache/' . $locale, '#translations-refresh', [
+		$bt->getOnClick($baseRoute . '/_loadTranslationLocaleCache/' . $locale, '#translations-refresh', [
 			'jqueryDone' => 'replaceWith',
 			'hasLoader' => 'internal'
 		]);
@@ -155,7 +156,7 @@ trait TranslateTrait {
 		});
 		$dt->setActiveRowSelector();
 
-		$this->jquery->getOnClick('._edit.' . $locale, "/Admin/loadDomain/" . $locale . "/", '#domain-' . $locale, [
+		$this->jquery->getOnClick('._edit.' . $locale, $baseRoute . "/_loadDomain/" . $locale . "/", '#domain-' . $locale, [
 			'attr' => 'data-ajax',
 			'hasLoader' => 'internal'
 		]);
@@ -223,7 +224,7 @@ trait TranslateTrait {
 		$dt->insertDefaultButtonIn(2, 'list', 'basic _multi');
 		$dt->setEdition(true);
 		$dt->setUrls([
-			'refresh' => $baseRoute . '/refreshDomain/' . $locale . '/' . $domain
+			'refresh' => $baseRoute . '/_refreshDomain/' . $locale . '/' . $domain
 		]);
 		$dt->addClass('selectable');
 		$dt->setLibraryId('dtDomain');
@@ -235,17 +236,17 @@ trait TranslateTrait {
 		$icon = $lbl->addIcon("delete", false);
 		$lbl->wrap("<span>", "</span>");
 		$lbl->setProperty("style", "display: none;");
-		$icon->getOnClick($baseRoute . '/refreshDomainAll/' . $locale . '/' . $domain, '#' . $dtId, [
+		$icon->getOnClick($baseRoute . '/_refreshDomainAll/' . $locale . '/' . $domain, '#' . $dtId, [
 			"jqueryDone" => "replaceWith",
 			"hasLoader" => "internal"
 		]);
 		$this->jquery->click('._multi', '$(this).closest("tr").find("textarea").html("{0} zero|{1} one |]1,Inf[ %count%").trigger("change");');
 		$this->jquery->change('#' . $dtId . ' tbody textarea,#' . $dtId . ' input', '$("#domain-name-' . $locale . $domain . '").html($("#domain-name-' . $locale . $domain . '").attr("data-value")+"*");');
-		$this->jquery->postOn('change', '#' . $dtId . ' tbody textarea,#' . $dtId . ' tbody input', $baseRoute . '/updateTranslation/' . $locale . '/' . $domain, '{n:$(this).closest("tr").find("input").first().attr("data-new") || 0,v:encodeURIComponent($(this).closest("tr").find("textarea").first().val()),k:$(this).closest("tr").find("input").first().val()}', '#update-' . $locale . $domain, [
+		$this->jquery->postOn('change', '#' . $dtId . ' tbody textarea,#' . $dtId . ' tbody input', $baseRoute . '/_updateTranslation/' . $locale . '/' . $domain, '{n:$(this).closest("tr").find("input").first().attr("data-new") || 0,v:encodeURIComponent($(this).closest("tr").find("textarea").first().val()),k:$(this).closest("tr").find("input").first().val()}', '#update-' . $locale . $domain, [
 			'hasLoader' => false,
 			'attr' => 'data-key'
 		]);
-		$this->jquery->postOnClick('#' . $dtId . ' ._delete', $baseRoute . '/deleteTranslation/' . $locale . '/' . $domain, '{n:$(this).closest("tr").find("input").first().attr("data-new") || 0,k:$(this).closest("tr").find("input").first().attr("data-key")}', '#update-' . $locale . $domain, [
+		$this->jquery->postOnClick('#' . $dtId . ' ._delete', $baseRoute . '/_deleteTranslation/' . $locale . '/' . $domain, '{n:$(this).closest("tr").find("input").first().attr("data-new") || 0,k:$(this).closest("tr").find("input").first().attr("data-key")}', '#update-' . $locale . $domain, [
 			'hasLoader' => false
 		]);
 		$this->jquery->execAtLast('$("._ddAddMessages").dropdown();');
@@ -284,7 +285,7 @@ trait TranslateTrait {
 		return $messages;
 	}
 
-	private function _loadDomain($locale, $domain) {
+	private function loadLocaleDomain_($locale, $domain) {
 		USession::delete('ol');
 		$baseRoute = $this->_getFiles()->getAdminBaseRoute();
 		TranslatorManager::start();
@@ -301,15 +302,15 @@ trait TranslateTrait {
 		$dt->asForm();
 		$dt->autoPaginate(1, 50, 9);
 		$dtId = '#' . $dt->getIdentifier();
-		$this->jquery->postOnClick('#compare-to-' . $locale, $baseRoute . '/compareToLocale/' . $domain . '/' . $locale, '{p: $("' . $dtId . ' .item.active").first().attr("data-page"),ol: $("#input-' . $dd->getIdentifier() . '").val()}', $dtId . ' tbody', [
+		$this->jquery->postOnClick('#compare-to-' . $locale, $baseRoute . '/_compareToLocale/' . $domain . '/' . $locale, '{p: $("' . $dtId . ' .item.active").first().attr("data-page"),ol: $("#input-' . $dd->getIdentifier() . '").val()}', $dtId . ' tbody', [
 			'jqueryDone' => 'replaceWith',
 			'hasLoader' => 'internal'
 		]);
-		$this->jquery->getOnClick('._addMessages', $baseRoute . '/frmMultipleMessages/' . $locale . '/' . $domain, '#form-' . $locale . $domain, [
+		$this->jquery->getOnClick('._addMessages', $baseRoute . '/_frmMultipleMessages/' . $locale . '/' . $domain, '#form-' . $locale . $domain, [
 			'hasLoader' => 'internal'
 		]);
 
-		$this->jquery->getOnClick('._fromFile', $baseRoute . '/frmImportMessages/' . $locale . '/' . $domain, '#form-' . $locale . $domain, [
+		$this->jquery->getOnClick('._fromFile', $baseRoute . '/_frmImportMessages/' . $locale . '/' . $domain, '#form-' . $locale . $domain, [
 			'hasLoader' => 'internal'
 		]);
 
@@ -323,38 +324,37 @@ trait TranslateTrait {
 		$bt = $this->jquery->semantic()->htmlButton('bt-save', 'Save');
 		$bt->addIcon('save');
 		$bt->addLabel($messagesUpdates, true)->setPointing('right');
-		$bt->getContent()[1]->addClass('green')->getOnClick($baseRoute . '/saveTranslationsUpdates/' . $locale . '/' . $domain, '#domain-' . $locale, [
+		$bt->getContent()[1]->addClass('green')->getOnClick($baseRoute . '/_saveTranslationsUpdates/' . $locale . '/' . $domain, '#domain-' . $locale, [
 			'hasLoader' => 'internal'
 		]);
 		$btDelete = $this->jquery->semantic()->htmlButton('bt-cancel-updates', 'Cancel updates', 'red');
 		$btDelete->addIcon('remove');
-		$btDelete->getOnClick($baseRoute . '/cancelTranslationsUpdates/' . $locale . '/' . $domain, '#domain-' . $locale, [
+		$btDelete->getOnClick($baseRoute . '/_cancelTranslationsUpdates/' . $locale . '/' . $domain, '#domain-' . $locale, [
 			'hasLoader' => 'internal'
 		]);
 		return $bt . $btDelete;
 	}
 
-	public function loadDomain($locale, $domain) {
-		$this->_loadDomain($locale, $domain);
+	public function _loadDomain($locale, $domain) {
+		$this->loadLocaleDomain_($locale, $domain);
 		$this->jquery->renderView('@admin/translate/domain.html', [
 			'locale' => $locale,
 			'domain' => $domain
 		]);
 	}
 
-	public function refreshDomainAll($locale, $domain) {
-		$dt = $this->_loadDomain($locale, $domain, false);
-		$dt->setLibraryId("_compo_");
-		$this->jquery->renderView("@admin/main/component.html");
+	public function _refreshDomainAll($locale, $domain) {
+		$dt = $this->loadLocaleDomain_($locale, $domain, false);
+		$this->loadViewCompo($dt);
 	}
 
-	public function compareToLocale($domain, $locale) {
+	public function _compareToLocale($domain, $locale) {
 		$ol = URequest::post('ol');
 		USession::set('ol', $ol);
-		$this->refreshDomain($locale, $domain);
+		$this->_refreshDomain($locale, $domain);
 	}
 
-	public function refreshDomain($locale, $domain, $otherLocale = null) {
+	public function _refreshDomain($locale, $domain, $otherLocale = null) {
 		TranslatorManager::start();
 		if (USession::exists('ol')) {
 			$otherLocale = USession::get('ol');
@@ -375,11 +375,10 @@ trait TranslateTrait {
 		$p = URequest::post('p', 1);
 		$dt->autoPaginate(is_numeric($p) ? $p : 1, 50, 9);
 		$dt->refresh();
-		$dt->setLibraryId("_compo_");
-		$this->jquery->renderView("@admin/main/component.html");
+		$this->loadViewCompo($dt);
 	}
 
-	public function createLocale() {
+	public function _createLocale() {
 		if (URequest::isPost()) {
 			$baseRoute = $this->_getFiles()->getAdminBaseRoute();
 			if (isset($_POST["localeName"]) && $_POST["localeName"] != null) {
@@ -410,7 +409,7 @@ trait TranslateTrait {
 		}
 	}
 
-	public function addDomain($locale) {
+	public function _addDomain($locale) {
 		if (URequest::isPost()) {
 			TranslatorManager::start();
 			if (isset($_POST["domainName"]) && $_POST["domainName"] != null) {
@@ -433,7 +432,7 @@ trait TranslateTrait {
 		}
 	}
 
-	public function updateTranslation($locale, $domain, $key) {
+	public function _updateTranslation($locale, $domain, $key) {
 		list ($type, $oldKey, $oldValue) = explode('||', $key);
 		$oldValue = urldecode($oldValue);
 		$newKey = $_POST['k'];
@@ -475,7 +474,7 @@ trait TranslateTrait {
 		}
 	}
 
-	public function deleteTranslation($locale, $domain) {
+	public function _deleteTranslation($locale, $domain) {
 		$new = URequest::getBoolean('n');
 		$key = $_POST['k'];
 		$messagesUpdates = new MessagesUpdates($locale, $domain);
@@ -497,7 +496,7 @@ trait TranslateTrait {
 		echo $this->jquery->compile($this->view);
 	}
 
-	public function saveTranslationsUpdates($locale, $domain) {
+	public function _saveTranslationsUpdates($locale, $domain) {
 		TranslatorManager::start();
 		$msgDomain = new MessagesDomain($locale, TranslatorManager::getLoader(), $domain);
 		$msgDomain->load();
@@ -514,21 +513,21 @@ trait TranslateTrait {
 			} catch (\Exception $e) {}
 		}
 		$this->jquery->html('#messages', $this->showSimpleMessage("Modifications saved for domain {$domain} of locale {$locale}.", 'success', 'Saving modifications', 'save'), true);
-		$this->loadDomain($locale, $domain);
+		$this->_loadDomain($locale, $domain);
 	}
 
-	public function cancelTranslationsUpdates($locale, $domain) {
+	public function _cancelTranslationsUpdates($locale, $domain) {
 		$messagesUpdates = new MessagesUpdates($locale, $domain);
 		if ($messagesUpdates->exists()) {
 			$messagesUpdates->delete();
 		}
-		$this->loadDomain($locale, $domain);
+		$this->_loadDomain($locale, $domain);
 	}
 
-	public function frmMultipleMessages($locale, $domain) {
+	public function _frmMultipleMessages($locale, $domain) {
 		$this->jquery->execOn("click", "#cancel-multiple-messages-" . $locale . $domain, '$("#form-' . $locale . $domain . '").html("");');
 		$baseRoute = $this->_getFiles()->getAdminBaseRoute();
-		$this->jquery->postFormOnClick("#validate-multiple-messages-" . $locale . $domain, $baseRoute . '/addMultipleMessages/' . $locale . '/' . $domain, 'frm-multiple-' . $locale . $domain, '#domain-' . $locale, [
+		$this->jquery->postFormOnClick("#validate-multiple-messages-" . $locale . $domain, $baseRoute . '/_addMultipleMessages/' . $locale . '/' . $domain, 'frm-multiple-' . $locale . $domain, '#domain-' . $locale, [
 			'hasLoader' => 'internal'
 		]);
 		$this->jquery->renderView('@admin/translate/frmMultipleMessages.html', [
@@ -537,11 +536,11 @@ trait TranslateTrait {
 		]);
 	}
 
-	public function frmImportMessages($locale, $domain) {
+	public function _frmImportMessages($locale, $domain) {
 		$baseRoute = $this->_getFiles()->getAdminBaseRoute();
 		$this->jquery->exec('$("#dd-type").dropdown();', true);
 		$this->jquery->execOn('click', '#cancel-import-messages-' . $locale . $domain, '$("#form-' . $locale . $domain . '").html("");');
-		$this->jquery->postFormOnClick('#validate-import-messages-' . $locale . $domain, $baseRoute . '/importTranslationFile/' . $locale . '/' . $domain, 'frm-import-' . $locale . $domain, '#domain-' . $locale, [
+		$this->jquery->postFormOnClick('#validate-import-messages-' . $locale . $domain, $baseRoute . '/_importTranslationFile/' . $locale . '/' . $domain, 'frm-import-' . $locale . $domain, '#domain-' . $locale, [
 			'hasFiles' => true,
 			'hasLoader' => 'internal'
 		]);
@@ -552,7 +551,7 @@ trait TranslateTrait {
 		]);
 	}
 
-	public function importTranslationFile($locale, $domain) {
+	public function _importTranslationFile($locale, $domain) {
 		$target_dir = sys_get_temp_dir() . "/";
 		$target_file = $target_dir . basename($_FILES["file"]["name"]);
 		if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
@@ -562,13 +561,13 @@ trait TranslateTrait {
 				$import = new $class($target_file);
 				$import->import($locale, $domain);
 			}
-			$this->loadDomain($locale, $domain);
+			$this->_loadDomain($locale, $domain);
 		} else {
 			echo "Sorry, there was an error uploading your file.";
 		}
 	}
 
-	public function addMultipleMessages($locale, $domain) {
+	public function _addMultipleMessages($locale, $domain) {
 		$messagesUpdates = new MessagesUpdates($locale, $domain);
 		$messagesUpdates->load();
 		$sep = $_POST["separator"] ?? '=';
@@ -581,10 +580,10 @@ trait TranslateTrait {
 			}
 		}
 		$messagesUpdates->save();
-		$this->loadDomain($locale, $domain);
+		$this->_loadDomain($locale, $domain);
 	}
 
-	public function loadTranslationCache() {
+	public function _loadTranslationCache() {
 		CacheFile::delete(\ROOT . \DS . CacheManager::getCacheDirectory() . 'translations');
 		TranslatorManager::start();
 		$locales = TranslatorManager::getLocales();
@@ -596,14 +595,14 @@ trait TranslateTrait {
 			->getAdminBaseRoute());
 	}
 
-	public function deleteTranslationCache() {
+	public function _deleteTranslationCache() {
 		CacheFile::delete(\ROOT . \DS . CacheManager::getCacheDirectory() . 'translations');
 		self::showSimpleMessage("Cache deleted for all locales", 'success', 'CacheManager', 'remove', null, 'msgGlobal');
 		$this->_translate(URequest::getDefaultLanguage(), $this->_getFiles()
 			->getAdminBaseRoute());
 	}
 
-	public function loadTranslationLocaleCache($locale) {
+	public function _loadTranslationLocaleCache($locale) {
 		TranslatorManager::start();
 		TranslatorManager::clearLocaleCache($locale);
 		TranslatorManager::getCatalogue($locale);
@@ -612,7 +611,7 @@ trait TranslateTrait {
 			->getAdminBaseRoute());
 	}
 
-	public function deleteTranslationLocaleCache($locale) {
+	public function _deleteTranslationLocaleCache($locale) {
 		TranslatorManager::start();
 		TranslatorManager::clearLocaleCache($locale);
 		self::showSimpleMessage("Cache deleted for locale <b>{$locale}</b>", 'success', 'CacheManager', 'remove', null, 'msgGlobal');

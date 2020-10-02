@@ -1,10 +1,21 @@
 Git-PHP
 =======
 
+[![Downloads this Month](https://img.shields.io/packagist/dm/czproject/git-php.svg)](https://packagist.org/packages/czproject/git-php)
+[![Latest Stable Version](https://poser.pugx.org/czproject/git-php/v/stable)](https://github.com/czproject/git-php/releases)
+[![License](https://img.shields.io/badge/license-New%20BSD-blue.svg)](https://github.com/czproject/git-php/blob/master/license.md)
+
+
 Library for work with Git repository in PHP.
 
-<a href="https://www.patreon.com/bePatron?u=9680759"><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" height="35"></a>
-<a href="https://www.paypal.me/janpecha/1eur"><img src="https://buymecoffee.intm.org/img/button-paypal-white.png" alt="Buy me a coffee" height="35"></a>
+
+Do you like this project?
+-------------------------
+
+**Please consider its support for further development. Thank you!**
+
+<a href="https://www.patreon.com/bePatron?u=34956493"><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" height="35"></a>
+<a href="https://www.paypal.me/janpecha/5eur"><img src="https://buymecoffee.intm.org/img/button-paypal-white.png" alt="Buy me a coffee" height="35"></a>
 
 
 Installation

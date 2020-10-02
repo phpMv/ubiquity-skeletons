@@ -1,0 +1,30 @@
+{{ q["header"] | raw }}
+{% if q["msgGlobal"] is defined %}
+<div style="padding: 10px 0px;" id="messages">
+	{{ q["msgGlobal"] | raw }}
+</div>
+{% endif %}
+{% if q["msgInfo"] is defined %}
+<div style="padding: 10px 0px;" id="messages">
+	{{ q["msgInfo"] | raw }}
+</div>
+{% endif %}
+<div id="composer">
+	<div class="ui secondary menu">
+		<button id="add-dependency-btn" class="ui button teal _menu">
+		  <i class="icon plus"></i>
+		  Add dependency...
+		</button>
+		<button class="ui disabled green button" id="submit-composer-bt">Generate composer update...</button>
+		<button class="ui button" id="opt-composer-bt">Optimize autoloader</button>
+	</div>
+		<div id="response">
+		
+		</div>
+	<div id="composer-details">
+		<form id='composer-frm' name='composer-frm'>
+		{{ q["dtComposer"] | raw }}
+		</form>
+	</div>
+</div>
+{{ script_foot | raw }}

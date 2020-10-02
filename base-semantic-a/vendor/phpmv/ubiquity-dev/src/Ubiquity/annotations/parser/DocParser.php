@@ -5,6 +5,14 @@ namespace Ubiquity\annotations\parser;
 
 use Ubiquity\utils\base\UString;
 
+/**
+ * Ubiquity\annotations\parser$DocParser
+ * This class is part of Ubiquity
+ * @author jcheron <myaddressmail@gmail.com>
+ * @version 1.0.0
+ * @package ubiquity.dev
+ *
+ */
 class DocParser {
 	private $originalContent;
 	private $lines;

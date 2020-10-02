@@ -10,25 +10,30 @@ use Ubiquity\utils\http\URequest;
  *
  * @property \Ajax\JsUtils $jquery
  * @author jcheron <myaddressmail@gmail.com>
- *        
+ *
  */
 trait ThemesTrait {
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
-	abstract public function saveConfig();
+	abstract public function _saveConfig();
 
-	protected function refreshTheme($partial = true) {
+	public function _refreshTheme($partial = true) {
 		$activeTheme = ThemesManager::getActiveTheme() ?? 'no theme';
 		$themes = ThemesManager::getAvailableThemes();
 		$notInstalled = ThemesManager::getNotInstalledThemes();
-		$this->jquery->getOnClick("._installTheme", "Admin/installTheme", "#refresh-theme", [
-			"attr" => "data-ajax"
+		$ubiquityCmd = $this->config["devtools-path"] ?? 'Ubiquity';
+		$this->jquery->postOnClick('._installTheme', $this->_getFiles()
+			->getAdminBaseRoute() . '/_execComposer/_refreshTheme/refresh-theme/html', '{commands: "echo n | ' . $ubiquityCmd . ' install-theme "+$(this).attr("data-ajax")}', '#partial', [
+			'before' => '$("#response").html(' . $this->getConsoleMessage_('partial', 'Theme installation...') . ');',
+			'hasLoader' => false,
+			'partial' => "$('#partial').html(response);"
 		]);
+
 		$this->loadView('@admin/themes/refreshTheme.html', compact('activeTheme', 'themes', 'notInstalled', 'partial'));
 	}
 
-	public function createNewTheme() {
+	public function _createNewTheme() {
 		$themeName = $_POST["themeName"];
 		$ubiquityCmd = $this->config["devtools-path"] ?? 'Ubiquity';
 		$allThemes = ThemesManager::getRefThemes();
@@ -52,10 +57,10 @@ trait ThemesTrait {
 
 		$this->jquery->getHref("._setTheme", "#refresh-theme");
 		$this->jquery->compile($this->view);
-		$this->refreshTheme();
+		$this->_refreshTheme();
 	}
 
-	public function installTheme($themeName) {
+	public function _installTheme($themeName) {
 		$allThemes = ThemesManager::getRefThemes();
 		$ubiquityCmd = $this->config["devtools-path"] ?? 'Ubiquity';
 
@@ -73,10 +78,10 @@ trait ThemesTrait {
 		}
 		$this->jquery->getHref("._setTheme", "#refresh-theme");
 		$this->jquery->compile($this->view);
-		$this->refreshTheme();
+		$this->_refreshTheme();
 	}
 
-	public function setTheme($theme) {
+	public function _setTheme($theme) {
 		$allThemes = ThemesManager::getAvailableThemes();
 		if (array_search($theme, $allThemes) !== false) {
 			ThemesManager::setActiveTheme($theme);
@@ -84,13 +89,13 @@ trait ThemesTrait {
 		}
 		$this->jquery->getHref("._setTheme", "#refresh-theme");
 		$this->jquery->compile($this->view);
-		$this->refreshTheme();
+		$this->_refreshTheme();
 	}
 
-	public function setDevtoolsPath() {
+	public function _setDevtoolsPath() {
 		$path = $_POST['path'];
 		$this->config["devtools-path"] = $path;
-		$this->saveConfig();
+		$this->_saveConfig();
 		echo $this->_checkDevtoolsPath($path);
 		echo $this->jquery->compile();
 	}
@@ -98,25 +103,13 @@ trait ThemesTrait {
 	public function _checkDevtoolsPath($path) {
 		$res = $this->runSilent($path . ' version', $return_var);
 		if (UString::contains('Ubiquity devtools', $return_var)) {
-			$res = $this->showConsoleMessage($return_var, "Ubiquity devtools", $hasError, "success", "check square");
+			$res = $this->showConsoleMessage(\nl2br(\str_replace("\n\n", "\n", $return_var)), "Ubiquity devtools", $hasError, "success", "check square");
 			$this->jquery->exec('$("._checkDevtools").toggleClass("green check square",true);$("._checkDevtools").toggleClass("red warning circle",false);$(".devtools-related").dimmer("hide");', true);
 		} else {
 			$res = $this->showSimpleMessage(sprintf("Devtools are not available at %s", $path), "error", 'Devtools command path', 'warning circle');
 			$this->jquery->exec('$("._checkDevtools").toggleClass("green check square",false);$("._checkDevtools").toggleClass("red warning circle",true);$(".devtools-related").dimmer("show").dimmer({closable:false});', true);
 		}
 		return $res;
-	}
-
-	private function getConsoleMessage($originalMessage) {
-		$messages = explode("\n", $originalMessage);
-		$result = [];
-		foreach ($messages as $msg) {
-			$msg = trim($msg);
-			if (UString::startswith($msg, "·")) {
-				$result[] = $msg;
-			}
-		}
-		return implode("<br>", $result);
 	}
 
 	private function showConsoleMessage($originalMessage, $title, &$hasError, $type = 'info', $icon = 'info circle') {
@@ -127,7 +120,7 @@ trait ThemesTrait {
 				$icon = "warning circle";
 				$hasError = true;
 			}
-			return $this->showSimpleMessage($this->getConsoleMessage($originalMessage), $type, $title, $icon);
+			return $this->showSimpleMessage($originalMessage, $type, $title, $icon);
 		}
 	}
 

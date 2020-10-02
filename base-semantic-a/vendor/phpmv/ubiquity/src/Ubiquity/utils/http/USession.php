@@ -11,7 +11,7 @@ use Ubiquity\controllers\Startup;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.1
+ * @version 1.1.2
  */
 class USession {
 	protected static $sessionInstance;
@@ -22,10 +22,10 @@ class USession {
 	 * @param string $arrayKey the key of the array to return
 	 * @return array
 	 */
-	public static function getArray($arrayKey) {
+	public static function getArray($arrayKey): array {
 		if (self::$sessionInstance->exists ( $arrayKey )) {
 			$array = self::$sessionInstance->get ( $arrayKey );
-			if (! is_array ( $array ))
+			if (! \is_array ( $array ))
 				$array = [ ];
 		} else
 			$array = [ ];
@@ -38,13 +38,13 @@ class USession {
 	 * @param string $arrayKey the key of the array to add or remove in
 	 * @param mixed $value the value to add
 	 * @param boolean|null $add If true, adds otherwise removes
-	 * @return boolean
+	 * @return boolean|null
 	 */
-	public static function addOrRemoveValueFromArray($arrayKey, $value, $add = null) {
+	public static function addOrRemoveValueFromArray($arrayKey, $value, $add = null): ?bool {
 		$array = self::getArray ( $arrayKey );
 		$_SESSION [$arrayKey] = $array;
-		$search = array_search ( $value, $array );
-		if ($search === FALSE && $add) {
+		$search = \array_search ( $value, $array );
+		if ($search === false && $add) {
 			$array [] = $value;
 			self::$sessionInstance->set ( $arrayKey, $array );
 			return true;
@@ -53,6 +53,7 @@ class USession {
 			self::$sessionInstance->set ( $arrayKey, $array );
 			return false;
 		}
+		return null;
 	}
 
 	/**
@@ -60,9 +61,9 @@ class USession {
 	 *
 	 * @param string $arrayKey the key of the array to remove in
 	 * @param mixed $value the value to remove
-	 * @return boolean
+	 * @return boolean|null
 	 */
-	public static function removeValueFromArray($arrayKey, $value) {
+	public static function removeValueFromArray($arrayKey, $value): ?bool {
 		return self::addOrRemoveValueFromArray ( $arrayKey, $value, false );
 	}
 
@@ -71,9 +72,9 @@ class USession {
 	 *
 	 * @param string $arrayKey the key of the array to add in
 	 * @param mixed $value the value to add
-	 * @return boolean
+	 * @return boolean|null
 	 */
-	public static function addValueToArray($arrayKey, $value) {
+	public static function addValueToArray($arrayKey, $value): ?bool {
 		return self::addOrRemoveValueFromArray ( $arrayKey, $value, true );
 	}
 
@@ -94,7 +95,7 @@ class USession {
 	 * @param string $key the key to add or set
 	 * @return boolean
 	 */
-	public static function getBoolean($key) {
+	public static function getBoolean($key): bool {
 		$v = self::$sessionInstance->get ( $key, false );
 		return UString::isBooleanTrue ( $v );
 	}
@@ -177,7 +178,7 @@ class USession {
 	 *
 	 * @param string $key the key to delete
 	 */
-	public static function delete($key) {
+	public static function delete($key): void {
 		self::$sessionInstance->delete ( $key );
 	}
 
@@ -210,7 +211,7 @@ class USession {
 	 * @param string $str
 	 * @return string
 	 */
-	public static function concat($key, $str, $default = NULL) {
+	public static function concat($key, $str, $default = NULL): string {
 		return self::set ( $key, self::get ( $key, $default ) . $str );
 	}
 
@@ -240,7 +241,7 @@ class USession {
 	 * @param mixed $userData
 	 * @return array
 	 */
-	public static function Walk($callback, $userData = null) {
+	public static function Walk($callback, $userData = null): array {
 		$all = self::$sessionInstance->getAll ();
 		foreach ( $all as $k => $v ) {
 			self::$sessionInstance->set ( $k, $callback ( $k, $v, $userData ) );
@@ -254,7 +255,7 @@ class USession {
 	 * @param array $keyAndValues
 	 * @return array
 	 */
-	public static function replace($keyAndValues) {
+	public static function replace($keyAndValues): array {
 		foreach ( $keyAndValues as $k => $v ) {
 			self::$sessionInstance->set ( $k, $v );
 		}
@@ -266,7 +267,7 @@ class USession {
 	 *
 	 * @return array
 	 */
-	public static function getAll() {
+	public static function getAll(): array {
 		return self::$sessionInstance->getAll ();
 	}
 
@@ -275,7 +276,7 @@ class USession {
 	 *
 	 * @param string|null $name the name of the session
 	 */
-	public static function start($name = null) {
+	public static function start($name = null): void {
 		if (! isset ( self::$sessionInstance )) {
 			self::$sessionInstance = Startup::getSessionInstance ();
 		}
@@ -287,7 +288,7 @@ class USession {
 	 *
 	 * @return boolean
 	 */
-	public static function isStarted() {
+	public static function isStarted(): bool {
 		return self::$sessionInstance->isStarted ();
 	}
 
@@ -297,7 +298,7 @@ class USession {
 	 * @param string $key the key to test
 	 * @return boolean
 	 */
-	public static function exists($key) {
+	public static function exists($key): bool {
 		return self::$sessionInstance->exists ( $key );
 	}
 
@@ -318,7 +319,38 @@ class USession {
 	/**
 	 * Terminates the active session
 	 */
-	public static function terminate() {
+	public static function terminate(): void {
 		self::$sessionInstance->terminate ();
+	}
+
+	/**
+	 * Return the Csrf protection class name.
+	 *
+	 * @return string
+	 */
+	public static function getCsrfProtectionClass() {
+		if (isset ( self::$sessionInstance )) {
+			return \get_class ( self::$sessionInstance->getVerifyCsrf () );
+		}
+	}
+
+	/**
+	 * Return the instance class name for the session.
+	 *
+	 * @return string
+	 */
+	public static function getInstanceClass() {
+		if (isset ( self::$sessionInstance )) {
+			return \get_class ( self::$sessionInstance );
+		}
+	}
+
+	/**
+	 * Returns the number of sessions started.
+	 *
+	 * @return number
+	 */
+	public static function visitorCount() {
+		return self::$sessionInstance->visitorCount ();
 	}
 }

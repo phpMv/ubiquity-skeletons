@@ -288,8 +288,7 @@ function (_Plugin) {
       this.$input = this.inputs.length ? this.inputs.eq(0) : jquery__WEBPACK_IMPORTED_MODULE_0___default()("#".concat(this.$handle.attr('aria-controls')));
       this.$fill = this.$element.find('[data-slider-fill]').css(this.options.vertical ? 'height' : 'width', 0);
 
-      var isDbl = false,
-          _this = this;
+      var _this = this;
 
       if (this.options.disabled || this.$element.hasClass(this.options.disabledClass)) {
         this.options.disabled = true;
@@ -310,9 +309,8 @@ function (_Plugin) {
 
         if (!this.inputs[1]) {
           this.inputs = this.inputs.add(this.$input2);
-        }
+        } // this.$handle.triggerHandler('click.zf.slider');
 
-        isDbl = true; // this.$handle.triggerHandler('click.zf.slider');
 
         this._setInitAttr(1);
       } // Set handle positions
@@ -328,11 +326,11 @@ function (_Plugin) {
       var _this2 = this;
 
       if (this.handles[1]) {
-        this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true, function () {
-          _this2._setHandlePos(_this2.$handle2, _this2.inputs.eq(1).val(), true);
+        this._setHandlePos(this.$handle, this.inputs.eq(0).val(), function () {
+          _this2._setHandlePos(_this2.$handle2, _this2.inputs.eq(1).val());
         });
       } else {
-        this._setHandlePos(this.$handle, this.inputs.eq(0).val(), true);
+        this._setHandlePos(this.$handle, this.inputs.eq(0).val());
       }
     }
   }, {
@@ -382,7 +380,16 @@ function (_Plugin) {
           break;
       }
 
-      var value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
+      var value;
+
+      if (this.options.vertical) {
+        // linear interpolation which is working with negative values for start
+        // https://math.stackexchange.com/a/1019084
+        value = parseFloat(this.options.end) + pctOfBar * (this.options.start - this.options.end);
+      } else {
+        value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
+      }
+
       return value;
     }
     /**
@@ -420,7 +427,7 @@ function (_Plugin) {
 
   }, {
     key: "_setHandlePos",
-    value: function _setHandlePos($hndl, location, noInvert, cb) {
+    value: function _setHandlePos($hndl, location, cb) {
       // don't move if the slider has been disabled since its initialization
       if (this.$element.hasClass(this.options.disabledClass)) {
         return;
@@ -436,12 +443,7 @@ function (_Plugin) {
         location = this.options.end;
       }
 
-      var isDbl = this.options.doubleSided; //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
-      //for click and drag events, it's weird due to the scale(-1, 1) css property
-
-      if (this.options.vertical && !noInvert) {
-        location = this.options.end - location;
-      }
+      var isDbl = this.options.doubleSided;
 
       if (isDbl) {
         //this block is to prevent 2 handles from crossing eachother. Could/should be improved.
@@ -612,7 +614,6 @@ function (_Plugin) {
             param = vertical ? 'height' : 'width',
             direction = vertical ? 'top' : 'left',
             eventOffset = vertical ? e.pageY : e.pageX,
-            halfOfHandle = this.$handle[0].getBoundingClientRect()[param] / 2,
             barDim = this.$element[0].getBoundingClientRect()[param],
             windowScroll = vertical ? jquery__WEBPACK_IMPORTED_MODULE_0___default()(window).scrollTop() : jquery__WEBPACK_IMPORTED_MODULE_0___default()(window).scrollLeft();
 
@@ -657,7 +658,7 @@ function (_Plugin) {
         hasVal = true;
       }
 
-      this._setHandlePos($handle, value, hasVal);
+      this._setHandlePos($handle, value);
     }
     /**
      * Adjustes value for handle in regard to step value. returns adjusted value
@@ -725,8 +726,7 @@ function (_Plugin) {
     key: "_eventsForHandle",
     value: function _eventsForHandle($handle) {
       var _this = this,
-          curHandle,
-          timer;
+          curHandle;
 
       var handleChangeEvent = function handleChangeEvent(e) {
         var idx = _this.inputs.index(jquery__WEBPACK_IMPORTED_MODULE_0___default()(this));
@@ -821,7 +821,7 @@ function (_Plugin) {
             // only set handle pos when event was handled specially
             e.preventDefault();
 
-            _this._setHandlePos(_$handle, newValue, true);
+            _this._setHandlePos(_$handle, newValue);
           }
         });
         /*if (newValue) { // if pressed key has special function, update value
@@ -1092,8 +1092,9 @@ Triggers.Listeners.Basic = {
     }
   },
   closeableListener: function closeableListener(e) {
+    var animation = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('closable'); // Only close the first closable element. See https://git.io/zf-7833
+
     e.stopPropagation();
-    var animation = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('closable');
 
     if (animation !== '') {
       _foundation_util_motion__WEBPACK_IMPORTED_MODULE_2__["Motion"].animateOut(jquery__WEBPACK_IMPORTED_MODULE_0___default()(this), animation, function () {
@@ -1324,7 +1325,7 @@ Triggers.init = function ($, Foundation) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/ncoden/Documents/Documents/Projects/Programmation/Web/2016/Foundation/foundation-sites/js/entries/plugins/foundation.slider.js */"./js/entries/plugins/foundation.slider.js");
+module.exports = __webpack_require__(/*! /Users/joeworkman/Development/foundation-sites/js/entries/plugins/foundation.slider.js */"./js/entries/plugins/foundation.slider.js");
 
 
 /***/ }),

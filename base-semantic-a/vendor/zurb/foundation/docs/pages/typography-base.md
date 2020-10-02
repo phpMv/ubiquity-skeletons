@@ -61,7 +61,7 @@ Foundation includes styles for all headings&mdash;they're balanced and sized alo
 
 ### Header Styles
 
-The framework includes two typographic scales&mdash;one uses a narrow range of sizes for small-sized screens, and the other uses a wider range of sizes for medium- and larger-sized screens. You can change these scales, or add new ones for other breakpoints, by editing the `$header-styles` map in your project's <a href="sass.html#the-settings-file">Settings File</a>.
+The framework includes two typographic scales&mdash;one uses a narrow range of sizes for small-sized screens, and the other uses a larger range of sizes for medium- and larger-sized screens. You can change these scales, or add new ones for other breakpoints, by editing the `$header-styles` map in your project's <a href="sass.html#the-settings-file">Settings File</a>.
 
 <a class="" data-open-video="1:28"><img src="{{root}}assets/img/icons/watch-video-icon.svg" class="video-icon" height="30" width="30" alt=""> Watch this part in video</a>
 
@@ -148,7 +148,7 @@ By inserting a `<small>` element into a header Foundation will scale the header 
 </div>
 
 ```html_example
-<h3>Foundation for Sites <small>Version 6.5.3</small></h3>
+<h3>Foundation for Sites <small>Version 6.6.1</small></h3>
 ```
 
 ---
@@ -261,6 +261,10 @@ A definition list (`<dl>`) is used to display name-value pairs, like metadata or
 
 Sometimes other people say smart things, and you may want to mention those things with a quote. We've got you covered.
 
+<div class="callout">
+  By default, `<cite>` takes the look of the `.cite-block` component. In Sass, you can customize it with <a href="#sass-variables">`$cite-*` variables</a> or disable it by setting `$enable-cite-block` to false.
+</div>
+
 <div class="docs-codepen-container">
 <a class="codepen-logo-link" href="https://codepen.io/ZURBFoundation/pen/ZKoJMb" target="_blank"><img src="{{root}}assets/img/logos/edit-in-browser.svg" class="" height="" width="" alt="edit on codepen button"></a>
 </div>
@@ -302,6 +306,29 @@ Remember to escape angle brackets when printing HTML: <code>&lt;div&gt;</code>
 
 ---
 
+Use `.code-inline` component to apply the code style when you want.
+
+```html_example
+<span class="code-inline">I am not code, but I am displayed as if.</span>
+```
+
+---
+
+Use the `.code-block` component to create a block of code.
+
+```html_example
+<code class="code-block">{
+    "What I am": "I am a big chunk of code. I can have very long lines, I will not break and show a scrollbar instead.",
+    ...
+}</code>
+```
+
+<div class="callout info">
+  <p>It is recommended to use the appropriate semantic markup for your content (`<code>` for code, `<pre>` for pre-formatted text). Styling classes `.code-inline` and `.code-block` should be used without semantic markup only if the content is NOT code/pre-formatted text but should be displayed as if.</p>
+</div>
+
+---
+
 ## Keystrokes
 
 Use the `<kbd>` element to annotate a key stroke or combination.
@@ -332,7 +359,7 @@ Prefer using actual text over text inside a graphic. Assistive technologies can'
 
 ### Contrast
 
-The contrast between the color of an element's text and its background should be high enough that low-vision users can read it. **The minimum recommended contrast ratio is 4.5:1.** There are no automated tools that can effectively check this for you, but if you aren't sure about a specific color combination, you can run it through one of many color contrast checkers, such as [WebAIM's color contrast checker](http://webaim.org/resources/contrastchecker/).
+The contrast between the color of an element's text and its background should be high enough that low-vision users can read it. **The minimum recommended contrast ratio is 4.5:1.** There are no automated tools that can effectively check this for you, but if you aren't sure about a specific color combination, you can run it through one of many color contrast checkers, such as [WebAIM's color contrast checker](https://webaim.org/resources/contrastchecker/).
 
 Google Chrome's [Accessibility Developer Tools](https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb?hl=en) also includes a contrast checker. By selecting an element in the inspector, you can see if the contrast meets the minimum standards.
 
@@ -357,10 +384,10 @@ We use the `rem` unit nearly everywhere in Foundation, and even wrote a Sass fun
 
 ### More Resources
 
-- [WebAIM: Fonts](http://webaim.org/techniques/fonts/)
-- [WebAIM: Links and HyperText](http://webaim.org/techniques/hypertext/)
-- [WebAIM: Writing Clearly and Simply](http://webaim.org/techniques/semanticstructure/)
-- [WebAIM: Color Contrast Checker](http://webaim.org/resources/contrastchecker/)
+- [WebAIM: Fonts](https://webaim.org/techniques/fonts/)
+- [WebAIM: Links and HyperText](https://webaim.org/techniques/hypertext/)
+- [WebAIM: Writing Clearly and Simply](https://webaim.org/techniques/semanticstructure/)
+- [WebAIM: Color Contrast Checker](https://webaim.org/resources/contrastchecker/)
 
 ---
 

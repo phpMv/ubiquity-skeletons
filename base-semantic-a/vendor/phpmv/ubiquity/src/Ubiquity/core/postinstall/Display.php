@@ -4,15 +4,22 @@ namespace Ubiquity\core\postinstall;
 
 use Ubiquity\core\Framework;
 use Ubiquity\themes\ThemesManager;
-use Ubiquity\controllers\Router;
 
+/**
+ * Ubiquity\core\postinstall$Display
+ * This class is part of Ubiquity
+ *
+ * @author jc
+ * @version 1.0.0
+ *
+ */
 class Display {
 	private static $links = [ "Website" => "https://ubiquity.kobject.net","Guide" => "https://micro-framework.readthedocs.io/en/latest/?badge=latest","Documentation API" => "https://api.kobject.net/ubiquity/","GitHub" => "https://github.com/phpMv/ubiquity" ];
 
 	public static function semanticMenu($id, $semantic) {
 		$links = self::getLinks ();
-		$menu = $semantic->htmlMenu ( $id, array_keys ( $links ) );
-		$menu->asLinks ( array_values ( $links ), 'new' );
+		$menu = $semantic->htmlMenu ( $id, \array_keys ( $links ) );
+		$menu->asLinks ( \array_values ( $links ), 'new' );
 		$menu->setSecondary ();
 		return $menu;
 	}
@@ -20,13 +27,13 @@ class Display {
 	public static function getLinks() {
 		$links = self::$links;
 		if (Framework::hasAdmin ()) {
-			$links ['UbiquityMyAdmin'] = 'Admin';
+			$links ['Webtools'] = 'Admin';
 		}
 		return $links;
 	}
 
 	public static function getPageInfos() {
-		return [ 'Controller' => Framework::getController (),'Action' => Framework::getAction (),'Route' => Framework::getUrl (),'Path' => Router::path ( '' ),'ActiveTheme' => ThemesManager::getActiveTheme () ];
+		return [ 'Controller' => Framework::getController (),'Action' => Framework::getAction (),'Route' => Framework::getUrl (),'Path' => '/','ActiveTheme' => ThemesManager::getActiveTheme () ?? 'none'];
 	}
 
 	public static function getDefaultPage() {

@@ -5,6 +5,14 @@ namespace Ubiquity\db\export;
 use Ubiquity\orm\OrmUtils;
 use Ubiquity\orm\DAO;
 
+/**
+ * Ubiquity\db\export$TableExport
+ * This class is part of Ubiquity
+ * @author jcheron <myaddressmail@gmail.com>
+ * @version 1.0.0
+ * @package ubiquity.dev
+ *
+ */
 class TableExport extends DataExport{
 	protected $model;
 	protected $metas;

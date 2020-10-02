@@ -99,6 +99,17 @@ class ClassUtils {
 	}
 
 	/**
+	 * Returns the namespace from a complete classname
+	 *
+	 * @param string $completeClassname
+	 * @return string
+	 */
+	public static function getNamespaceFromCompleteClassname($completeClassname) {
+		$position = \strrpos ( $completeClassname, '\\' );
+		return \substr ( $completeClassname, 0, $position );
+	}
+
+	/**
 	 * build and return an object of a class from its file path
 	 *
 	 * @param $filePathName
@@ -156,6 +167,9 @@ class ClassUtils {
 	 * @return string
 	 */
 	public static function getClassSimpleName($classnameWithNamespace) {
-		return substr ( $classnameWithNamespace, strrpos ( $classnameWithNamespace, '\\' ) + 1 );
+		if (($pos = \strrpos ( $classnameWithNamespace, '\\' )) !== false) {
+			return \substr ( $classnameWithNamespace, $pos + 1 );
+		}
+		return $classnameWithNamespace;
 	}
 }

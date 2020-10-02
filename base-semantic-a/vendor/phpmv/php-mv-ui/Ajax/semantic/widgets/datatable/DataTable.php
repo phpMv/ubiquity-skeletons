@@ -18,10 +18,10 @@ use Ajax\service\JString;
 /**
  * DataTable widget for displaying list of objects
  *
- * @version 1.0
+ * @version 1.1.0
  * @author jc
  * @since 2.2
- *       
+ *
  */
 class DataTable extends Widget {
 	use TableTrait,DataTableFieldAsTrait,HasCheckboxesTrait,BaseTrait;
@@ -72,11 +72,11 @@ class DataTable extends Widget {
 			$this->_runCheckboxes($js);
 		}
 		if ($this->_visibleHover) {
-			$js->execOn("mouseover", "#" . $this->identifier . " tr", "$(event.target).closest('tr').find('.visibleover').css('visibility', 'visible');", [
+			$js->execOn("mouseover", "#" . $this->identifier . " tr", "$(event.currentTarget).closest('tr').find('.visibleover').css('visibility', 'visible');", [
 				"preventDefault" => false,
 				"stopPropagation" => true
 			]);
-			$js->execOn("mouseout", "#" . $this->identifier . " tr", "$(event.target).closest('tr').find('.visibleover').css('visibility', 'hidden');", [
+			$js->execOn("mouseout", "#" . $this->identifier . " tr", "$(event.currentTarget).closest('tr').find('.visibleover').css('visibility', 'hidden');$(event.currentTarget).trigger('visibleoverOut');", [
 				"preventDefault" => false,
 				"stopPropagation" => true
 			]);
@@ -281,7 +281,7 @@ class DataTable extends Widget {
 				$checked = $func($instance);
 			}
 			$ck->setChecked($checked);
-			$ck->setOnChange("event.stopPropagation();");
+			// $ck->setOnChange("event.stopPropagation();");
 			$field = $ck->getField();
 			$field->setProperty("value", $dataAjax);
 			$field->setProperty("name", "selection[]");
@@ -475,7 +475,9 @@ class DataTable extends Widget {
 	 * @param array $compileParts
 	 * @return DataTable
 	 */
-	public function refresh($compileParts = ["tbody"]) {
+	public function refresh($compileParts = [
+		"tbody"
+	]) {
 		$this->_compileParts = $compileParts;
 		return $this;
 	}
@@ -687,5 +689,13 @@ class DataTable extends Widget {
 	 */
 	public function setGroupByFields($_groupByFields) {
 		$this->_instanceViewer->setGroupByFields($_groupByFields);
+	}
+
+	/**
+	 *
+	 * @param boolean $_visibleHover
+	 */
+	public function setVisibleHover($_visibleHover) {
+		$this->_visibleHover = $_visibleHover;
 	}
 }

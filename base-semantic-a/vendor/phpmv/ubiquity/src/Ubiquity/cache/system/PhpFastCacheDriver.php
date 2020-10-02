@@ -2,9 +2,9 @@
 
 namespace Ubiquity\cache\system;
 
-use phpFastCache\CacheManager;
-use phpFastCache\Core\Pool\ExtendedCacheItemPoolInterface;
 use Ubiquity\cache\CacheFile;
+use Phpfastcache\Core\Pool\ExtendedCacheItemPoolInterface;
+use Phpfastcache\CacheManager;
 
 /**
  * This class is responsible for storing values with PhpFastCache.
@@ -12,7 +12,7 @@ use Ubiquity\cache\CacheFile;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.0
+ * @version 1.1.0
  *
  */
 class PhpFastCacheDriver extends AbstractDataCache {
@@ -25,12 +25,14 @@ class PhpFastCacheDriver extends AbstractDataCache {
 	/**
 	 * Initializes the cache-provider
 	 */
-	public function __construct($root, $postfix = "", $cacheParams = []) {
+	public function __construct($root, $postfix = "", $cacheParams = [ ]) {
 		parent::__construct ( $root, $postfix );
-		$cacheType = $cacheParams ['type'];
+		$cacheType = $cacheParams ['type'] ?? 'Files';
+		$configClass = '\\Phpfastcache\\Drivers\\' . \ucfirst ( $cacheType ) . '\\Config';
+		unset ( $cacheParams ['type'] );
 		$defaultParams = [ 'defaultTtl' => 86400,'itemDetailedDate' => true ];
-		$cacheParams = \array_merge ( $cacheParams, $defaultParams );
-		$this->cacheInstance = CacheManager::getInstance ( $cacheType, $cacheParams );
+		$cacheParams = \array_merge ( $defaultParams, $cacheParams );
+		$this->cacheInstance = CacheManager::getInstance ( $cacheType, new $configClass ( $cacheParams ) );
 	}
 
 	/**
@@ -43,28 +45,18 @@ class PhpFastCacheDriver extends AbstractDataCache {
 		return $this->cacheInstance->hasItem ( $this->getRealKey ( $key ) );
 	}
 
-	public function store($key, $code, $tag = null, $php = true) {
-		$this->storeContent ( $key, $code, $tag );
-	}
-
-	/**
-	 * Caches the given data with the given key.
-	 *
-	 * @param string $key cache key
-	 * @param string $content the source-code to be cached
-	 * @param string $tag
-	 */
-	protected function storeContent($key, $content, $tag) {
+	public function store($key, $content, $tag = null) {
 		$key = $this->getRealKey ( $key );
 		$item = $this->cacheInstance->getItem ( $key );
 		$item->set ( $content );
-		$item->addTag ( $tag );
+		if ($tag != null) {
+			$item->addTag ( $tag );
+		}
 		$this->cacheInstance->save ( $item );
 	}
 
 	protected function getRealKey($key) {
-		$key = \str_replace ( "/", "-", $key );
-		return \str_replace ( "\\", "-", $key );
+		return \str_replace ( [ '\\','/' ], '-', $key );
 	}
 
 	/**
@@ -74,8 +66,7 @@ class PhpFastCacheDriver extends AbstractDataCache {
 	 * @return mixed the cached data
 	 */
 	public function fetch($key) {
-		$result = $this->cacheInstance->getItem ( $this->getRealKey ( $key ) )->get ();
-		return eval ( $result );
+		return $this->cacheInstance->getItem ( $this->getRealKey ( $key ) )->get ();
 	}
 
 	/**
@@ -95,12 +86,10 @@ class PhpFastCacheDriver extends AbstractDataCache {
 	 * @return int unix timestamp
 	 */
 	public function getTimestamp($key) {
-		$key = $this->getRealKey ( $key );
-		return $this->cacheInstance->getItem ( $key )->getModificationDate ()->getTimestamp ();
+		return $this->cacheInstance->getItem ( $this->getRealKey ( $key ) )->getModificationDate ()->getTimestamp ();
 	}
 
 	public function remove($key) {
-		$key = $this->getRealKey ( $key );
 		$this->cacheInstance->deleteItem ( $this->getRealKey ( $key ) );
 	}
 

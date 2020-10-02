@@ -29,6 +29,7 @@
     "guard-for-in": "error",
     "no-alert": "error",
     "no-caller": "error",
+    "no-console": "error",
     "no-div-regex": "error",
     "no-else-return": "error",
     "no-empty-function": "error",
@@ -101,7 +102,6 @@
     "no-shadow": "off",
     "no-shadow-restricted-names": "error",
     "no-undef-init": "error",
-    "no-undefined": "error",
     "no-use-before-define": "off",
 
     // Node.js and CommonJS
@@ -111,7 +111,6 @@
     "no-mixed-requires": "error",
     "no-new-require": "error",
     "no-path-concat": "error",
-    "no-process-env": "error",
     "no-process-exit": "error",
     "no-restricted-modules": "error",
     "no-sync": "error",
@@ -175,7 +174,6 @@
     "no-underscore-dangle": "off",
     "no-unneeded-ternary": "error",
     "no-whitespace-before-property": "error",
-    "object-curly-newline": ["error", { "minProperties": 1 }],
     "object-curly-spacing": ["error", "always"],
     "object-property-newline": "error",
     "one-var": ["error", "never"],

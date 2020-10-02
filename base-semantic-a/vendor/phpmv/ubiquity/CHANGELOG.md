@@ -5,7 +5,132 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unrelease]
-- Nothing
+- nothing
+## [2.3.12] 2020-09-30
+### Added
+- Named db statements for async platforms
+- Rest events on insert and update `BEFORE_INSERT = 'rest.before.insert'` and `BEFORE_UPDATE = 'rest.before.update'`
+- `insertGroups` method (inserts in an implicit transaction)
+- `quote` options for PDO wrappers
+- `ApplicationStorage` for global variables with async platforms (Swoole, Workerman, ngx_php...)
+### Fixed
+- [orm] `oneToMany` and `manyToMany` loading pb with 2.3.11 version see [#145](https://github.com/phpMv/ubiquity/issues/145)
+### Tests
+- Adding tests
+- increase of coverage to 73%.
+## [2.3.11] 2020-07-28
+### Added
+- `DAOCache` (caches objects loaded by id)
+- `MemcachedDriver` system
+- `RedisDriver`system
+### Updated
+- fomantic-ui 2.8.6
+- default index view relooking
+- Cache system and ArrayCache refactoring
+- light opt for async view and dbWrapper getStatement
+### Fixed
+- [rest] no violations on insert with ValidatorManager see [#122](https://github.com/phpMv/ubiquity/issues/122)
+- [rest] Validation on insertion should be complete see [#123](https://github.com/phpMv/ubiquity/issues/123)
+- [postgresql] pb wth PgsqlDriverMetas (names protection) see [#128](https://github.com/phpMv/ubiquity/issues/128)
+- [postgresql] Insert fail with non autoinc pk see [#129](https://github.com/phpMv/ubiquity/issues/129)
+- [webtools][models] click on Nothing to display generates an error see [#130](https://github.com/phpMv/ubiquity/issues/130)
+- [webtools][models] instances count not updated see [#131](https://github.com/phpMv/ubiquity/issues/131)
+- Session names with non allowed characters see [#134](https://github.com/phpMv/ubiquity/issues/134)
+- `SimpleViewAsyncController` pb with cache (no open issue)
+## [2.3.10] 2020-06-27
+### Added
+- transformer for `UCookie` (for Crypto)
+- getter on session Csrf protection
+- security level to csrf protection (0 => no secure)
+### Updated
+- fomantic-ui 2.8.5
+### Fixed
+- DAOPrepared queries pb (with memberList) -> no open issue
+- update with field column names different from member names -> no open issue
+## [2.3.9] 2020-06-04
+### Added
+- `put`, `patch`, `delete`, `options` annotations added for router (see [#108](https://github.com/phpMv/ubiquity/issues/108))
+### Fixed
+- Router cache Content-Type omited see [#120](https://github.com/phpMv/ubiquity/issues/120)
+- ORM: pbs on column annotation see [#116](https://github.com/phpMv/ubiquity/issues/116) and [#117](https://github.com/phpMv/ubiquity/issues/117)
+## [2.3.8] 2020-05-06
+### Added
+- Add csrf functions to twig templates
+### Updated
+- Update client libraries for new projects (Fomantic 2.8.4, jQuery 3.5.1)
+- Update to Twig 3.0
+## [2.3.7] 2020-04-30
+### Added
+- add `password_hash` to URequest
+- add `exists` method in DAO
+- Add Csrf protection to session
+### Updated
+- AuthController simplification
+- remove unnecessary "No route found log"
+## [2.3.6] 2020-04-13
+### Fixed
+- Fix `require php7.4` in composer.json file [#111](https://github.com/phpMv/ubiquity/issues/111)
+- Fix `@transient` annotation pb [#113](https://github.com/phpMv/ubiquity/issues/113)
+- Fix non autoinc pk not affected on insert [#114](https://github.com/phpMv/ubiquity/issues/114)
+## [2.3.5] 2020-04-08
+### Fixed
+- Fix persistent `/_default/` for default url (twig path) (no open issue)
+- Fix redirectToRoute pb (with `_default` route) (no open issue)
+## [2.3.4] 2020-03-23
+### Added
+- `updateGroups` method for batch updates (mysql bulks)
+- Aditional fields in queries Fixes [#83](https://github.com/phpMv/ubiquity/issues/83)
+- **Composer** part in webTools
+### Updated
+- PostgreSQL PDO Driver created for PostgreSQL Database Support Fixes [#98](https://github.com/phpMv/ubiquity/issues/98)
+- Sqlite PDO Driver created for SQLite Database Support Fixes [#90](https://github.com/phpMv/ubiquity/issues/90)
+### Fixed
+- `@id`column name pb [#107](https://github.com/phpMv/ubiquity/issues/107)
+- [REST] with POST method returns 500 error, and 'controllers/rest' class not found [#89](https://github.com/phpMv/ubiquity/issues/89)
+## [2.3.3] 2020-01-25
+### Added
+- mailer module see https://github.com/phpMv/ubiquity-mailer
+- `SimpleViewController`, `SimpleViewAsyncController` for php views (without template engine)
+- PHP 7.4 preloading see https://github.com/phpMv/ubiquity/issues/88
+- `ObjectCache` cache system
+- `SDAO` class for simple objects loading (popo with public members)
+- Prepared DAO queries for getOne, getById & getAll (async)
+### Improved
+- Add warmup methods for controllers & models metas
+- `StartupAsync` for asynchronous platforms (Swoole, Workerman)
+- unpack replace cufa in `Startup::runAction`
+
+## [2.3.2] 2019-10-28
+### Added
+- bulk queries in `DAO` class
+  - `DAO::toAdd($instance)`
+  - `DAO::toUpdate($instance)`
+  - `DAO::toDelete($instance)`
+  - `DAO::flush()`
+- Composer create-project
+```
+composer create-project phpmv/ubiquity-project {projectName}
+```
+### Changed
+- `MicroTemplateEngine` optimization (cache) 
+### Added
+## [2.3.1] 2019-09-25
+### Added
+- `workerman` server
+Usage:
+```
+Ubiquity serve -t=workerman -p=8091
+```
+- `Memcached` support
+- multi db types support (Db Wrapper)
+  - `Tarantool` database support on a [proposal](https://github.com/phpMv/ubiquity/issues/64) from [@zilveer](https://github.com/zilveer)
+  - `Swoole coroutine Mysql` database support
+  - `Mysqli` database support
+  - `PDO` default wrapper (updated)
+### Updated
+- `PhpFastCache` to ^7.0
+### Fixed
+- UQuery multi models fatal error (see [#63](https://github.com/phpMv/ubiquity/issues/63))
 
 ## [2.3.0] 2019-08-01
 ### Added

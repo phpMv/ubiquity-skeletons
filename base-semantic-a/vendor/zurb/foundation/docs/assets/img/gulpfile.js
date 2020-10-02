@@ -1,12 +1,11 @@
-var $      = require('gulp-load-plugins')();
-var argv   = require('yargs').argv;
-var gulp   = require('gulp');
-var rimraf = require('rimraf');
-var panini = require('panini');
-var sequence = require('run-sequence');
+const $ = require('gulp-load-plugins')();
+const gulp = require('gulp');
+const rimraf = require('rimraf');
+const panini = require('panini');
+const sequence = require('run-sequence');
 
 // Check for --production flag
-var isProduction = !!(argv.production);
+var isProduction = process.argv.includes('--production');
 
 // File paths to various assets are defined here.
 var paths = {
@@ -38,7 +37,7 @@ gulp.task('clean', function(done) {
 
 // Copy files out of the assets folder
 // This task skips over the "img", "js", and "scss" folders, which are parsed separately
-gulp.task('copy', function(done) {
+gulp.task('copy', function(_done) {
   gulp.src(paths.assets)
     .pipe(gulp.dest('./dist/assets'));
 });

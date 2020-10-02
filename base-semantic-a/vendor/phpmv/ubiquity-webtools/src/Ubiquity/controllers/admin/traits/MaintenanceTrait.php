@@ -34,7 +34,7 @@ trait MaintenanceTrait {
 
 	abstract protected function showConfMessage($content, $type, $title, $icon, $url, $responseElement, $data, $attributes = NULL): HtmlMessage;
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	protected function _displayActiveMaintenance(MaintenanceMode $maintenance) {
 		$semantic = $this->jquery->semantic();
@@ -85,7 +85,7 @@ trait MaintenanceTrait {
 			$this->showSimpleMessage("<b>{$maintenanceId}</b> successfully deactivated!", "success", "Maintenance", "info circle", null, "msgInfo");
 		}
 
-		$this->saveConfig();
+		$this->_saveConfig();
 		$this->maintenance();
 	}
 
@@ -205,7 +205,7 @@ trait MaintenanceTrait {
 					$this->_initCache('controllers');
 				}
 			}
-			$this->saveConfig();
+			$this->_saveConfig();
 		}
 		$this->maintenance();
 	}
@@ -241,7 +241,7 @@ trait MaintenanceTrait {
 			$modes = $this->config['maintenance']['modes'];
 			if (isset($modes[$idMaintenance])) {
 				unset($this->config['maintenance']['modes'][$idMaintenance]);
-				$this->saveConfig();
+				$this->_saveConfig();
 			}
 			$this->maintenance();
 		} else {
@@ -281,7 +281,7 @@ trait MaintenanceTrait {
 	public function _stopMaintenance() {
 		$this->config['maintenance']['on'] = false;
 		$this->_initCache('controllers');
-		$this->saveConfig();
+		$this->_saveConfig();
 	}
 }
 

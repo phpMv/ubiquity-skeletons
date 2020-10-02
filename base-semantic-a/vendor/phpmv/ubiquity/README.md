@@ -1,12 +1,12 @@
-![img](https://github.com/richardbmx/ubiquity/blob/master/Banner/banner.png?raw=true)
+![img](https://github.com/phpMv/ubiquity/blob/master/Banner/banner-duck.png?raw=true)
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phpMv/ubiquity/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phpMv/ubiquity/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/phpMv/ubiquity/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/phpMv/ubiquity/?branch=master) [![Documentation Status](https://readthedocs.org/projects/micro-framework/badge/?version=latest)](http://micro-framework.readthedocs.io/en/latest/?badge=latest)
  [![Total Downloads](https://poser.pugx.org/phpmv/ubiquity/downloads)](https://packagist.org/packages/phpmv/ubiquity)
  [![Latest Unstable Version](https://poser.pugx.org/phpmv/ubiquity/v/unstable)](https://packagist.org/packages/phpmv/ubiquity)
  [![Latest Stable Version](https://poser.pugx.org/phpmv/ubiquity/v/stable)](https://packagist.org/packages/phpmv/ubiquity)
- [![License](https://poser.pugx.org/phpmv/ubiquity/license)](https://packagist.org/packages/phpmv/ubiquity) [![Join the chat at https://gitter.im/ubiquity-framework/community](https://badges.gitter.im/ubiquity-framework/community.svg)](https://gitter.im/ubiquity-framework/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+ [![License](https://poser.pugx.org/phpmv/ubiquity/license)](https://packagist.org/packages/phpmv/ubiquity) [![Discord](https://img.shields.io/discord/708356828022571090?label=Discord)](https://discord.gg/cwrmQRP) [![Join the chat at https://gitter.im/ubiquity-framework/community](https://badges.gitter.im/ubiquity-framework/community.svg)](https://gitter.im/ubiquity-framework/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-[Ubiquity](https://ubiquity.kobject.net), one of the fastest frameworks, with the main features of the bests
+[Ubiquity](https://ubiquity.kobject.net), one of the fastest Frameworks, with some interesting features.
 
 # Main features
   - MVC
@@ -14,21 +14,36 @@
   - PSR-4 Autoloader
   - Router based on annotations
   - ORM implementing Data Mapper
+  - Multi-databases & multi-database types support (PDO Mysql, Mysqli, Swoole coroutine Mysql, Tarantool)
   - Multi-level cache
   - Rest Server
   - Web admin interface (UbiquityMyAdmin)
   - Scaffolding
   - Console Admin interface (Devtools)
   - Assets & themes management (since 2.1.0, on a [proposal](https://github.com/phpMv/ubiquity/issues/11) from [@Gildonei](https://github.com/gildonei))
+  - Managed servers: fpm/fastcgi with Apache or nginX, [Workerman](https://github.com/walkor/Workerman), [Swoole](https://github.com/swoole/swoole-src), [Roadrunner](https://github.com/Lapinskas/roadrunner-ubiquity), [PHP-PM](https://github.com/php-pm/php-pm) with ReactPHP (Dev only)
 
 # Upgrade
-If Ubiquity devtools are already globally installed, and you want to upgrade to the last stable version:
+If Ubiquity devtools are already globally installed, and you want to upgrade to the lastest stable version:
 ```bash
 composer global update
 ```
-# Installation
+# Project creation
 
-The easiest way to install **Ubiquity** is to use [devtools](https://github.com/phpMv/ubiquity-devtools)
+The easiest way to create a project is to use composer **create-project** command:
+
+Creation of the project **firstProject**
+```bash
+composer create-project phpmv/ubiquity-project firstProject
+```
+This installation adds [devtools](https://github.com/phpMv/ubiquity-devtools) and [webtools](https://github.com/phpMv/ubiquity-webtools) to the project.
+
+- Running the server with `vendor/bin/Ubiquity serve`
+- **webtools** available at `http://127.0.0.1:8090/Admin`
+
+## Devtools installation
+It is also possible to install [devtools](https://github.com/phpMv/ubiquity-devtools) globally, to share their use between different projects, and to get more options for a project creation.
+
 * Install Ubiquity-devtools:
 ```bash
 composer global require phpmv/ubiquity-devtools
@@ -42,7 +57,7 @@ Ubiquity new firstProject -a
 Ubiquity serve
 ```
 # Need some help?
-Ubiquity is a recent project and does not yet have a community.
+Ubiquity is a recent project and does not yet have a large community.
 In the meantime, you can consult:
  - [Quick-start guide](https://micro-framework.readthedocs.io/en/latest/quickstart/quickstart.html) to discover the framework
  - [Documentation](https://micro-framework.readthedocs.io/en/latest/) to go deeper
@@ -50,33 +65,25 @@ In the meantime, you can consult:
 
 For further assistance please feel free to : 
  - ask your questions directly using [gitter](https://gitter.im/ubiquity-framework/community)
- - create an [issue](https://github.com/phpMv/ubiquity/issues/new) if you notice a bug or suspicious behavior
+ - create an [issue](https://github.com/phpMv/ubiquity/issues/new?assignees=jcheron&labels=&template=bug_report.md&title=%5Bpart%5D+Element+should+do+X) if you notice a bug or a suspicious behavior
 
 # Performances
-Ubiquity executes its own benchmarks, especially for the ORM part:
+Ubiquity is very fast and performs well.
+### In the PHP world
+The various results of the [Techempower benchmarks](https://www.techempower.com/benchmarks) show this conclusively.
 
-This test involves loading from a Mysql database:
-- 2100 instances of the **Host** class
-  - each host is associated with 1 **user**, who can have configured some **virtualhosts**
-  - each host has multiple **servers**, of a certain **type**.
-  
-Approximately 6000 objects are loaded, in this intuitive line with Ubiquity:
-```php
-$hosts=DAO::getAll(Host::class,"",["user.virtualhosts","servers.stype"]);
-```
-In regards to this type of related object loading that can be very time consuming with an ORM,
-Ubiquity is **3,1 times** faster than Codeigniter associated with Doctrine, **3,6 times** faster than Symfony, **20 times** more than Laravel-Eloquent!
+#### TechEmpower Multiple queries test (*) (see [PHP frameworks results](https://www.techempower.com/benchmarks/#section=test&runid=301db83d-878d-433d-ae5e-1a25013e0b3c&hw=ph&test=query&l=zg24n3-v&c=4&a=2&o=c))
+![TechEmpower benchmarks Multiple queries](https://static.kobject.net/ubiquity/images/techempower-1-190920.png "PHP Frameworks")
 
-Unlike Doctrine, for this data loading, Ubiquity:
-- does not perform any SQL joins
-- executes only 123 queries, against 3190 for Doctrine
+These excellent results have also been confirmed by an independent benchmark site : [phpbenchmarks.com](http://www.phpbenchmarks.com/en/comparator/framework)
 
-![ORM benchmarks](https://static.kobject.net/ubiquity/images/orm-benchmarks-3.png "ORM benchmarks")
+### In the world of web frameworks
+**Ubiquity** is optimized for use with asynchronous platforms (**Workerman** and **Swoole**). It takes advantage of the recent PHP evolutions (opCache management and preloading). In this context, it performs against the fastest Frameworks written in C, C++, Rust or java:
 
-see for yourself [orm-benchmarks](https://orm-benchmarks.kobject.net)
+#### TechEmpower 20 updates test (*) (see [All frameworks results](https://www.techempower.com/benchmarks/#section=test&runid=301db83d-878d-433d-ae5e-1a25013e0b3c&hw=ph&test=update&c=4&a=2&o=c))
+![TechEmpower benchmarks Update](https://static.kobject.net/ubiquity/images/techempower-2.png "All Frameworks")
 
-These excellent results have been confirmed by an independent benchmark site : [phpbenchmarks.com](http://www.phpbenchmarks.com/en/comparator/framework)
-
+(*) Only tests with Framework and ORM are considered.
 # About design choices
 Ubiquity was created in April 2017.
 
@@ -94,6 +101,8 @@ Ubiquity wants to keep the essence of PHP and what it does best, for example:
   - By using php (packed) arrays because they are effective in php (with php7 optimization)
   - By not creating instances of classes to inject for the core part of the framework, to prefer the use of classes with static methods
 
+Overall, Ubiquity wants to keep and use what PHP is good at.
+
 In this perspective, Ubiquity chooses not to respect certain standards:
 For example, by not creating a Response object implementing an interface (see [PSR-7 HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) ) in response to an Http request.
 
@@ -106,6 +115,8 @@ If a method or technique is optimal, there's no reason to implement an alternati
 - In some applications, the dependency loading time is more expensive than running the application code.
 
 The framework used must give the developer the means to optimize his application and not the other way around.
+
+Ubiquity aspires to never become another labyrinthine system.
 
 # Preview of some features
 ## Devtools console program

@@ -36,7 +36,7 @@ trait ControllersTrait {
 
 	abstract protected function _addMessageForRouteCreation($path);
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	public function createController($force = null) {
 		if (URequest::isPost()) {
@@ -111,11 +111,15 @@ trait ControllersTrait {
 			$frm->addContent("<div id='div-new-route' style='display: none;'>");
 			$frm->addDivider();
 			$fields = $frm->addFields();
-			$fields->addInput("path", "", "text", "")->addRule([
+			$fields->setInline();
+			$fields->addInput("path", "", "text", "")
+				->setWidth(6)
+				->addRule([
 				"checkRoute",
 				"Route {value} already exists!"
 			]);
-			$fields->addDropdown("methods", Constants::REQUEST_METHODS, null, "", true);
+			$field = $fields->addDropdown("methods", Constants::REQUEST_METHODS, null, "", true)->setWidth(3);
+			$field->getField()->addClass("fluid");
 			$duration = $fields->addInput("duration", "", "number");
 			$ck = $duration->labeledCheckbox("left", null);
 			$ck->getField()->setProperty("name", "ck-Cache");
@@ -262,11 +266,11 @@ trait ControllersTrait {
 		echo $this->jquery->compile($this->view);
 	}
 
-	public function frmFilterControllers() {
+	public function _frmFilterControllers() {
 		$controllers = CacheManager::getControllers();
 		$this->_getAdminViewer()->getFilterControllers($controllers);
 		$this->jquery->postFormOn("click", "#validate-btn", $this->_getFiles()
-			->getAdminBaseRoute() . "/filterControllers", "filtering-frm", "#dtControllers", [
+			->getAdminBaseRoute() . "/_filterControllers", "filtering-frm", "#dtControllers", [
 			"jqueryDone" => "replaceWith",
 			"hasLoader" => false,
 			"jsCallback" => '$("#frm").html("");'
@@ -276,7 +280,7 @@ trait ControllersTrait {
 			->getViewControllersFiltering());
 	}
 
-	public function filterControllers() {
+	public function _filterControllers() {
 		USession::set("filtered-controllers", URequest::post("filtered-controllers", []));
 		$this->_refreshControllers("refresh");
 	}

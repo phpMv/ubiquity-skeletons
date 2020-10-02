@@ -8,6 +8,8 @@ Views
 Ubiquity uses Twig as the default template engine (see `Twig documentation <https://twig.symfony.com/doc/2.x/>`_). |br|
 The views are located in the **app/views** folder. They must have the **.html** extension for being interpreted by Twig.
 
+Ubiquity can also be used with a PHP view system, to get better performance, or simply to allow the use of php in the views.
+
 Loading
 -------
 Views are loaded from controllers:
@@ -147,6 +149,34 @@ For session :
     {{ app.getSession().get('homePage','index') }}
     
 see `Framework class in API <https://api.kobject.net/ubiquity/class_ubiquity_1_1core_1_1_framework.html>`_ for more.
+
+PHP view loading
+----------------
+
+Disable if necessary Twig in the configuration file by deleting the **templateEngine** key. 
+
+Then create a controller that inherits from ``SimpleViewController``, or ``SimpleViewAsyncController`` if you use **Swoole** or **Workerman**:
+
+.. code-block:: php
+   :linenos:
+   :caption: app/controllers/Users.php
+   :emphasize-lines: 5
+      
+    namespace controllers;
+    
+    use Ubiquity\controllers\SimpleViewController;
+    
+    class Users extends SimpleViewController{
+    	...
+    	public function display($message,$type){
+    			$this->loadView("users/display.php",compact("message","type"));
+    		}
+    	}
+    }
+
+.. note::
+   In this case, the functions for loading assets and themes are not supported.
+
 
 Assets
 ======
@@ -409,6 +439,68 @@ Example with a modification of the theme according to a variable passed in the U
 			ThemesManager::setActiveTheme("bootstrap");
 		}
 	});
+
+Mobile device support
+~~~~~~~~~~~~~~~~~~~~~
+Add a mobile device detection tool. |br|
+Installing MobileDetect:
+
+.. code-block:: bash
+    
+    composer require mobiledetect/mobiledetectlib
+    
+
+It is generally easier to create different views per device.
+
+Create a specific theme for the mobile part (by creating a folder ``views/themes/mobile`` and putting the views specific to mobile devices in it). |br|
+It is important in this case to use the same file names for the mobile and non-mobile part.
+
+It is also advisable in this case that all view loadings use the **@activeTheme** namespace:
+
+.. code-block:: php
+    
+    $this->loadView("@activeTheme/index.html");
+    
+
+**index.html** must be available in this case in the folders ``views`` and ``views/themes/mobile``.
+
+Global mobile detection (from services.php)
++++++++++++++++++++++++++++++++++++++++++++
+
+.. code-block:: php
+   :linenos:
+   :caption: app/config/services.php
+   
+   use Ubiquity\themes\ThemesManager;
+   
+   ...
+   
+   ThemesManager::onBeforeRender(function () {
+   	$mb = new \Mobile_Detect();
+   	if ($mb->isMobile()) {
+   		ThemesManager::setActiveTheme('mobile');
+   	}
+   });
+   
+
+Locale detection (from a controller)
+++++++++++++++++++++++++++++++++++++
+
+.. code-block:: php
+   :linenos:
+   :caption: app/controllers/FooController.php
+   
+   use Ubiquity\themes\ThemesManager;
+   
+   ...
+   
+   	public function initialize() {
+   		$mb = new \Mobile_Detect();
+   		if ($mb->isMobile()) {
+   			ThemesManager::setActiveTheme('mobile');
+   		}
+   		parent::initialize();
+   	}
 
 View and assets loading
 -----------------------

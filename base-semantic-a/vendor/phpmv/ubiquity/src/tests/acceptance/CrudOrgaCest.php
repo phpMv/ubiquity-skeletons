@@ -1,6 +1,5 @@
 <?php
-class CrudOrgaCest {
-	const TIMEOUT = 30;
+class CrudOrgaCest extends BaseAcceptance {
 
 	public function _before(AcceptanceTester $I) {
 	}
@@ -33,7 +32,7 @@ class CrudOrgaCest {
 	// Tests
 	public function tryToCrudAddNewAndDelete(AcceptanceTester $I) {
 		$I->amOnPage ( "/TestCrudOrgas" );
-		$I->click ( "#btAddNew" );
+		$this->waitAndclick ( $I, "#btAddNew" );
 		$I->waitForText ( "New object creation", self::TIMEOUT );
 		$I->fillField ( "#frmEdit [name='name']", "Organization name test" );
 		$I->fillField ( "#frmEdit [name='domain']", "Organization domain test" );
@@ -59,7 +58,7 @@ class CrudOrgaCest {
 		$I->doubleClick ( "table._element td[data-field='aliases']" );
 		$I->waitForElement ( "#frm-member-aliases", self::TIMEOUT );
 		$I->fillField ( "[name='aliases']", "cnam-basse-normandie.fr;cnam.fr;theCnam.org" );
-		$I->click ( "#btO" );
+		$this->waitAndclick ( $I, "#btO" );
 		$I->waitForText ( "cnam-basse-normandie.fr;cnam.fr;theCnam.org", self::TIMEOUT );
 		$I->amOnPage ( "/TestCrudOrgas" );
 		$I->see ( "cnam-basse-normandie.fr;cnam.fr;theCnam.org" );
@@ -82,8 +81,8 @@ class CrudOrgaCest {
 	public function tryToDeleteOne(AcceptanceTester $I) {
 		$I->amOnPage ( "TestCrudOrgas/display/no/1" );
 		$I->waitForText ( "Organizationsettingss", self::TIMEOUT, "body" );
-		$I->waitForElementClickable ( "#table-details #buttons a._delete._element", self::TIMEOUT );
-		$I->click ( "a._delete._element", "#table-details #buttons" );
+		$I->waitForElementClickable ( "#table-details #buttons a._delete", self::TIMEOUT );
+		$I->click ( "a._delete", "#table-details #buttons" );
 		$I->waitForText ( "Remove confirmation", self::TIMEOUT, "body" );
 		$I->click ( "#bt-okay.negative" );
 		$I->waitForText ( "Can not delete `lecnam.net`", self::TIMEOUT, "body" );

@@ -4,6 +4,7 @@ use models\User;
 use models\Organization;
 use Ubiquity\db\Database;
 use models\Groupe;
+use Ubiquity\controllers\Startup;
 
 /**
  * DAO test case.
@@ -22,9 +23,11 @@ class DAOTest extends BaseTest {
 	protected function _before() {
 		parent::_before ();
 		$this->dao = new DAO ();
-		$this->_loadConfig ();
 		$this->_startCache ();
 		$this->_startDatabase ( $this->dao );
+		$this->dao->prepareGetById ( "orga", Organization::class );
+		$this->dao->prepareGetOne ( "oneOrga", Organization::class, 'id= ?' );
+		$this->dao->prepareGetAll ( "orgas", Organization::class );
 	}
 
 	/**
@@ -34,6 +37,22 @@ class DAOTest extends BaseTest {
 		$this->dao->closeDb ();
 	}
 
+	public function testGetPrepared() {
+		$this->dao->getPrepared ( 'orga' )->addMember ( 'CONCAT(name,":",domain)', 'fullname' );
+		$orga = $this->dao->executePrepared ( 'orga', 1 );
+		$this->assertInstanceOf ( Organization::class, $orga );
+		$this->assertEquals ( "Conservatoire National des Arts et Métiers:lecnam.net", $orga->fullname );
+
+		$orga = $this->dao->executePrepared ( 'oneOrga', [ 1 ] );
+		$this->assertInstanceOf ( Organization::class, $orga );
+		$this->assertEquals ( "Conservatoire National des Arts et Métiers", $orga->getName () );
+
+		$orgas = $this->dao->executePrepared ( 'orgas' );
+		$this->assertInstanceOf ( Organization::class, current ( $orgas ) );
+		$allOrgas = $this->dao->getAll ( Organization::class );
+		$this->assertEquals ( count ( $orgas ), count ( $allOrgas ) );
+	}
+
 	/**
 	 * Tests DAO::getManyToOne()
 	 */
@@ -41,6 +60,12 @@ class DAOTest extends BaseTest {
 		$user = $this->dao->getOne ( User::class, "email='benjamin.sherman@gmail.com'", false );
 		$orga = DAO::getManyToOne ( $user, 'organization' );
 		$this->assertInstanceOf ( Organization::class, $orga );
+	}
+
+	public function testExists() {
+		$this->assertTrue ( $this->dao->exists ( User::class, "email='benjamin.sherman@gmail.com'" ) );
+		$this->assertTrue ( $this->dao->exists ( User::class, "email=?", [ 'benjamin.sherman@gmail.com' ] ) );
+		$this->assertFalse ( $this->dao->exists ( User::class, "email=?", [ 'blop@gmail.com' ] ) );
 	}
 
 	/**
@@ -132,7 +157,18 @@ class DAOTest extends BaseTest {
 		DAO::startDatabase ( $this->config, 'default' );
 		$this->assertTrue ( DAO::isConnected () );
 		$this->assertInstanceOf ( Database::class, DAO::$db ['default'] );
-		$this->assertInstanceOf ( PDO::class, DAO::$db ['default']->getPdoObject () );
+		$this->assertInstanceOf ( PDO::class, DAO::$db ['default']->getDbObject () );
+	}
+
+	/**
+	 * Tests DAO::startDatabaseMysqli()
+	 */
+	public function testStartDatabaseMysqli() {
+		$this->config = include ROOT . 'config/config.php';
+		DAO::startDatabase ( $this->config, 'mysqli' );
+		$this->assertTrue ( DAO::isConnected () );
+		$this->assertInstanceOf ( Database::class, DAO::$db ['mysqli'] );
+		$this->assertInstanceOf ( mysqli::class, DAO::$db ['mysqli']->getDbObject () );
 	}
 
 	/**
@@ -140,6 +176,12 @@ class DAOTest extends BaseTest {
 	 */
 	public function testGetOne() {
 		$user = $this->dao->getOne ( User::class, 'firstname="Benjamin"' );
+		$this->assertInstanceOf ( User::class, $user );
+
+		$user = $this->dao->getOne ( User::class, 'firstname= ?', false, [ 'Benjamin' ] );
+		$this->assertInstanceOf ( User::class, $user );
+
+		$user = $this->dao->getOne ( User::class, [ 1 ] );
 		$this->assertInstanceOf ( User::class, $user );
 	}
 
@@ -429,6 +471,43 @@ class DAOTest extends BaseTest {
 		$this->_startDatabase ( $this->dao );
 		$this->assertEquals ( $countOrgas, DAO::count ( Organization::class ) );
 		$this->assertEquals ( $countUsers, DAO::count ( User::class ) );
+	}
+
+	/**
+	 * Tests DAO::GetDatabase
+	 */
+	public function testGetDatabase() {
+		$this->config = include ROOT . 'config/config.php';
+		$this->assertEquals ( $db1 = $this->dao->getDatabase (), $this->dao->getDatabase ( 'default' ) );
+		$this->assertTrue ( $db1->isConnected () );
+		$db1->close ();
+		$this->assertFalse ( $db1->isConnected () );
+		$db2 = $this->dao->getDatabase ( 'mysqli' );
+		$this->assertTrue ( $db2->isConnected () );
+		$db2->close ();
+		$this->assertFalse ( $db2->isConnected () );
+	}
+
+	/**
+	 * Tests DAO::GetDbOffset
+	 */
+	public function testGetDbOffset() {
+		$this->config = include ROOT . 'config/config.php';
+		$dbConfig1 = $this->dao->getDbOffset ( $this->config );
+		$this->assertEquals ( $dbConfig1 ['dbName'], 'messagerie' );
+		$dbConfig2 = $this->dao->getDbOffset ( $this->config, 'mysqli' );
+		$this->assertEquals ( $dbConfig2 ['dbName'], 'messagerie' );
+		$this->assertEquals ( $dbConfig2 ['wrapper'], "\\Ubiquity\\db\\providers\\mysqli\\MysqliWrapper" );
+	}
+
+	/**
+	 * Tests DAO::GetDatabases
+	 */
+	public function testGetDatabases() {
+		$this->config = include ROOT . 'config/config.php';
+		Startup::$config = $this->config;
+		$dbs = $this->dao->getDatabases ();
+		$this->assertEquals ( 3, sizeof ( $dbs ) );
 	}
 }
 

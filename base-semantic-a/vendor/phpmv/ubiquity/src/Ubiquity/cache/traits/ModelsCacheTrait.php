@@ -9,8 +9,8 @@ use Ubiquity\orm\parser\ModelParser;
 use Ubiquity\cache\ClassUtils;
 use Ubiquity\contents\validation\ValidatorsManager;
 use Ubiquity\orm\parser\Reflexion;
-use Ubiquity\utils\base\UArray;
 use Ubiquity\exceptions\UbiquityException;
+use Ubiquity\orm\OrmUtils;
 
 /**
  *
@@ -24,13 +24,14 @@ use Ubiquity\exceptions\UbiquityException;
 trait ModelsCacheTrait {
 
 	abstract protected static function _getFiles(&$config, $type, $silent = false);
+	private static $modelsDatabaseKey = 'models' . \DIRECTORY_SEPARATOR . '_modelsDatabases';
 
 	public static function createOrmModelCache($classname) {
 		$key = self::getModelCacheKey ( $classname );
 		if (isset ( self::$cache )) {
 			$p = new ModelParser ();
 			$p->parse ( $classname );
-			self::$cache->store ( $key, $p->__toString (), 'models' );
+			self::$cache->store ( $key, $p->asArray (), 'models' );
 			return self::$cache->fetch ( $key );
 		}
 	}
@@ -59,11 +60,11 @@ trait ModelsCacheTrait {
 				if (! $forChecking) {
 					self::createOrmModelCache ( $model );
 					$db = 'default';
-					$ret = Reflexion::getAnnotationClass ( $model, "@database" );
+					$ret = Reflexion::getAnnotationClass ( $model, '@database' );
 					if (\sizeof ( $ret ) > 0) {
 						$db = $ret [0]->name;
 						if (! isset ( $config ['database'] [$db] )) {
-							throw new UbiquityException ( $db . " connection is not defined in config array" );
+							throw new UbiquityException ( $db . ' connection is not defined in config array' );
 						}
 					}
 					$modelsDb [$model] = $db;
@@ -72,7 +73,7 @@ trait ModelsCacheTrait {
 			}
 		}
 		if (! $forChecking) {
-			self::$cache->store ( 'models\_modelsDatabases', "return " . UArray::asPhpArray ( $modelsDb, "array" ) . ";", 'models' );
+			self::$cache->store ( self::$modelsDatabaseKey, $modelsDb, 'models' );
 		}
 		if (! $silent) {
 			echo "Models cache reset\n";
@@ -89,7 +90,7 @@ trait ModelsCacheTrait {
 		$result = false;
 		$files = self::getModelsFiles ( $config, true );
 		foreach ( $files as $file ) {
-			if (is_file ( $file )) {
+			if (\is_file ( $file )) {
 				$model = ClassUtils::getClassFullNameFromFile ( $file );
 				$p = new ModelParser ();
 				$p->parse ( $model );
@@ -109,7 +110,7 @@ trait ModelsCacheTrait {
 	 * @return array
 	 */
 	public static function getModelsFiles(&$config, $silent = false) {
-		return self::_getFiles ( $config, "models", $silent );
+		return self::_getFiles ( $config, 'models', $silent );
 	}
 
 	/**
@@ -125,7 +126,7 @@ trait ModelsCacheTrait {
 		foreach ( $files as $file ) {
 			$className = ClassUtils::getClassFullNameFromFile ( $file );
 			$db = 'default';
-			$ret = Reflexion::getAnnotationClass ( $className, "@database" );
+			$ret = Reflexion::getAnnotationClass ( $className, '@database' );
 			if (\sizeof ( $ret ) > 0) {
 				$db = $ret [0]->name;
 			}
@@ -137,9 +138,25 @@ trait ModelsCacheTrait {
 	}
 
 	public static function getModelsDatabases() {
-		if (self::$cache->exists ( 'models\_modelsDatabases' )) {
-			return self::$cache->fetch ( 'models\_modelsDatabases' );
+		if (self::$cache->exists ( self::$modelsDatabaseKey )) {
+			return self::$cache->fetch ( self::$modelsDatabaseKey );
 		}
 		return [ ];
+	}
+
+	/**
+	 * Preloads models metadatas.
+	 * To use only with async servers (Swoole, Workerman)
+	 *
+	 * @param array $config
+	 * @param string $offset
+	 * @param ?array $models
+	 */
+	public static function warmUpModels(&$config, $offset = 'default', $models = null) {
+		$models ??= self::getModels ( $config, true, $offset );
+		foreach ( $models as $model ) {
+			OrmUtils::getModelMetadata ( $model );
+			Reflexion::getPropertiesAndValues ( new $model () );
+		}
 	}
 }

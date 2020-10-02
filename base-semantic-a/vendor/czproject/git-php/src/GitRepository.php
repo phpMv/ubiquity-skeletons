@@ -770,10 +770,10 @@
 				$params = '-q';
 			}
 
-			$descriptorspec = Array(
-				0 => Array('pipe', 'r'), // stdout
-				1 => Array('pipe', 'w'), // stdin
-				2 => Array('pipe', 'w'), // stderr
+			$descriptorspec = array(
+				0 => array('pipe', 'r'), // stdin
+				1 => array('pipe', 'w'), // stdout
+				2 => array('pipe', 'w'), // stderr
 			);
 
 			$pipes = [];
@@ -797,7 +797,7 @@
 			while (TRUE)
 			{
 				// Read standard output
-				$output = fgets($pipes[0], 1024);
+				$output = fgets($pipes[1], 1024);
 
 				if ($output)
 				{
@@ -813,7 +813,7 @@
 				}
 
 				// We are done
-				if ((feof($pipes[0]) OR $output === FALSE) AND (feof($pipes[2]) OR $output_err === FALSE))
+				if ((feof($pipes[1]) OR $output === FALSE) AND (feof($pipes[2]) OR $output_err === FALSE))
 				{
 					break;
 				}
@@ -910,6 +910,44 @@
 			exec('git log -1 --format=' . ($oneline ? '%s' : '%B') . ' ' . $commit . ' 2>&1', $message);
 			$this->end();
 			return implode(PHP_EOL, $message);
+		}
+
+		/**
+		 * Returns commit date from specific commit
+		 * `git log -1 --date=iso-strict`
+		 * @param  string          commit ID (if empty last commit)
+		 * @param  string          date format (eg. 'iso-strict' or 'format:'%Y-%m-%d %H:%M:%S'')
+		 * @return \DateTime|NULL
+		 * @throws GitException
+		 */
+		public function getCommitDate($commit = '', $dateFormat = 'iso-strict')
+		{
+			$this->begin();
+			$lastLine = exec('git log -1 ' . $commit . ' --pretty="format:%cd" --date=' . $dateFormat);
+			$this->end();
+
+			try {
+				return new \DateTime($lastLine);
+			} catch (\Exception $e) {
+				return null;
+			}
+		}
+
+
+		/**
+		 * Returns commit author from specific commit
+		 * `git log -1 --format='%ae'`
+		 * @param  string      commit ID (if empty last commit)
+		 * @return string
+		 * @throws GitException
+		 */
+		public function getCommitAuthor($commit = '')
+		{
+			$this->begin();
+			$lastLine = exec('git log -1 ' . $commit . ' --format="%ae"');
+			$this->end();
+
+			return $lastLine;
 		}
 
 

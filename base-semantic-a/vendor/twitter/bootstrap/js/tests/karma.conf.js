@@ -1,5 +1,4 @@
 /* eslint-env node */
-/* eslint no-process-env: 0 */
 
 const path = require('path')
 const ip = require('ip')
@@ -27,7 +26,7 @@ const reporters = ['dots']
 const detectBrowsers = {
   usePhantomJS: false,
   postDetection(availableBrowser) {
-    if (typeof process.env.TRAVIS_JOB_ID !== 'undefined' || availableBrowser.includes('Chrome')) {
+    if (process.env.CI === true || availableBrowser.includes('Chrome')) {
       return ['ChromeHeadless']
     }
 

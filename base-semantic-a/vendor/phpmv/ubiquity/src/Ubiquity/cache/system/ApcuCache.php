@@ -6,18 +6,18 @@ use Ubiquity\utils\base\UString;
 use Ubiquity\cache\CacheFile;
 
 /**
- * APCU cache implementation
- * Ubiquity\cache\system$ApcuCache
+ * APC cache implementation
+ * Ubiquity\cache\system$ApcCache
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.2
  *
  */
 class ApcuCache extends AbstractDataCache {
 
 	/**
-	 * Initializes the apcu cache-provider
+	 * Initializes the apc cache-provider
 	 */
 	public function __construct($root, $postfix = "") {
 		parent::__construct ( $root, $postfix );
@@ -30,22 +30,13 @@ class ApcuCache extends AbstractDataCache {
 	 * @return string[]|boolean true if data with the given key has been stored; otherwise false
 	 */
 	public function exists($key) {
-		return \apcu_exists ( $this->getRealKey ( $key ) );
+		$success = false;
+		\apc_fetch ( $this->getRealKey ( $key ), $success );
+		return $success;
 	}
 
-	public function store($key, $code, $tag, $php = true) {
-		$this->storeContent ( $key, $code, $tag );
-	}
-
-	/**
-	 * Caches the given data with the given key.
-	 *
-	 * @param string $key cache key
-	 * @param string $content the source-code to be cached
-	 * @param string $tag not used
-	 */
-	protected function storeContent($key, $content, $tag) {
-		\apcu_store ( $this->getRealKey ( $key ), $content );
+	public function store($key, $code, $tag = null) {
+		\apc_store ( $this->getRealKey ( $key ), $code );
 	}
 
 	protected function getRealKey($key) {
@@ -59,8 +50,7 @@ class ApcuCache extends AbstractDataCache {
 	 * @return mixed the cached data
 	 */
 	public function fetch($key) {
-		$result = \apcu_fetch ( $this->getRealKey ( $key ) );
-		return eval ( $result );
+		return \apc_fetch ( $this->getRealKey ( $key ) );
 	}
 
 	/**
@@ -70,7 +60,7 @@ class ApcuCache extends AbstractDataCache {
 	 * @return mixed the cached data
 	 */
 	public function file_get_contents($key) {
-		return \apcu_fetch ( $this->getRealKey ( $key ) );
+		return \apc_fetch ( $this->getRealKey ( $key ) );
 	}
 
 	/**
@@ -81,7 +71,7 @@ class ApcuCache extends AbstractDataCache {
 	 */
 	public function getTimestamp($key) {
 		$key = $this->getRealKey ( $key );
-		$cache = \apcu_cache_info ();
+		$cache = \apc_cache_info ( 'user' );
 		if (empty ( $cache ['cache_list'] )) {
 			return false;
 		}
@@ -96,11 +86,11 @@ class ApcuCache extends AbstractDataCache {
 	}
 
 	public function remove($key) {
-		\apcu_delete ( $this->getRealKey ( $key ) );
+		\apc_delete ( $this->getRealKey ( $key ) );
 	}
 
 	public function clear() {
-		\apcu_clear_cache ();
+		\apc_clear_cache ( 'user' );
 	}
 
 	protected function getCacheEntries($type) {
@@ -112,7 +102,7 @@ class ApcuCache extends AbstractDataCache {
 
 	protected function getAllEntries() {
 		$entries = [ ];
-		$cache = \apcu_cache_info ();
+		$cache = \apc_cache_info ( 'user' );
 		if (! empty ( $cache ['cache_list'] )) {
 			$entries = $cache ['cache_list'];
 		}

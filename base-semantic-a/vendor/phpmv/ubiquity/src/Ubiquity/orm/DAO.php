@@ -4,7 +4,6 @@ namespace Ubiquity\orm;
 
 use Ubiquity\db\Database;
 use Ubiquity\log\Logger;
-use Ubiquity\orm\parser\ManyToManyParser;
 use Ubiquity\db\SqlUtils;
 use Ubiquity\orm\traits\DAOUpdatesTrait;
 use Ubiquity\orm\traits\DAORelationsTrait;
@@ -14,21 +13,25 @@ use Ubiquity\orm\traits\DAOCoreTrait;
 use Ubiquity\orm\traits\DAORelationsPrepareTrait;
 use Ubiquity\exceptions\DAOException;
 use Ubiquity\orm\traits\DAORelationsAssignmentsTrait;
-use Ubiquity\orm\parser\Reflexion;
 use Ubiquity\orm\traits\DAOTransactionsTrait;
 use Ubiquity\controllers\Startup;
 use Ubiquity\cache\CacheManager;
+use Ubiquity\orm\traits\DAOPooling;
+use Ubiquity\orm\traits\DAOBulkUpdatesTrait;
+use Ubiquity\orm\traits\DAOPreparedTrait;
+use Ubiquity\cache\dao\AbstractDAOCache;
 
 /**
  * Gateway class between database and object model.
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.2.1
+ * @version 1.2.5
  *
  */
 class DAO {
-	use DAOCoreTrait,DAOUpdatesTrait,DAORelationsTrait,DAORelationsPrepareTrait,DAORelationsAssignmentsTrait,DAOUQueries,DAOTransactionsTrait;
+	use DAOCoreTrait,DAOUpdatesTrait,DAORelationsTrait,DAORelationsPrepareTrait,DAORelationsAssignmentsTrait,
+	DAOUQueries,DAOTransactionsTrait,DAOPooling,DAOBulkUpdatesTrait,DAOPreparedTrait;
 
 	/**
 	 *
@@ -39,115 +42,14 @@ class DAO {
 	public static $transformerOp = 'transform';
 	private static $conditionParsers = [ ];
 	protected static $modelsDatabase = [ ];
+	/**
+	 *
+	 * @var AbstractDAOCache
+	 */
+	protected static $cache;
 
-	protected static function getDb($model) {
+	public static function getDb($model) {
 		return self::getDatabase ( self::$modelsDatabase [$model] ?? 'default');
-	}
-
-	/**
-	 * Loads member associated with $instance by a ManyToOne relationship
-	 *
-	 * @param object|array $instance The instance object or an array with [classname,id]
-	 * @param string $member The member to load
-	 * @param boolean|array $included if true, loads associate members with associations, if array, example : ["client.*","commands"]
-	 * @param boolean|null $useCache
-	 */
-	public static function getManyToOne($instance, $member, $included = false, $useCache = NULL) {
-		$classname = self::getClass_ ( $instance );
-		if (is_array ( $instance )) {
-			$instance = self::getById ( $classname, $instance [1], false, $useCache );
-		}
-		$fieldAnnot = OrmUtils::getMemberJoinColumns ( $classname, $member );
-		if ($fieldAnnot !== null) {
-			$annotationArray = $fieldAnnot [1];
-			$member = $annotationArray ["member"];
-			$value = Reflexion::getMemberValue ( $instance, $member );
-			$key = OrmUtils::getFirstKey ( $annotationArray ["className"] );
-			$kv = array ($key => $value );
-			$obj = self::getById ( $annotationArray ["className"], $kv, $included, $useCache );
-			if ($obj !== null) {
-				Logger::info ( "DAO", "Loading the member " . $member . " for the object " . $classname, "getManyToOne" );
-				$accesseur = "set" . ucfirst ( $member );
-				if (is_object ( $instance ) && method_exists ( $instance, $accesseur )) {
-					$instance->$accesseur ( $obj );
-					$instance->_rest [$member] = $obj->_rest;
-				}
-				return $obj;
-			}
-		}
-	}
-
-	/**
-	 * Assign / load the child records in the $member member of $instance.
-	 *
-	 * @param object|array $instance The instance object or an array with [classname,id]
-	 * @param string $member Member on which a oneToMany annotation must be present
-	 * @param boolean|array $included if true, loads associate members with associations, if array, example : ["client.*","commands"]
-	 * @param boolean $useCache
-	 * @param array $annot used internally
-	 */
-	public static function getOneToMany($instance, $member, $included = true, $useCache = NULL, $annot = null) {
-		$ret = array ();
-		$class = self::getClass_ ( $instance );
-		if (! isset ( $annot )) {
-			$annot = OrmUtils::getAnnotationInfoMember ( $class, "#oneToMany", $member );
-		}
-		if ($annot !== false) {
-			$fkAnnot = OrmUtils::getAnnotationInfoMember ( $annot ["className"], "#joinColumn", $annot ["mappedBy"] );
-			if ($fkAnnot !== false) {
-				$fkv = self::getFirstKeyValue_ ( $instance );
-				$ret = self::_getAll ( $annot ["className"], ConditionParser::simple ( $fkAnnot ["name"] . "= ?", $fkv ), $included, $useCache );
-				if (is_object ( $instance ) && $modifier = self::getAccessor ( $member, $instance, 'getOneToMany' )) {
-					self::setToMember ( $member, $instance, $ret, $modifier );
-				}
-			}
-		}
-		return $ret;
-	}
-
-	/**
-	 * Assigns / loads the child records in the $member member of $instance.
-	 * If $array is null, the records are loaded from the database
-	 *
-	 * @param object|array $instance The instance object or an array with [classname,id]
-	 * @param string $member Member on which a ManyToMany annotation must be present
-	 * @param boolean|array $included if true, loads associate members with associations, if array, example : ["client.*","commands"]
-	 * @param array $array optional parameter containing the list of possible child records
-	 * @param boolean $useCache
-	 */
-	public static function getManyToMany($instance, $member, $included = false, $array = null, $useCache = NULL) {
-		$ret = [ ];
-		$class = self::getClass_ ( $instance );
-		$parser = new ManyToManyParser ( $class, $member );
-		if ($parser->init ()) {
-			if (is_null ( $array )) {
-				$pk = self::getFirstKeyValue_ ( $instance );
-				$condition = " INNER JOIN `" . $parser->getJoinTable () . "` on `" . $parser->getJoinTable () . "`.`" . $parser->getFkField () . "`=`" . $parser->getTargetEntityTable () . "`.`" . $parser->getPk () . "` WHERE `" . $parser->getJoinTable () . "`.`" . $parser->getMyFkField () . "`= ?";
-				$ret = self::_getAll ( $parser->getTargetEntityClass (), ConditionParser::simple ( $condition, $pk ), $included, $useCache );
-			} else {
-				$ret = self::getManyToManyFromArray ( $instance, $array, $class, $parser );
-			}
-			if (is_object ( $instance ) && $modifier = self::getAccessor ( $member, $instance, 'getManyToMany' )) {
-				self::setToMember ( $member, $instance, $ret, $modifier );
-			}
-		}
-		return $ret;
-	}
-
-	/**
-	 *
-	 * @param object $instance
-	 * @param array $array
-	 * @param boolean $useCache
-	 */
-	public static function affectsManyToManys($instance, $array = NULL, $useCache = NULL) {
-		$metaDatas = OrmUtils::getModelMetadata ( \get_class ( $instance ) );
-		$manyToManyFields = $metaDatas ["#manyToMany"];
-		if (\sizeof ( $manyToManyFields ) > 0) {
-			foreach ( $manyToManyFields as $member ) {
-				self::getManyToMany ( $instance, $member, false, $array, $useCache );
-			}
-		}
 	}
 
 	/**
@@ -155,33 +57,33 @@ class DAO {
 	 *
 	 * @param string $className class name of the model to load
 	 * @param string $condition Part following the WHERE of an SQL statement
-	 * @param boolean|array $included if true, loads associate members with associations, if array, example : ["client.*","commands"]
+	 * @param boolean|array $included if true, loads associate members with associations, if array, example : ['client.*','commands']
 	 * @param array|null $parameters
 	 * @param boolean $useCache use the active cache if true
 	 * @return array
 	 */
 	public static function getAll($className, $condition = '', $included = true, $parameters = null, $useCache = NULL) {
-		return self::_getAll ( $className, new ConditionParser ( $condition, null, $parameters ), $included, $useCache );
+		$db = self::getDb ( $className );
+		return static::_getAll ( $db, $className, new ConditionParser ( $condition, null, $parameters ), $included, $useCache );
 	}
 
 	public static function paginate($className, $page = 1, $rowsPerPage = 20, $condition = null, $included = true) {
-		if (! isset ( $condition )) {
-			$condition = "1=1";
-		}
-		return self::getAll ( $className, $condition . " LIMIT " . $rowsPerPage . " OFFSET " . (($page - 1) * $rowsPerPage), $included );
+		return self::getAll ( $className, ($condition ?? '1=1') . ' LIMIT ' . $rowsPerPage . ' OFFSET ' . (($page - 1) * $rowsPerPage), $included );
 	}
 
 	public static function getRownum($className, $ids) {
 		$tableName = OrmUtils::getTableName ( $className );
-		self::parseKey ( $ids, $className );
+		$db = self::getDb ( $className );
+		$quote = $db->quote;
+		self::parseKey ( $ids, $className, $quote );
 		$condition = SqlUtils::getCondition ( $ids, $className );
 		$keyFields = OrmUtils::getKeyFields ( $className );
-		if (is_array ( $keyFields )) {
-			$keys = implode ( ",", $keyFields );
+		if (\is_array ( $keyFields )) {
+			$keys = \implode ( ',', $keyFields );
 		} else {
-			$keys = "1";
+			$keys = '1';
 		}
-		return self::getDb ( $className )->queryColumn ( "SELECT num FROM (SELECT *, @rownum:=@rownum + 1 AS num FROM `{$tableName}`, (SELECT @rownum:=0) r ORDER BY {$keys}) d WHERE " . $condition );
+		return $db->getRowNum ( $tableName, $keys, $condition );
 	}
 
 	/**
@@ -195,9 +97,29 @@ class DAO {
 	public static function count($className, $condition = '', $parameters = null) {
 		$tableName = OrmUtils::getTableName ( $className );
 		if ($condition != '') {
-			$condition = " WHERE " . $condition;
+			$condition = ' WHERE ' . $condition;
 		}
-		return self::getDb ( $className )->prepareAndFetchColumn ( "SELECT COUNT(*) FROM `" . $tableName . "`" . $condition, $parameters );
+		$db = self::getDb ( $className );
+		$quote = $db->quote;
+		return $db->prepareAndFetchColumn ( 'SELECT COUNT(*) FROM ' . $quote . $tableName . $quote . $condition, $parameters );
+	}
+
+	/**
+	 * Tests the existence of objects of $className from the database respecting the condition possibly passed as parameter
+	 *
+	 * @param string $className complete classname of the model to load
+	 * @param string $condition Part following the WHERE of an SQL statement
+	 * @param array|null $parameters The query parameters
+	 * @return boolean
+	 */
+	public static function exists($className, $condition = '', $parameters = null) {
+		$tableName = OrmUtils::getTableName ( $className );
+		if ($condition != '') {
+			$condition = ' WHERE ' . $condition;
+		}
+		$db = self::getDb ( $className );
+		$quote = $db->quote;
+		return (1 == $db->prepareAndFetchColumn ( "SELECT EXISTS(SELECT 1 FROM {$quote}{$tableName}{$quote}{$condition})", $parameters ));
 	}
 
 	/**
@@ -211,6 +133,7 @@ class DAO {
 	 * @return object the instance loaded or null if not found
 	 */
 	public static function getOne($className, $condition, $included = true, $parameters = null, $useCache = NULL) {
+		$db = self::getDb ( $className );
 		$conditionParser = new ConditionParser ();
 		if (! isset ( $parameters )) {
 			$conditionParser->addKeyValues ( $condition, $className );
@@ -218,9 +141,9 @@ class DAO {
 			$conditionParser->setCondition ( $condition );
 			$conditionParser->setParams ( $parameters );
 		} else {
-			throw new DAOException ( "The \$keyValues parameter should not be an array if \$parameters is not null" );
+			throw new DAOException ( "The \$condition parameter should not be an array if \$parameters is not null" );
 		}
-		return self::_getOne ( $className, $conditionParser, $included, $useCache );
+		return static::_getOne ( $db, $className, $conditionParser, $included, $useCache );
 	}
 
 	/**
@@ -234,10 +157,10 @@ class DAO {
 	 * @return object the instance loaded or null if not found
 	 */
 	public static function getById($className, $keyValues, $included = true, $useCache = NULL) {
-		return self::_getOne ( $className, self::getConditionParser ( $className, $keyValues ), $included, $useCache );
+		return static::_getOne ( self::getDatabase ( self::$modelsDatabase [$className] ?? 'default'), $className, self::getConditionParser ( $className, $keyValues ), $included, $useCache );
 	}
 
-	protected static function getConditionParser($className, $keyValues) {
+	protected static function getConditionParser($className, $keyValues): ConditionParser {
 		if (! isset ( self::$conditionParsers [$className] )) {
 			$conditionParser = new ConditionParser ();
 			$conditionParser->addKeyValues ( $keyValues, $className );
@@ -251,6 +174,8 @@ class DAO {
 	/**
 	 * Establishes the connection to the database using the past parameters
 	 *
+	 * @param string $offset
+	 * @param string $wrapper
 	 * @param string $dbType
 	 * @param string $dbName
 	 * @param string $serverName
@@ -260,8 +185,8 @@ class DAO {
 	 * @param array $options
 	 * @param boolean $cache
 	 */
-	public static function connect($offset, $dbType, $dbName, $serverName = '127.0.0.1', $port = '3306', $user = 'root', $password = '', $options = [], $cache = false) {
-		self::$db [$offset] = new Database ( $dbType, $dbName, $serverName, $port, $user, $password, $options, $cache );
+	public static function connect($offset, $wrapper, $dbType, $dbName, $serverName = '127.0.0.1', $port = '3306', $user = 'root', $password = '', $options = [ ], $cache = false) {
+		self::$db [$offset] = new Database ( $wrapper, $dbType, $dbName, $serverName, $port, $user, $password, $options, $cache, self::$pool );
 		try {
 			self::$db [$offset]->connect ();
 		} catch ( \Exception $e ) {
@@ -278,7 +203,7 @@ class DAO {
 	public static function startDatabase(&$config, $offset = null) {
 		$db = $offset ? ($config ['database'] [$offset] ?? ($config ['database'] ?? [ ])) : ($config ['database'] ['default'] ?? $config ['database']);
 		if ($db ['dbName'] !== '') {
-			self::connect ( $offset ?? 'default', $db ['type'], $db ['dbName'], $db ['serverName'] ?? '127.0.0.1', $db ['port'] ?? 3306, $db ['user'] ?? 'root', $db ['password'] ?? '', $db ['options'] ?? [ ], $db ['cache'] ?? false);
+			self::connect ( $offset ?? 'default', $db ['wrapper'] ?? \Ubiquity\db\providers\pdo\PDOWrapper::class, $db ['type'], $db ['dbName'], $db ['serverName'] ?? '127.0.0.1', $db ['port'] ?? 3306, $db ['user'] ?? 'root', $db ['password'] ?? '', $db ['options'] ?? [ ], $db ['cache'] ?? false);
 		}
 	}
 
@@ -344,6 +269,7 @@ class DAO {
 		if (! isset ( self::$db [$offset] )) {
 			self::startDatabase ( Startup::$config, $offset );
 		}
+		SqlUtils::$quote = self::$db [$offset]->quote;
 		return self::$db [$offset];
 	}
 
@@ -359,7 +285,56 @@ class DAO {
 		return [ ];
 	}
 
+	public static function updateDatabaseParams(array &$config, array $parameters, $offset = 'default') {
+		if ($offset === 'default') {
+			if (isset ( $config ['database'] [$offset] )) {
+				foreach ( $parameters as $k => $param ) {
+					$config ['database'] [$offset] [$k] = $param;
+				}
+			} else {
+				foreach ( $parameters as $k => $param ) {
+					$config ['database'] [$k] = $param;
+				}
+			}
+		} else {
+			if (isset ( $config ['database'] [$offset] )) {
+				foreach ( $parameters as $k => $param ) {
+					$config ['database'] [$offset] [$k] = $param;
+				}
+			}
+		}
+	}
+
 	public static function start() {
 		self::$modelsDatabase = CacheManager::getModelsDatabases ();
+	}
+
+	public static function getDbCacheInstance($model) {
+		$db = static::$db [self::$modelsDatabase [$model] ?? 'default'];
+		return $db->getCacheInstance ();
+	}
+
+	public static function warmupCache($className, $condition = '', $included = false, $parameters = [ ]) {
+		$objects = self::getAll ( $className, $condition, $included, $parameters );
+		foreach ( $objects as $o ) {
+			self::$cache->store ( $className, OrmUtils::getKeyValues ( $o ), $o );
+		}
+		self::$cache->optimize ();
+		$offset = self::$modelsDatabase [$className] ?? 'default';
+		$db = self::$db [$offset];
+		$db->close ();
+		unset ( self::$db [$offset] );
+	}
+
+	public static function setCache(AbstractDAOCache $cache) {
+		self::$cache = $cache;
+	}
+
+	/**
+	 *
+	 * @return \Ubiquity\cache\dao\AbstractDAOCache
+	 */
+	public static function getCache() {
+		return static::$cache;
 	}
 }

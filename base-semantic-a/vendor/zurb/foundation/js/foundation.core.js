@@ -4,7 +4,7 @@ import $ from 'jquery';
 import { GetYoDigits } from './foundation.core.utils';
 import { MediaQuery } from './foundation.util.mediaQuery';
 
-var FOUNDATION_VERSION = '6.5.3';
+var FOUNDATION_VERSION = '6.6.3';
 
 // Global Foundation object
 // This is attached to the window, or used as a module for AMD/Browserify
@@ -149,21 +149,18 @@ var Foundation = {
       var plugin = _this._plugins[name];
 
       // Localize the search to all elements inside elem, as well as elem itself, unless elem === document
-      var $elem = $(elem).find('[data-'+name+']').addBack('[data-'+name+']');
+      var $elem = $(elem).find('[data-'+name+']').addBack('[data-'+name+']').filter(function () {
+        return typeof $(this).data("zfPlugin") === 'undefined';
+      });
 
       // For each plugin found, initialize it
       $elem.each(function() {
         var $el = $(this),
-            opts = {};
-        // Don't double-dip on plugins
-        if ($el.data('zfPlugin')) {
-          console.warn("Tried to initialize "+name+" on an element that already has a Foundation plugin.");
-          return;
-        }
+            opts = { reflow: true };
 
         if($el.attr('data-options')){
-          var thing = $el.attr('data-options').split(';').forEach(function(e, i){
-            var opt = e.split(':').map(function(el){ return el.trim(); });
+          $el.attr('data-options').split(';').forEach(function(option, _index){
+            var opt = option.split(':').map(function(el){ return el.trim(); });
             if(opt[0]) opts[opt[0]] = parseValue(opt[1]);
           });
         }

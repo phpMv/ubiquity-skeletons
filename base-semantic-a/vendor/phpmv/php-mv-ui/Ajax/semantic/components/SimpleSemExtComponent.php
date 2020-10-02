@@ -12,6 +12,11 @@ class SimpleSemExtComponent extends SimpleExtComponent {
 		$this->paramParts=array();
 	}
 
+	protected function addBehavior($name) {
+		$this->paramParts[]=[$name];
+		return $this;
+	}
+	
 	protected function generateParamParts(){
 		$results=[];
 		foreach ($this->paramParts as $paramPart){
@@ -23,6 +28,7 @@ class SimpleSemExtComponent extends SimpleExtComponent {
 	public function getScript() {
 		$allParams=$this->params;
 		$this->jquery_code_for_compile=array ();
+		$this->compileJsCodes();
 		$paramParts="";
 		if(\sizeof($this->paramParts)>0){
 			$paramParts=".".$this->generateParamParts();
@@ -38,8 +44,13 @@ class SimpleSemExtComponent extends SimpleExtComponent {
 	}
 
 	public function addComponentEvent($event,$jsCode){
-		$jsCode=str_ireplace("\"","%quote%", $jsCode);
+		$jsCode=\str_ireplace("\"","%quote%", $jsCode);
 		return $this->setParam($event, "%function(){".$jsCode."}%");
+	}
+	
+	public function setJs(JsUtils $js){
+		$this->js=$js;
+		$js->semantic()->addComponent($this, $this->attachTo, $this->params);
 	}
 
 }

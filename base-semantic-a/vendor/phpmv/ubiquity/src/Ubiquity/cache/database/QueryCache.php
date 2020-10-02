@@ -2,33 +2,34 @@
 
 namespace Ubiquity\cache\database;
 
-use Ubiquity\utils\base\UArray;
-
 /**
  * Ubiquity\cache\database$QueryCache
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.0
+ * @version 1.0.2
  *
  */
 class QueryCache extends DbCache {
 
-	public function fetch($tableName, $condition) {
-		$key = $tableName . "." . $this->getKey ( $condition );
-		if ($this->cache->exists ( $key ))
-			return $this->cache->fetch ( $key );
-		return false;
-	}
-
 	public function store($tableName, $condition, $result) {
-		$this->cache->store ( $tableName . "." . $this->getKey ( $condition ), "return " . UArray::asPhpArray ( $result, "array" ) . ";" );
+		$key = $this->getKey ( $tableName, $condition );
+		$this->memoryCache [$key] = $result;
+		if ($this->storeDeferred) {
+			$this->toStore [] = $key;
+		} else {
+			$this->cache->store ( $key, $result );
+		}
 	}
 
 	public function delete($tableName, $condition) {
-		$key = $tableName . "." . $this->getKey ( $condition );
-		if ($this->cache->exists ( $key ))
+		$key = $this->getKey ( $tableName, $condition );
+		if ($this->cache->exists ( $key )) {
+			if (isset ( $this->memoryCache [$key] )) {
+				unset ( $this->memoryCache [$key] );
+			}
 			return $this->cache->remove ( $key );
+		}
 		return false;
 	}
 }

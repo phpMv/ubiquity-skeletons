@@ -13,6 +13,7 @@ use Ubiquity\scaffolding\ScaffoldController;
  *
  * @author jcheron <myaddressmail@gmail.com>
  * @version 1.0.0
+ * @package ubiquity.dev
  *
  */
 class AuthControllerCreator extends BaseControllerCreator {

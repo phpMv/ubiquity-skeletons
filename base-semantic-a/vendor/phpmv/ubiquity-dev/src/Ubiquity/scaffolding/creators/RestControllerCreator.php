@@ -13,6 +13,7 @@ use Ubiquity\utils\base\UFileSystem;
  *
  * @author jcheron <myaddressmail@gmail.com>
  * @version 1.0.3
+ * @package ubiquity.dev
  *
  */
 class RestControllerCreator extends BaseControllerCreator {

@@ -153,8 +153,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Accordion", function() { return Accordion; });
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _foundation_core_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./foundation.core.utils */ "./foundation.core");
-/* harmony import */ var _foundation_core_utils__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_foundation_core_utils__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./foundation.core.plugin */ "./foundation.core");
+/* harmony import */ var _foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _foundation_util_keyboard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./foundation.util.keyboard */ "./foundation.util.keyboard");
 /* harmony import */ var _foundation_util_keyboard__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_foundation_util_keyboard__WEBPACK_IMPORTED_MODULE_2__);
 
@@ -236,10 +236,13 @@ function (_Plugin) {
       this._isInitializing = true;
       this.$element.attr('role', 'tablist');
       this.$tabs = this.$element.children('[data-accordion-item]');
+      this.$tabs.attr({
+        'role': 'presentation'
+      });
       this.$tabs.each(function (idx, el) {
         var $el = jquery__WEBPACK_IMPORTED_MODULE_0___default()(el),
             $content = $el.children('[data-tab-content]'),
-            id = $content[0].id || Object(_foundation_core_utils__WEBPACK_IMPORTED_MODULE_1__["GetYoDigits"])(6, 'accordion'),
+            id = $content[0].id || Object(_foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1__["GetYoDigits"])(6, 'accordion'),
             linkId = el.id ? "".concat(el.id, "-label") : "".concat(id, "-label");
         $el.find('a:first').attr({
           'aria-controls': id,
@@ -279,27 +282,26 @@ function (_Plugin) {
         var $link = anchor && _this2.$element.find("[href$=\"".concat(anchor, "\"]")); // Whether the anchor element that has been found is part of this element
 
 
-        var isOwnAnchor = !!($anchor.length && $link.length); // If there is an anchor for the hash, open it (if not already active)
-
-        if ($anchor && $link && $link.length) {
-          if (!$link.parent('[data-accordion-item]').hasClass('is-active')) {
-            _this2._openSingleTab($anchor);
-          }
-
-          ;
-        } // Otherwise, close everything
-        else {
-            _this2._closeAllTabs();
-          }
+        var isOwnAnchor = !!($anchor.length && $link.length);
 
         if (isOwnAnchor) {
-          // Roll up a little to show the titles
+          // If there is an anchor for the hash, open it (if not already active)
+          if ($anchor && $link && $link.length) {
+            if (!$link.parent('[data-accordion-item]').hasClass('is-active')) {
+              _this2._openSingleTab($anchor);
+            }
+          } // Otherwise, close everything
+          else {
+              _this2._closeAllTabs();
+            } // Roll up a little to show the titles
+
+
           if (_this2.options.deepLinkSmudge) {
-            Object(_foundation_core_utils__WEBPACK_IMPORTED_MODULE_1__["onLoad"])(jquery__WEBPACK_IMPORTED_MODULE_0___default()(window), function () {
+            Object(_foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1__["onLoad"])(jquery__WEBPACK_IMPORTED_MODULE_0___default()(window), function () {
               var offset = _this2.$element.offset();
 
               jquery__WEBPACK_IMPORTED_MODULE_0___default()('html, body').animate({
-                scrollTop: offset.top
+                scrollTop: offset.top - _this2.options.deepLinkSmudgeOffset
               }, _this2.options.deepLinkSmudgeDelay);
             });
           }
@@ -362,7 +364,6 @@ function (_Plugin) {
               },
               handled: function handled() {
                 e.preventDefault();
-                e.stopPropagation();
               }
             });
           });
@@ -488,7 +489,7 @@ function (_Plugin) {
         'aria-expanded': true,
         'aria-selected': true
       });
-      $target.slideDown(this.options.slideSpeed, function () {
+      $target.finish().slideDown(this.options.slideSpeed, function () {
         /**
          * Fires when the tab is done opening.
          * @event Accordion#down
@@ -517,7 +518,7 @@ function (_Plugin) {
         'aria-expanded': false,
         'aria-selected': false
       });
-      $target.slideUp(this.options.slideSpeed, function () {
+      $target.finish().slideUp(this.options.slideSpeed, function () {
         /**
          * Fires when the tab is done collapsing up.
          * @event Accordion#up
@@ -560,7 +561,7 @@ function (_Plugin) {
   }]);
 
   return Accordion;
-}(_foundation_core_utils__WEBPACK_IMPORTED_MODULE_1__["Plugin"]);
+}(_foundation_core_plugin__WEBPACK_IMPORTED_MODULE_1__["Plugin"]);
 
 Accordion.defaults = {
   /**
@@ -613,6 +614,14 @@ Accordion.defaults = {
   deepLinkSmudgeDelay: 300,
 
   /**
+   * If `deepLinkSmudge` is enabled, the offset for scrollToTtop to prevent overlap by a sticky element at the top of the page
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  deepLinkSmudgeOffset: 0,
+
+  /**
    * If `deepLink` is enabled, update the browser history with the open accordion
    * @option
    * @type {boolean}
@@ -631,7 +640,7 @@ Accordion.defaults = {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/ncoden/Documents/Documents/Projects/Programmation/Web/2016/Foundation/foundation-sites/js/entries/plugins/foundation.accordion.js */"./js/entries/plugins/foundation.accordion.js");
+module.exports = __webpack_require__(/*! /Users/joeworkman/Development/foundation-sites/js/entries/plugins/foundation.accordion.js */"./js/entries/plugins/foundation.accordion.js");
 
 
 /***/ }),

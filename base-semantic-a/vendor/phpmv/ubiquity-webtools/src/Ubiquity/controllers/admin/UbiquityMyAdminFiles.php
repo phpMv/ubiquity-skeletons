@@ -1,7 +1,7 @@
 <?php
 namespace Ubiquity\controllers\admin;
 
-use Ubiquity\controllers\crud\traits\UrlsTrait;
+use Ubiquity\controllers\admin\traits\UrlsTrait;
 
 class UbiquityMyAdminFiles {
 	use UrlsTrait;
@@ -9,7 +9,7 @@ class UbiquityMyAdminFiles {
 	private $viewBase = "@admin";
 
 	public function getAdminBaseRoute() {
-		return "Admin";
+		return "/Admin";
 	}
 
 	public function getViewDataIndex() {
@@ -67,7 +67,7 @@ class UbiquityMyAdminFiles {
 	public function getViewConfigForm() {
 		return $this->viewBase . "/config/form.html";
 	}
-	
+
 	public function getViewFrmNewDbConnection() {
 		return $this->viewBase . "/config/formNewDbConnection.html";
 	}
@@ -128,11 +128,103 @@ class UbiquityMyAdminFiles {
 		return $this->viewBase . "/git/formGitIgnore.html";
 	}
 
+	public function getViewGitTabsRefresh() {
+		return $this->viewBase . "/git/gitTabs.html";
+	}
+
+	public function getViewGitCmdFrm() {
+		return $this->viewBase . "/git/execGitCmdFrm.html";
+	}
+
 	public function getViewThemesIndex() {
 		return $this->viewBase . "/themes/index.html";
 	}
 
 	public function getViewMaintenanceIndex() {
 		return $this->viewBase . "/maintenance/index.html";
+	}
+
+	public function getViewMailerIndex() {
+		return $this->viewBase . "/mailer/index.html";
+	}
+
+	public function getViewComposerIndex() {
+		return $this->viewBase . "/composer/index.html";
+	}
+
+	public function getViewComposerFrm() {
+		return $this->viewBase . "/composer/updateComposerFrm.html";
+	}
+
+	public function getViewExecComposer() {
+		return $this->viewBase . "/composer/execComposer.html";
+	}
+
+	public function getViewAddDependencyFrm() {
+		return $this->viewBase . "/composer/addDependencyFrm.html";
+	}
+
+	public function getViewMailerDefinePeriod() {
+		return $this->viewBase . "/mailer/sendDelay.html";
+	}
+
+	public function getViewNewMailerFrm() {
+		return $this->viewBase . "/mailer/formNewMailer.html";
+	}
+
+	public function getViewSeeMail() {
+		return $this->viewBase . "/mailer/seeMail.html";
+	}
+
+	public function getViewSeeMailForm() {
+		return $this->viewBase . "/mailer/seeMailForm.html";
+	}
+
+	public function getViewMailerConfig() {
+		return $this->viewBase . "/mailer/mailerConfig.html";
+	}
+
+	public function getViewOAuthIndex() {
+		return $this->viewBase . "/oauth/index.html";
+	}
+
+	public function getViewOAuthTest() {
+		return $this->viewBase . "/oauth/testConnected.html";
+	}
+
+	public function getProviderFrm() {
+		return $this->viewBase . "/oauth/providerFrm.html";
+	}
+
+	public function getOAuthConfigFrm() {
+		return $this->viewBase . "/oauth/configFrm.html";
+	}
+
+	public function getViewAddOAuthController() {
+		return $this->viewBase . "/oauth/oauthControllerFrm.html";
+	}
+
+	public function getViewSecurityIndex() {
+		return $this->viewBase . "/security/index.html";
+	}
+
+	public function getViewSecurityPart() {
+		return $this->viewBase . "/security/securityPart.html";
+	}
+
+	public function getViewCommandsIndex() {
+		return $this->viewBase . "/commands/index.html";
+	}
+
+	public function getViewDisplayCommandForm() {
+		return $this->viewBase . "/commands/display.html";
+	}
+
+	public function getViewDisplayMyCommands() {
+		return $this->viewBase . "/commands/myCommands.html";
+	}
+
+	public function getViewCommandSuiteFrm() {
+		return $this->viewBase . "/commands/commandSuiteFrm.html";
 	}
 }

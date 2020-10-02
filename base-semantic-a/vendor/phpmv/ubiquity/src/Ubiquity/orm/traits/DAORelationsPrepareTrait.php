@@ -5,6 +5,7 @@ namespace Ubiquity\orm\traits;
 use Ubiquity\orm\OrmUtils;
 use Ubiquity\orm\core\PendingRelationsRequest;
 use Ubiquity\orm\parser\ManyToManyParser;
+use Ubiquity\db\SqlUtils;
 
 /**
  * Used by DAO class, prepare relations for loading.
@@ -12,7 +13,7 @@ use Ubiquity\orm\parser\ManyToManyParser;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
+ * @version 1.0.4
  *
  */
 trait DAORelationsPrepareTrait {
@@ -20,12 +21,13 @@ trait DAORelationsPrepareTrait {
 	/**
 	 * Prepares members associated with $instance with a ManyToMany type relationship
 	 *
+	 * @param $db
 	 * @param $ret array of sql conditions
 	 * @param object $instance
 	 * @param string $member Member on which a ManyToMany annotation must be present
 	 * @param array $annot used internally
 	 */
-	protected static function prepareManyToMany(&$ret, $instance, $member, $annot = null) {
+	protected static function prepareManyToMany($db, &$ret, $instance, $member, $annot = null) {
 		$class = get_class ( $instance );
 		if (! isset ( $annot )) {
 			$annot = OrmUtils::getAnnotationInfoMember ( $class, "#ManyToMany", $member );
@@ -33,7 +35,8 @@ trait DAORelationsPrepareTrait {
 		if ($annot !== false) {
 			$key = $annot ["targetEntity"] . "|" . $member . "|" . $annot ["inversedBy"] . "|";
 			if (! isset ( $ret [$key] )) {
-				$parser = new ManyToManyParser ( $instance, $member );
+				$parser = new ManyToManyParser ( $db, $instance, $member );
+
 				$parser->init ( $annot );
 				$ret [$key] = $parser;
 			}
@@ -58,14 +61,20 @@ trait DAORelationsPrepareTrait {
 		if (! isset ( $annot ))
 			$annot = OrmUtils::getAnnotationInfoMember ( $class, "#oneToMany", $member );
 		if ($annot !== false) {
-			$fkAnnot = OrmUtils::getAnnotationInfoMember ( $annot ["className"], "#joinColumn", $annot ["mappedBy"] );
+			$fkClass = $annot ["className"];
+			$fkAnnot = OrmUtils::getAnnotationInfoMember ( $fkClass, "#joinColumn", $annot ["mappedBy"] );
 			if ($fkAnnot !== false) {
+				$fkMemberName = $annot ["mappedBy"];
+				if (\property_exists ( $fkClass, $fkAnnot ['name'] )) { // $fkClass is a class association (manyToMany with property)
+					$fkMemberName = $fkAnnot ['name'];
+				}
 				$fkv = OrmUtils::getFirstKeyValue ( $instance );
-				$key = $annot ["className"] . "|" . $member . "|" . $annot ["mappedBy"] . "|" . $fkAnnot ["className"];
+				$key = $annot ["className"] . "|" . $member . "|" . $fkMemberName . "|" . $fkAnnot ["className"];
 				if (! isset ( $ret [$key] )) {
 					$ret [$key] = new PendingRelationsRequest ();
 				}
-				$ret [$key]->addPartObject ( $instance, $fkAnnot ["name"] . "= ?", $fkv );
+				$quote = SqlUtils::$quote;
+				$ret [$key]->addPartObject ( $instance, $quote . $fkAnnot ["name"] . $quote . "= ?", $fkv );
 			}
 		}
 	}
@@ -86,6 +95,6 @@ trait DAORelationsPrepareTrait {
 		if (! isset ( $ret [$key] )) {
 			$ret [$key] = new PendingRelationsRequest ();
 		}
-		$ret [$key]->addPartObject ( $instance, $fk . "= ?", $value );
+		$ret [$key]->addPartObject ( $instance, SqlUtils::$quote . $fk . SqlUtils::$quote . "= ?", $value );
 	}
 }

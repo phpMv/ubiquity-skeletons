@@ -19,6 +19,7 @@ use Ubiquity\contents\validation\ValidatorsManager;
 use Ubiquity\contents\transformation\TransformersManager;
 use Ubiquity\cache\CacheManager;
 use Ubiquity\cache\ClassUtils;
+use Ajax\semantic\components\Toast;
 
 /**
  *
@@ -43,33 +44,38 @@ trait ModelsTrait {
 
 	abstract public function _getFiles();
 
-	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null): HtmlMessage;
+	abstract public function showSimpleMessage($content, $type, $title = null, $icon = "info", $timeout = NULL, $staticName = null, $closeAction = null, $toast = false): HtmlMessage;
 
 	abstract public function showConfMessage($content, $type, $title, $icon, $url, $responseElement, $data, $attributes = NULL): HtmlMessage;
 
-	public function showModel($model, $id = null) {
+	public function _showModel($model, $id = null) {
 		$model = str_replace(".", "\\", $model);
 		$adminRoute = $this->_getFiles()->getAdminBaseRoute();
-		$this->_showModel($model, $id);
+		$this->showModel_($model, $id);
 		$metas = OrmUtils::getModelMetadata($model);
 		$metas_ = [];
 		foreach ($metas as $k => $meta) {
 			$metas_[ltrim($k, '#')] = $meta;
 		}
-		$this->_getAdminViewer()->getModelsStructureDataTable($metas_);
-		$this->_getAdminViewer()->getModelsStructureDataTable(ValidatorsManager::getCacheInfo($model), "dtValidation");
+		if (count($metas_) > 0) {
+			$this->_getAdminViewer()->getModelsStructureDataTable($metas_);
+		}
+		$vMetas_ = ValidatorsManager::getCacheInfo($model);
+		if (count($vMetas_) > 0) {
+			$this->_getAdminViewer()->getModelsStructureDataTable(ValidatorsManager::getCacheInfo($model), "dtValidation");
+		}
 		$bt = $this->jquery->semantic()->htmlButton("btYuml", "Class diagram");
 		$bt->postOnClick($adminRoute . "/_showDiagram/", "{model:'" . \str_replace("\\", "|", $model) . "'}", "#modal", [
 			"attr" => ""
 		]);
 		$bt = $this->jquery->semantic()->htmlButton("btValidation", "Validate instances");
 		$bt->addIcon("check", true, true);
-		$bt->postOnClick($adminRoute . "/validateInstances/", "{model:'" . \str_replace("\\", "|", $model) . "'}", "#validationResults", [
+		$bt->postOnClick($adminRoute . "/_validateInstances/", "{model:'" . \str_replace("\\", "|", $model) . "'}", "#validationResults", [
 			"attr" => "",
 			"hasLoader" => "internal"
 		]);
 		$this->jquery->exec('$("#models-tab .item").tab();', true);
-		$this->jquery->getOnClick("#btAddNew", $adminRoute . "/newModel/" . $this->formModal, "#frm-add-update", [
+		$this->jquery->getOnClick("#btAddNew", $adminRoute . "/_newModel/" . $this->formModal, "#frm-add-update", [
 			"hasLoader" => "internal"
 		]);
 		$this->jquery->compile($this->view);
@@ -79,7 +85,7 @@ trait ModelsTrait {
 		]);
 	}
 
-	public function validateInstances() {
+	public function _validateInstances() {
 		$model = $_POST['model'];
 		$model = str_replace("|", "\\", $model);
 		if (class_exists($model)) {
@@ -101,33 +107,42 @@ trait ModelsTrait {
 		}
 	}
 
-	public function refreshTable($id = null) {
+	public function _refreshTable($id = null) {
 		$model = $_SESSION["model"];
-		$compo = $this->_showModel($model, $id);
+		$compo = $this->showModel_($model, $id);
+		$this->updateModelCount($model);
 		$this->jquery->execAtLast('$("#table-details").html("");');
 		$this->jquery->renderView("@admin/main/elements.html", [
 			"compo" => $compo
 		]);
 	}
 
-	public function showModelClick($modelAndId) {
+	protected function updateModelCount($model) {
+		$dataModel = str_replace("\\", ".", $model);
+		$count = DAO::count($model);
+		$this->jquery->execAtLast("$('a.active.item[data-model=\"{$dataModel}\"] .label').html('{$count}')");
+	}
+
+	public function _showModelClick($modelAndId) {
 		$array = \explode("||", $modelAndId);
 		if (\is_array($array)) {
 			$table = $array[0];
 			$id = $array[1];
 			$this->jquery->exec("$('#menuDbs .active').removeClass('active');$('.ui.label.left.pointing.teal').removeClass('left pointing teal active');$(\"[data-model='" . $table . "']\").addClass('active');$(\"[data-model='" . $table . "']\").find('.ui.label').addClass('left pointing teal');", true);
-			$this->showModel($table, $id);
+			$this->_showModel($table, $id);
 			$this->jquery->execAtLast("$(\"tr[data-ajax='" . $id . "']\").click();");
 			echo $this->jquery->compile();
 		}
 	}
 
-	protected function _showModel($model, $id = null) {
+	protected function showModel_($model, $id = null) {
 		$_SESSION["model"] = $model;
 		$totalCount = 0;
 		$datas = $this->getInstances($model, $totalCount, 1, $id);
 		$this->formModal = ($this->_getModelViewer()->isModal($datas, $model)) ? "modal" : "no";
-		return $this->_getModelViewer()->getModelDataTable($datas, $model, $totalCount, $this->activePage);
+		$dt = $this->_getModelViewer()->getModelDataTable($datas, $model, $totalCount, $this->activePage);
+		$dt->setActiveRowSelector('blue');
+		return $dt;
 	}
 
 	protected function getInstances($model, &$totalCount, $page = 1, $id = null) {
@@ -150,7 +165,7 @@ trait ModelsTrait {
 		return CRUDHelper::search($model, $search, $fields);
 	}
 
-	public function refresh_() {
+	public function _refresh_() {
 		$model = $_POST["_model"];
 		if (isset($_POST["s"])) {
 			$instances = $this->search($model, $_POST["s"]);
@@ -179,11 +194,11 @@ trait ModelsTrait {
 		}
 	}
 
-	protected function _edit($instance, $modal = "no") {
+	protected function editInstance_($instance, $modal = "no") {
 		$_SESSION["instance"] = $instance;
 		$modal = ($modal == "modal");
 		$formName = "frmEdit-" . UString::cleanAttribute(get_class($instance));
-		$form = $this->_getModelViewer()->getForm($formName, $instance);
+		$form = $this->_getModelViewer()->getForm($formName, $instance, '_updateModel');
 		$this->jquery->click("#action-modal-" . $formName . "-0", "$('#" . $formName . "').form('submit');", false);
 		if (! $modal) {
 			$this->jquery->click("#bt-cancel", "$('#form-container').transition('drop');");
@@ -208,20 +223,20 @@ trait ModelsTrait {
 		}
 	}
 
-	public function edit($modal = "no", $ids = "") {
+	public function _editModel($modal = "no", $ids = "") {
 		$instance = $this->getModelInstance($ids, false);
 		$instance->_new = false;
-		$this->_edit($instance, $modal);
+		$this->editInstance_($instance, $modal);
 	}
 
-	public function newModel($modal = "no") {
+	public function _newModel($modal = "no") {
 		$model = $_SESSION["model"];
 		$instance = new $model();
 		$instance->_new = true;
-		$this->_edit($instance, $modal);
+		$this->editInstance_($instance, $modal);
 	}
 
-	public function update() {
+	public function _updateModel() {
 		$message = new CRUDMessage("Modifications were successfully saved", "Updating");
 		$instance = @$_SESSION["instance"];
 		$isNew = $instance->_new;
@@ -246,7 +261,7 @@ trait ModelsTrait {
 				->setType("error")
 				->setIcon("warning circle");
 		}
-		echo $this->_showSimpleMessage($message, "updateMsg");
+		echo $this->_showSimpleMessage($message, "updateMsg", true);
 		echo $this->jquery->compile($this->view);
 	}
 
@@ -263,25 +278,25 @@ trait ModelsTrait {
 		exit(1);
 	}
 
-	public function delete($ids) {
+	public function _deleteModel($ids) {
 		$instance = $this->getModelInstance($ids);
-		if (method_exists($instance, "__toString"))
+		if (\method_exists($instance, "__toString"))
 			$instanceString = $instance . "";
 		else
 			$instanceString = get_class($instance);
-		if (sizeof($_POST) > 0) {
+		if (\count($_POST) > 0) {
 			if (DAO::remove($instance)) {
-				$message = $this->showSimpleMessage("Deletion of `<b>" . $instanceString . "</b>`", "info", "Deletion", "info", 4000);
+				$message = $this->showSimpleMessage("Deletion of `<b>" . $instanceString . "</b>`", "info", "Deletion", "info", null, null, null, true);
 				$this->jquery->exec("$('tr[data-ajax={$ids}]').remove();", true);
+				$this->updateModelCount(\get_class($instance));
 			} else {
 				$message = $this->showSimpleMessage("Can not delete `" . $instanceString . "`", "warning", "Error", "warning");
 			}
 		} else {
 			$message = $this->showConfMessage("Do you confirm the deletion of `<b>" . $instanceString . "</b>`?", "error", "Remove confirmation", "question circle", $this->_getFiles()
-				->getAdminBaseRoute() . "/delete/{$ids}", "#table-messages", $ids);
+				->getAdminBaseRoute() . "/_deleteModel/{$ids}", "#table-messages", $ids);
 		}
-		echo $message;
-		echo $this->jquery->compile($this->view);
+		$this->loadViewCompo($message);
 	}
 
 	private function getFKMethods($model) {
@@ -298,20 +313,20 @@ trait ModelsTrait {
 		}
 		return $result;
 	}
-	
-	public function _modelDatabase($hasHeader = true,$update=false,$databaseOffset='default'){
+
+	public function _modelDatabase($hasHeader = true, $update = false, $databaseOffset = 'default') {
 		$semantic = $this->jquery->semantic();
-		if($update!==false){
-			$this->config['activeDb']=$databaseOffset;
-			$this->saveConfig();
+		if ($update !== false) {
+			$this->config['activeDb'] = $databaseOffset;
+			$this->_saveConfig();
 		}
-		if (($hasHeader=UString::isBooleanTrue($hasHeader))) {
+		if (($hasHeader = UString::isBooleanTrue($hasHeader))) {
 			$stepper = $this->_getModelsStepper();
 		}
 		if ($this->_isModelsCompleted() || $hasHeader !== true) {
 			$config = Startup::getConfig();
 			try {
-				$models = CacheManager::getModels($config, true,$databaseOffset);
+				$models = CacheManager::getModels($config, true, $databaseOffset);
 				$menu = $semantic->htmlMenu("menuDbs");
 				$menu->setVertical()->setInverted();
 				foreach ($models as $model) {
@@ -323,29 +338,32 @@ trait ModelsTrait {
 					$item->setProperty("data-model", str_replace("\\", ".", $model));
 				}
 				$menu->getOnClick($this->_getFiles()
-					->getAdminBaseRoute() . "/showModel", "#divTable", [
-						"attr" => "data-model",
-						"historize" => true
-					]);
+					->getAdminBaseRoute() . "/_showModel", "#divTable", [
+					"attr" => "data-model",
+					"historize" => true
+				]);
 				$menu->onClick("$('.ui.label.left.pointing.teal').removeClass('left pointing teal');$(this).find('.ui.label').addClass('left pointing teal');");
 			} catch (\Exception $e) {
 				throw $e;
 				$this->showSimpleMessage("Models cache is not created!&nbsp;", "error", "Exception", "warning circle", null, "errorMsg");
 			}
 			$this->_checkModelsUpdates($config, false);
-			
+
 			$this->jquery->compile($this->view);
 			$this->loadView($this->_getFiles()
-				->getViewDataIndex(),['activeDb'=>$databaseOffset]);
+				->getViewDataIndex(), [
+				'activeDb' => $databaseOffset
+			]);
 		} else {
 			echo $stepper;
 			echo "<div id='models-main'>";
+			echo $this->jquery->semantic()->getHtmlComponent('opMessage');
 			$this->_loadModelStep();
 			echo "</div>";
 		}
 	}
 
-	public function showDetail($ids) {
+	public function _showModelDetails($ids) {
 		$instance = $this->getModelInstance($ids);
 		$viewer = $this->_getModelViewer();
 		$hasElements = false;
@@ -367,7 +385,7 @@ trait ModelsTrait {
 			if ($hasElements)
 				echo $grid;
 			$this->jquery->getOnClick(".showTable", $this->_getFiles()
-				->getAdminBaseRoute() . "/showModelClick", "#divTable", [
+				->getAdminBaseRoute() . "/_showModelClick", "#divTable", [
 				"attr" => "data-ajax",
 				"ajaxTransition" => "random"
 			]);
@@ -402,12 +420,11 @@ trait ModelsTrait {
 		$_SESSION["instance"] = $instance;
 		$_SESSION["model"] = get_class($instance);
 		$instance->_new = false;
-		$form = $this->_getModelViewer()->getMemberForm("frm-member-" . $member, $instance, $member, $td, $part);
-		$form->setLibraryId("_compo_");
-		$this->jquery->renderView("@admin/main/component.html");
+		$form = $this->_getModelViewer()->getMemberForm("frm-member-" . $member, $instance, $member, $td, $part, '_updateMember');
+		$this->loadViewCompo($form);
 	}
 
-	public function updateMember($member, $callback = false) {
+	public function _updateMember($member, $callback = false) {
 		$instance = @$_SESSION["instance"];
 		$model = $_SESSION['model'];
 		$updated = CRUDHelper::update($instance, $_POST);
@@ -422,6 +439,9 @@ trait ModelsTrait {
 					$value = TransformersManager::applyTransformer($instance, $member, $value, 'toView');
 				}
 				echo new HtmlContentOnly($value);
+				$toast = new Toast();
+				$toast->setMessage('Data updated');
+				echo '<script>' . $toast->getScript() . '</script>';
 			} else {
 				if (method_exists($this, $callback)) {
 					$this->$callback($member, $instance);

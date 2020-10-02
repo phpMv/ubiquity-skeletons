@@ -134,13 +134,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -534,7 +534,7 @@ $(function () {
         '<div class="carousel-item active">' +
         '<img alt="">' +
         '</div>' +
-        '<script type="text/x-metamorph" id="thingy"/>' +
+        '<script type="text/x-metamorph" id="thingy"></script>' +
         '<div class="carousel-item">' +
         '<img alt="">' +
         '</div>' +
@@ -560,7 +560,7 @@ $(function () {
         '<div class="carousel-item active">' +
         '<img alt="">' +
         '</div>' +
-        '<script type="text/x-metamorph" id="thingy"/>' +
+        '<script type="text/x-metamorph" id="thingy"></script>' +
         '<div class="carousel-item">' +
         '<img alt="">' +
         '</div>' +
@@ -763,13 +763,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -810,13 +810,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -844,13 +844,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -892,13 +892,13 @@ $(function () {
         '</ol>' +
         '<div class="carousel-inner">' +
         '<div class="carousel-item active" id="one">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="two">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '<div class="carousel-item" id="three">' +
-        '<div class="carousel-caption"/>' +
+        '<div class="carousel-caption"></div>' +
         '</div>' +
         '</div>' +
         '<a class="left carousel-control" href="#carousel-example-generic" data-slide="prev"/>' +
@@ -1118,7 +1118,7 @@ $(function () {
     }
 
     document.documentElement.ontouchstart = $.noop
-    assert.expect(3)
+    assert.expect(4)
     Simulator.setType('pointer')
 
     var $styles = $(stylesCarousel).appendTo('head')
@@ -1147,6 +1147,7 @@ $(function () {
       assert.ok(true, 'slid event fired')
       assert.ok(!$item.hasClass('active'))
       assert.ok(spy.called)
+      assert.strictEqual(carousel.touchDeltaX, 0)
       $styles.remove()
       delete document.documentElement.ontouchstart
       done()
@@ -1160,7 +1161,7 @@ $(function () {
   })
 
   QUnit.test('should allow swipeleft and call next with touch events', function (assert) {
-    assert.expect(3)
+    assert.expect(4)
     clearPointerEvents()
     Simulator.setType('touch')
     document.documentElement.ontouchstart = $.noop
@@ -1190,6 +1191,7 @@ $(function () {
       assert.ok(true, 'slid event fired')
       assert.ok(!$item.hasClass('active'))
       assert.ok(spy.called)
+      assert.strictEqual(carousel.touchDeltaX, 0)
       restorePointerEvents()
       delete document.documentElement.ontouchstart
       done()

@@ -13,6 +13,7 @@ import { Touch } from './foundation.util.touch'
  * @module foundation.dropdown
  * @requires foundation.util.keyboard
  * @requires foundation.util.box
+ * @requires foundation.util.touch
  * @requires foundation.util.triggers
  */
 class Dropdown extends Positionable {
@@ -29,7 +30,8 @@ class Dropdown extends Positionable {
     this.options = $.extend({}, Dropdown.defaults, this.$element.data(), options);
     this.className = 'Dropdown'; // ie9 back compat
 
-    // Triggers init is idempotent, just need to make sure it is initialized
+    // Touch and Triggers init are idempotent, just need to make sure they are initialized
+    Touch.init($);
     Triggers.init($);
 
     this._init();
@@ -71,7 +73,7 @@ class Dropdown extends Positionable {
       // Get the anchor ID or create one
       if (typeof this.$currentAnchor.attr('id') === 'undefined') {
         this.$currentAnchor.attr('id', GetYoDigits(6, 'dd-anchor'));
-      };
+      }
 
       this.$element.attr('aria-labelledby', this.$currentAnchor.attr('id'));
     }
@@ -137,7 +139,9 @@ class Dropdown extends Positionable {
    * @private
    */
   _events() {
-    var _this = this;
+    var _this = this,
+        hasTouch = 'ontouchstart' in window || (typeof window.ontouchstart !== 'undefined');
+
     this.$element.on({
       'open.zf.trigger': this.open.bind(this),
       'close.zf.trigger': this.close.bind(this),
@@ -146,7 +150,19 @@ class Dropdown extends Positionable {
     });
 
     this.$anchors.off('click.zf.trigger')
-      .on('click.zf.trigger', function() { _this._setCurrentAnchor(this); });
+      .on('click.zf.trigger', function(e) {
+        _this._setCurrentAnchor(this);
+
+        if (
+          // if forceFollow false, always prevent default action
+          (_this.options.forceFollow === false) ||
+          // if forceFollow true and hover option true, only prevent default action on 1st click
+          // on 2nd click (dropown opened) the default action (e.g. follow a href) gets executed
+          (hasTouch && _this.options.hover && _this.$element.hasClass('is-open') === false)
+        ) {
+          e.preventDefault();
+        }
+    });
 
     if(this.options.hover){
       this.$anchors.off('mouseenter.zf.dropdown mouseleave.zf.dropdown')
@@ -210,8 +226,8 @@ class Dropdown extends Positionable {
   _addBodyHandler() {
      var $body = $(document.body).not(this.$element),
          _this = this;
-     $body.off('click.zf.dropdown')
-          .on('click.zf.dropdown', function(e){
+     $body.off('click.zf.dropdown tap.zf.dropdown')
+          .on('click.zf.dropdown tap.zf.dropdown', function (e) {
             if(_this.$anchors.is(e.target) || _this.$anchors.find(e.target).length) {
               return;
             }
@@ -219,7 +235,7 @@ class Dropdown extends Positionable {
               return;
             }
             _this.close();
-            $body.off('click.zf.dropdown');
+            $body.off('click.zf.dropdown tap.zf.dropdown');
           });
   }
 
@@ -311,7 +327,7 @@ class Dropdown extends Positionable {
   _destroy() {
     this.$element.off('.zf.trigger').hide();
     this.$anchors.off('.zf.dropdown');
-    $(document.body).off('click.zf.dropdown');
+    $(document.body).off('click.zf.dropdown tap.zf.dropdown');
 
   }
 }
@@ -409,7 +425,14 @@ Dropdown.defaults = {
    * @type {boolean}
    * @default false
    */
-  closeOnClick: false
+  closeOnClick: false,
+  /**
+   * If true the default action of the toggle (e.g. follow a link with href) gets executed on click. If hover option is also true the default action gets prevented on first click for mobile / touch devices and executed on second click.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  forceFollow: true
 };
 
 export {Dropdown};

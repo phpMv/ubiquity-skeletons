@@ -12,6 +12,7 @@ use Ubiquity\utils\base\UString;
  *
  * @author jcheron <myaddressmail@gmail.com>
  * @version 1.0.1
+ * @package ubiquity.dev
  *
  */
 class CrudControllerCreator extends BaseControllerCreator {

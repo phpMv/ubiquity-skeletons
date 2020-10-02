@@ -17,15 +17,16 @@ Using the dependency injection, the jQuery object can be injected into **php fra
 
 ## Requirements/Dependencies
 
-* PHP >= 5.3.9
+* PHP >= 7.0
 * JQuery >= 2.0.3
 * JQuery UI >= 1.10 [optional]
 * Twitter Bootstrap >= 3.3.2 [optional]
-* Semantic-UI >= 2.2 [optional]
+* Semantic-UI >= 2.2 or Fomantic-UI >= 2.7 [optional]
 
 ## Resources
 * [API](https://api.kobject.net/phpMv-UI/)
 * [Documentation/demo](https://phpmv-ui.kobject.net/)
+* [Semantic-ui](https://semantic-ui.com) [Fomantic-ui](https://fomantic-ui.com)
 
 ## I - Installation
 
@@ -41,7 +42,7 @@ Create the composer.json file in the app directory as follows:
 ```json
 {
     "require": {
-        "phpmv/php-mv-ui": "2.3.x-dev"
+        "phpmv/php-mv-ui": "^2.3"
     }
 }
 ```
@@ -65,6 +66,33 @@ phpMv-UI complies with [PSR-4 recommendations](http://www.php-fig.org/psr/psr-4/
 Whatever the php framework used, with "composer", it is enough to integrate the Composer autoload file.
 ```php
 require_once("vendor/autoload.php");
+```
+### <img src="http://angular.kobject.net/git/images/ubiquity.png" width="30"> Ubiquity configuration
+
+#### Library loading
+The library is already loaded by default in the config file **app/config/config.php** :
+
+```php
+	"di"=>array(
+			"@exec"=>array("jquery"=>function ($controller){
+						return \Ubiquity\core\Framework::diSemantic($controller);
+					})
+			),
+```
+#### Use in controllers
+Example of creating a Semantic-UI button
+
+```php
+/**
+ * @property \Ajax\php\ubiquity\JsUtils $jquery
+ */
+class ExempleController extends Controller{
+	public function index(){
+		$semantic=$this->jquery->semantic();
+		$button=$semantic->htmlButton("btTest","Test Button");
+		echo $button;
+	}
+}
 ```
 ### <img src="http://angular.kobject.net/git/images/phalcon.png" width="30"> Phalcon configuration
 
@@ -95,9 +123,9 @@ Example of creating a Semantic-UI button
 ```php
 use Phalcon\Mvc\Controller;
 use Ajax\php\phalcon\JsUtils;
-    /**
-     * @property JsUtils $jquery
-    **/
+/**
+ * @property JsUtils $jquery
+ */
 class ExempleController extends Controller{
 	public function indexAction(){
 		$semantic=$this->jquery->semantic();
@@ -224,7 +252,49 @@ $loader = new Psr4ClassLoader();
 $loader->addPrefix('Ajax\\', __DIR__.'/lib/phpmv/php-mv-ui/Ajax');
 $loader->register();
 ```
-#### Injection of the service
+
+
+#### Symfony 4
+
+Create a service inheriting from `JquerySemantic`
+```php
+namespace App\Services\semantic;
+
+use Ajax\php\symfony\JquerySemantic;
+
+class SemanticGui extends JquerySemantic{
+}
+```
+Check that autowiring is activated in **config/services.yml**:
+```yml
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+```
+You can then use dependency injection on properties, constructors or setters:
+
+```php
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Services\semantic\SemanticGui;
+
+BarController extends AbstractController{
+	/**
+	 * @var SemanticGui
+	 */
+	protected $gui;
+
+    public function loadViewWithAjaxButtonAction(){
+    	$bt=$this->gui->semantic()->htmlButton('button1','a button');
+    	$bt->getOnClick("/url",'#responseElement');
+    	return $this->gui->renderView("barView.html.twig");
+    }
+}
+```
+#### Symfony 3
+##### Injection of the service
 Create 2 services in the **app/config/services.yml** file :
   * The first for the JsUtils instance
   * The second for the controller

@@ -11,7 +11,7 @@ use Ubiquity\utils\base\UString;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.0
+ * @version 1.1.2
  *
  */
 class URequest {
@@ -23,12 +23,13 @@ class URequest {
 	 * @param object $object
 	 * @param associative array $values
 	 */
-	public static function setValuesToObject($object, $values = null) {
-		if (! isset ( $values ))
+	public static function setValuesToObject($object, $values = null): void {
+		if (! isset ( $values )) {
 			$values = $_POST;
+		}
 		foreach ( $values as $key => $value ) {
-			$accessor = "set" . ucfirst ( $key );
-			if (method_exists ( $object, $accessor )) {
+			$accessor = 'set' . \ucfirst ( $key );
+			if (\method_exists ( $object, $accessor )) {
 				$object->$accessor ( $value );
 				$object->_rest [$key] = $value;
 			}
@@ -41,7 +42,7 @@ class URequest {
 	 *
 	 * @param object $object
 	 */
-	public static function setGetValuesToObject($object) {
+	public static function setGetValuesToObject($object): void {
 		self::setValuesToObject ( $object, $_GET );
 	}
 
@@ -51,7 +52,7 @@ class URequest {
 	 *
 	 * @param object $object
 	 */
-	public static function setPostValuesToObject($object) {
+	public static function setPostValuesToObject($object): void {
 		self::setValuesToObject ( $object, $_POST );
 	}
 
@@ -61,14 +62,14 @@ class URequest {
 	 * @param string $function the cleaning function, default htmlentities
 	 * @return array
 	 */
-	public static function getPost($function = "htmlentities") {
-		return array_map ( $function, $_POST );
+	public static function getPost($function = 'htmlentities'): array {
+		return \array_map ( $function, $_POST );
 	}
 
 	/**
 	 * Returns the query data, for PUT, DELETE PATCH methods
 	 */
-	public static function getInput() {
+	public static function getInput(): array {
 		return Startup::getHttpInstance ()->getInput ();
 	}
 
@@ -77,7 +78,7 @@ class URequest {
 	 *
 	 * @return array
 	 */
-	public static function getDatas() {
+	public static function getDatas(): array {
 		$method = \strtolower ( $_SERVER ['REQUEST_METHOD'] );
 		switch ($method) {
 			case 'post' :
@@ -97,8 +98,10 @@ class URequest {
 	 * Tests if a value is present on the request and is not empty
 	 *
 	 * @param string $key
+	 *
+	 * @return bool
 	 */
-	public static function filled($key) {
+	public static function filled($key): bool {
 		return isset ( $_REQUEST [$key] ) && $_REQUEST [$key] != null;
 	}
 
@@ -106,9 +109,22 @@ class URequest {
 	 * Tests if a value is present on the request
 	 *
 	 * @param string $key
+	 *
+	 * @return bool
 	 */
-	public static function has($key) {
+	public static function has($key): bool {
 		return isset ( $_REQUEST [$key] );
+	}
+
+	/**
+	 * Adds a value in request at $key position
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public static function set(string $key, $value = true) {
+		return $_REQUEST [$key] = $value;
 	}
 
 	/**
@@ -116,10 +132,10 @@ class URequest {
 	 *
 	 * @return string
 	 */
-	public static function getContentType() {
+	public static function getContentType(): ?string {
 		$headers = Startup::getHttpInstance ()->getAllHeaders ();
-		if (isset ( $headers ["Content-Type"] )) {
-			return $headers ["Content-Type"];
+		if (isset ( $headers ['Content-Type'] )) {
+			return $headers ['Content-Type'];
 		}
 		return null;
 	}
@@ -130,19 +146,19 @@ class URequest {
 	 * Licensed under BSD license.
 	 * https://www.dyeager.org/downloads/license-bsd.txt
 	 */
-	public static function getDefaultLanguage() {
-		if (isset ( $_SERVER ["HTTP_ACCEPT_LANGUAGE"] ))
-			return self::parseDefaultLanguage ( $_SERVER ["HTTP_ACCEPT_LANGUAGE"] );
-		else
-			return self::parseDefaultLanguage ( NULL );
+	public static function getDefaultLanguage(): string {
+		if (isset ( $_SERVER ['HTTP_ACCEPT_LANGUAGE'] )) {
+			return self::parseDefaultLanguage ( $_SERVER ['HTTP_ACCEPT_LANGUAGE'] );
+		}
+		return self::parseDefaultLanguage ( NULL );
 	}
 
-	private static function parseDefaultLanguage($http_accept, $deflang = "en") {
-		if (isset ( $http_accept ) && strlen ( $http_accept ) > 1) {
-			$x = explode ( ",", $http_accept );
+	private static function parseDefaultLanguage($http_accept, $deflang = 'en'): string {
+		if (isset ( $http_accept ) && \strlen ( $http_accept ) > 1) {
+			$x = \explode ( ",", $http_accept );
 			$lang = [ ];
 			foreach ( $x as $val ) {
-				if (preg_match ( "/(.*);q=([0-1]{0,1}.\d{0,4})/i", $val, $matches ))
+				if (\preg_match ( "/(.*);q=([0-1]{0,1}.\d{0,4})/i", $val, $matches ))
 					$lang [$matches [1]] = ( float ) $matches [2];
 				else
 					$lang [$val] = 1.0;
@@ -159,9 +175,9 @@ class URequest {
 		return $deflang;
 	}
 
-	public static function setLocale(string $locale) {
+	public static function setLocale(string $locale): void {
 		try {
-			if (class_exists ( 'Locale', false )) {
+			if (\class_exists ( 'Locale', false )) {
 				\Locale::setDefault ( $locale );
 			}
 		} catch ( \Exception $e ) {
@@ -174,7 +190,7 @@ class URequest {
 	 *
 	 * @return boolean
 	 */
-	public static function isAjax() {
+	public static function isAjax(): bool {
 		return (isset ( $_SERVER ['HTTP_X_REQUESTED_WITH'] ) && ! empty ( $_SERVER ['HTTP_X_REQUESTED_WITH'] ) && strtolower ( $_SERVER ['HTTP_X_REQUESTED_WITH'] ) == 'xmlhttprequest');
 	}
 
@@ -183,7 +199,7 @@ class URequest {
 	 *
 	 * @return boolean
 	 */
-	public static function isPost() {
+	public static function isPost(): bool {
 		return $_SERVER ['REQUEST_METHOD'] === 'POST';
 	}
 
@@ -192,8 +208,8 @@ class URequest {
 	 *
 	 * @return boolean
 	 */
-	public static function isCrossSite() {
-		return stripos ( $_SERVER ['HTTP_REFERER'], $_SERVER ['SERVER_NAME'] ) === FALSE;
+	public static function isCrossSite(): bool {
+		return \stripos ( $_SERVER ['HTTP_REFERER'], $_SERVER ['SERVER_NAME'] ) === FALSE;
 	}
 
 	/**
@@ -201,9 +217,9 @@ class URequest {
 	 *
 	 * @return boolean
 	 */
-	public static function isJSON() {
+	public static function isJSON(): bool {
 		$contentType = self::getContentType ();
-		return \stripos ( $contentType, "json" ) !== false;
+		return \stripos ( $contentType, 'json' ) !== false;
 	}
 
 	/**
@@ -213,8 +229,8 @@ class URequest {
 	 * @param string $default return value by default
 	 * @return string
 	 */
-	public static function get($key, $default = NULL) {
-		return isset ( $_GET [$key] ) ? $_GET [$key] : $default;
+	public static function get($key, $default = NULL): ?string {
+		return $_GET [$key] ?? $default;
 	}
 
 	/**
@@ -223,7 +239,7 @@ class URequest {
 	 * @param string $key the key to add or set
 	 * @return boolean
 	 */
-	public static function getBoolean($key) {
+	public static function getBoolean($key): bool {
 		$ret = false;
 		if (isset ( $_REQUEST [$key] )) {
 			$ret = UString::isBooleanTrue ( $_REQUEST [$key] );
@@ -236,23 +252,23 @@ class URequest {
 	 *
 	 * @param string $key
 	 * @param string $default return value by default
-	 * @return string
+	 * @return mixed
 	 */
 	public static function post($key, $default = NULL) {
-		return isset ( $_POST [$key] ) ? $_POST [$key] : $default;
+		return $_POST [$key] ?? $default;
 	}
 
-	public static function getUrl($url) {
+	public static function getUrl($url): string {
 		$config = Startup::getConfig ();
-		$siteUrl = \rtrim ( $config ["siteUrl"], '/' );
-		if (UString::startswith ( $url, "/" ) === false) {
-			$url = "/" . $url;
+		$siteUrl = \rtrim ( $config ['siteUrl'], '/' );
+		if (UString::startswith ( $url, '/' ) === false) {
+			$url = '/' . $url;
 		}
 		return $siteUrl . $url;
 	}
 
-	public static function getUrlParts() {
-		return \explode ( "/", $_GET ["c"] );
+	public static function getUrlParts(): array {
+		return \explode ( '/', $_GET ['c'] );
 	}
 
 	/**
@@ -260,7 +276,7 @@ class URequest {
 	 *
 	 * @return string
 	 */
-	public static function getMethod() {
+	public static function getMethod(): string {
 		return \strtolower ( $_SERVER ['REQUEST_METHOD'] );
 	}
 
@@ -269,7 +285,7 @@ class URequest {
 	 *
 	 * @return string
 	 */
-	public static function getOrigin() {
+	public static function getOrigin(): string {
 		$headers = Startup::getHttpInstance ()->getAllHeaders ();
 		if (isset ( $headers ['Origin'] )) {
 			return $headers ['Origin'];
@@ -283,7 +299,7 @@ class URequest {
 		}
 	}
 
-	public static function cleanUrl($url) {
+	public static function cleanUrl($url): string {
 		$url = \str_replace ( "\\", "/", $url );
 		return \str_replace ( "//", "/", $url );
 	}
@@ -296,23 +312,37 @@ class URequest {
 	 * @return string[]
 	 * @see https://stackoverflow.com/questions/68651/can-i-get-php-to-stop-replacing-characters-in-get-or-post-arrays#68667
 	 */
-	public static function getRealInput($source = 'post') {
-		$pairs = explode ( "&", strtolower ( $source ) === 'get' ? $_SERVER ['QUERY_STRING'] : file_get_contents ( "php://input" ) );
+	public static function getRealInput($source = 'post'): array {
+		$pairs = \explode ( '&', \strtolower ( $source ) === 'get' ? $_SERVER ['QUERY_STRING'] : \file_get_contents ( 'php://input' ) );
 		$vars = array ();
 		foreach ( $pairs as $pair ) {
-			$nv = explode ( "=", $pair );
-			$name = urldecode ( $nv [0] );
-			$value = urldecode ( $nv [1] ?? '');
+			$nv = \explode ( "=", $pair );
+			$name = \urldecode ( $nv [0] );
+			$value = \urldecode ( $nv [1] ?? '');
 			$vars [$name] = $value;
 		}
 		return $vars;
 	}
 
-	public static function getRealGET() {
+	public static function getRealGET(): array {
 		return self::getRealInput ( 'get' );
 	}
 
-	public static function getRealPOST() {
+	public static function getRealPOST(): array {
 		return self::getRealInput ( 'post' );
+	}
+
+	/**
+	 * Creates a password hash for a posted value at $key position
+	 *
+	 * @param string $key
+	 * @param int $algo
+	 * @return string|boolean
+	 */
+	public static function password_hash(string $key, int $algo = PASSWORD_DEFAULT) {
+		if (isset ( $_POST [$key] )) {
+			return $_POST [$key] = password_hash ( $_POST [$key], $algo );
+		}
+		return false;
 	}
 }

@@ -31,6 +31,7 @@ use services\TestClassComparison;
 use services\TestClassString;
 use services\TestClassToValidate;
 use Ubiquity\contents\validation\validators\strings\UrlValidator;
+use Ubiquity\db\providers\pdo\PDOWrapper;
 
 /**
  * ValidatorsManager test case.
@@ -44,6 +45,7 @@ class ValidatorsManagerTest extends BaseTest {
 	private $validatorsManager;
 	protected $dbType;
 	protected $dbName;
+
 	/**
 	 *
 	 * @var Database
@@ -55,10 +57,10 @@ class ValidatorsManagerTest extends BaseTest {
 	 */
 	protected function _before() {
 		parent::_before ();
-		$db = $this->config ["database"];
+		$db = DAO::getDbOffset ( $this->config, $this->getDatabase () );
 		$this->dbType = $db ['type'];
 		$this->dbName = $db ['dbName'];
-		$this->database = new Database ( $this->dbType, $this->dbName, $this->db_server );
+		$this->database = new Database ( $db ['wrapper'] ?? PDOWrapper::class, $this->dbType, $this->dbName, $this->db_server );
 		ValidatorsManager::start ();
 	}
 
@@ -138,7 +140,7 @@ class ValidatorsManagerTest extends BaseTest {
 		CacheManager::$cache = null;
 		CacheManager::start ( $this->config );
 
-		CacheManager::initModelsCache ( $this->config );
+		CacheManager::initModelsCache ( $this->oConfig );
 		ValidatorsManager::start ();
 		$groupes = DAO::getAll ( Groupe::class, '', false );
 		$result = ValidatorsManager::validateInstances ( $groupes );

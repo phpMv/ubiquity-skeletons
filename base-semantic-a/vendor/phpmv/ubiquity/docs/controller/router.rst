@@ -107,10 +107,10 @@ Creation
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    
-   	/**
+    	/**
     	* @route("products")
     	*/
    	public function index(){}
@@ -131,7 +131,7 @@ A route can have parameters:
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    	...
     	/**
@@ -157,7 +157,7 @@ A route can define optional parameters, if the associated method has optional ar
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    	...
     	/**
@@ -184,7 +184,7 @@ Route requirements
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    	...
     	/**
@@ -218,10 +218,10 @@ It is possible to specify the http method or methods associated with a route:
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    
-   	/**
+    /**
     * @route("products","methods"=>["get"])
     */
    	public function index(){}
@@ -231,7 +231,16 @@ It is possible to specify the http method or methods associated with a route:
 The **methods** attribute can accept several methods: |br|
 ``@route("testMethods","methods"=>["get","post","delete"])``
 
-It is also possible to use specific annotations **@get**, **@post**... |br|
+The **@route** annotation defaults to all HTTP methods. |br|
+There is a specific annotation for each of the existing HTTP methods:
+ - **@get**
+ - **@post**
+ - **@put**
+ - **@patch**
+ - **@delete**
+ - **@head**
+ - **@options**
+
 ``@get("products")``
 
 Route name
@@ -250,11 +259,11 @@ If the **name** attribute is not specified, each route has a default name, based
     **/
    class ProductsController extends ControllerBase{
    
-   	/**
+    	/**
     	* @route("products","name"=>"products_index")
     	*/
-   	public function index(){}
-   
+    	public function index(){}
+    
    }
 
 URL or path generation
@@ -281,15 +290,15 @@ The **@route** annotation can be used on a controller class :
     /**
     * @route("/product")
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    
     ...
-   	/**
-    * @route("/all")
-    **/
-   	public function display(){}
-   
+    	/**
+    	* @route("/all")
+    	*/
+    	public function display(){}
+    
    }
 
 In this case, the route defined on the controller is used as a prefix for all controller routes : |br|
@@ -309,12 +318,12 @@ If a global route is defined, it is possible to add all controller actions as ro
     /**
     * @route("/product","automated"=>true)
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    
-   	public function generate(){}
-   	
-   	public function display(){}
+    	public function generate(){}
+    
+    	public function display(){}
    
    }
    
@@ -334,17 +343,17 @@ The base class:
    namespace controllers;
     /**
     * Controller ProductsBase
-    **/
+    */
    abstract class ProductsBase extends ControllerBase{
    
    	/**
    	*@route("(index/)?")
-   	**/   	
+   	*/
    	public function index(){}
 
    	/**
    	*@route("sort/{name}")
-   	**/   	
+   	*/
    	public function sortBy($name){}
    
    }
@@ -360,7 +369,7 @@ The derived class using inherited attribute:
     /**
     * @route("/product","inherited"=>true)
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ProductsBase{
    
    	public function display(){}
@@ -391,19 +400,19 @@ In the example below, the **products/all** route will be defined before the **/p
    namespace controllers;
     /**
     * Controller ProductsController
-    **/
+    */
    class ProductsController extends ControllerBase{
    
-   	/**
-    * @route("products","priority"=>1)
-    */
-   	public function index(){}
-   	
-   	/**
-    * @route("products/all","priority"=>10)
-    */
-   	public function all(){}
-   
+    	/**
+    	* @route("products","priority"=>1)
+    	*/
+    	public function index(){}
+    	
+    	/**
+    	* @route("products/all","priority"=>10)
+    	*/
+    	public function all(){}
+    
    }
 
 Routes response caching
@@ -462,8 +471,57 @@ Checking routes with devtools :
 
    Ubiquity info:routes
    
-.. image:: /_static/images/quick-start/ubi-version.png
+.. image:: /_static/images/controllers/info-routes.png
    :class: console
+
+Error management (404 & 500 errors)
+-----------------------------------
+
+Default routing system
+^^^^^^^^^^^^^^^^^^^^^^
+
+With the default routing system (the controller+action couple defining a route), the error handler can be redefined to customize the error management.
+
+In the configuration file **app/config/config.php**, add the **onError** key, associated to a callback defining the error messages:
+
+.. code-block:: php
+   
+   	"onError"=>function ($code, $message = null,$controller=null){
+   		switch($code){
+   			case 404:
+   			$init=($controller==null);
+   			\Ubiquity\controllers\Startup::forward('IndexController/p404',$init,$init);
+   			break;
+   		}
+   	}
+
+Implement the requested action **p404** in the **IndexController**:
+
+.. code-block:: php
+   :caption: app/controllers/IndexController.php
+   
+   ...
+   
+	public function p404(){
+			echo "<div class='ui error message'><div class='header'>404</div>The page you are loocking for doesn't exists!</div>";
+	}
+
+Routage with annotations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is enough in this case to add a last route disabling the default routing system, and corresponding to the management of the 404 error:
+
+.. code-block:: php
+   :caption: app/controllers/IndexController.php
+   
+   ...
+   
+   	/**
+   	 * @route("{url}","priority"=>-1000)
+   	 */
+   	public function p404($url){
+   			echo "<div class='ui error message'><div class='header'>404</div>The page `$url` you are loocking for doesn't exists!</div>";
+   	}
 
 .. |br| raw:: html
 

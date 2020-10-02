@@ -1,7 +1,6 @@
 <?php
 namespace Ubiquity\controllers\admin\traits;
 
-use Ajax\JsUtils;
 use Ubiquity\utils\http\URequest;
 use Ajax\semantic\html\collections\menus\HtmlMenu;
 use Ajax\semantic\html\modules\HtmlDropdown;
@@ -10,11 +9,15 @@ use Ubiquity\controllers\Startup;
 use Ubiquity\controllers\admin\UbiquityMyAdminFiles;
 use Ajax\semantic\components\validation\Rule;
 use Ubiquity\orm\DAO;
+use Ajax\JsUtils;
+use Ubiquity\db\Database;
+use Ubiquity\exceptions\DBException;
+use Ubiquity\db\SqlUtils;
 
 /**
  *
  * @author jc
- * @property JsUtils $jquery
+ * @property \Ajax\php\ubiquity\JsUtils $jquery
  * @property View $view
  */
 trait ModelsConfigTrait {
@@ -191,7 +194,7 @@ trait ModelsConfigTrait {
 		$this->jquery->execAtLast('$("#yuml-tab .item").tab({onVisible:function(tab){
 				if(tab=="diagram" && $("#yuml-code").prop("_changed")==true){
 					' . $this->_yumlRefresh("/_updateYumlDiagram", "{refresh:'true',code:$('#yuml-code').val()}", "#diag-class") . '
-				}	
+				}
 			}
 		});');
 		$this->jquery->compile($this->view);
@@ -224,8 +227,26 @@ trait ModelsConfigTrait {
 		}
 	}
 
+	private function getJsDatabaseTypes($values) {
+		$html = '';
+		foreach ($values as $v) {
+			$html .= '<div class="item" data-value="' . $v . '">' . $v . '</div>';
+		}
+		return $html;
+	}
+
+	private function getAllJsDatabaseTypes($name, $wrappers) {
+		$array = [];
+		foreach ($wrappers as $wrapperClass) {
+			$types = Database::getAvailableDrivers($wrapperClass);
+			$array[$wrapperClass] = $this->getJsDatabaseTypes($types);
+		}
+		return 'var ' . $name . '=' . \json_encode($array) . ';';
+	}
+
 	public function _frmAddNewDbConnection() {
 		$v = (object) [
+			'wrapper' => \Ubiquity\db\providers\pdo\PDOWrapper::class,
 			'type' => 'mysql',
 			'dbName' => '',
 			'serverName' => '127.0.0.1',
@@ -266,6 +287,7 @@ trait ModelsConfigTrait {
 
 		$dbForm->compile($this->jquery);
 		$this->jquery->execAtLast('$("#models-main").hide();');
+		$this->jquery->execAtLast($this->getAllJsDatabaseTypes('wrappers', Database::getAvailableWrappers()));
 		$this->jquery->renderView($this->_getFiles()
 			->getViewFrmNewDbConnection(), [
 			'dbForm' => $dbForm
@@ -295,6 +317,7 @@ trait ModelsConfigTrait {
 				];
 			}
 			$result['database'][$postValues['connection-name']] = [
+				'wrapper' => $postValues['database-wrapper'],
 				'type' => $postValues['database-type'],
 				'dbName' => $postValues['database-dbName'],
 				'serverName' => $postValues['database-serverName'],
@@ -306,15 +329,116 @@ trait ModelsConfigTrait {
 			];
 			if (Startup::saveConfig($result)) {
 				$this->config['activeDb'] = $postValues['connection-name'];
-				$this->saveConfig();
-				$this->showSimpleMessage("The connection has been successfully created!", "positive", "check square", null, "msgModels");
+				$this->_saveConfig();
+				$this->showSimpleMessage("The connection has been successfully created!", "positive", "check square", null, "opMessage");
 			} else {
-				$this->showSimpleMessage("Impossible to add this connection.", "negative", "warning circle", null, "msgModels");
+				$this->showSimpleMessage("Impossible to add this connection.", "negative", "warning circle", null, "opMessage");
 			}
 			$this->reloadConfig();
 		}
 
 		$this->models();
+	}
+
+	private function getDbInstance(string $offset) {
+		try {
+			$db = null;
+			$config = Startup::$config;
+			if (! isset(DAO::$db[$offset])) {
+				DAO::startDatabase($config, $offset);
+			}
+			if (isset(DAO::$db[$offset])) {
+				$db = DAO::$db[$offset];
+				SqlUtils::$quote = $db->quote;
+			} else {
+				DAO::updateDatabaseParams($config, [
+					'dbName' => 'newbase'
+				], $offset);
+				DAO::startDatabase($config, $offset);
+				$db = DAO::$db[$offset];
+			}
+		} catch (\Exception $e) {
+			$db = DAO::$db[$offset];
+		}
+		return $db;
+	}
+
+	public function _importSQL() {
+		$offset = $this->getActiveDb();
+		$db = $this->getDbInstance($offset);
+		$frm = $this->jquery->semantic()->htmlForm("frm-sql-import");
+		$file = $this->jquery->semantic()->htmlInput('sqlFile');
+		$file->asFile('Select file...', 'right', 'upload', true);
+		$frm->setSubmitParams($this->_getFiles()
+			->getAdminBaseRoute() . "/_loadSqlFromFile/" . $db->getDbName(), "#file-div", [
+			'contentType' => 'false',
+			'processData' => 'false'
+		]);
+		$this->jquery->execOn('change', '#div-sqlFile input:file', 'if(event.target.files.length){$("#frm-sql-import").form("submit");}');
+		$this->jquery->renderView('@admin/config/importSql.html', [
+			'dsn' => $db->getDSN()
+		]);
+	}
+
+	public function _loadSqlFromFile($db = '') {
+		if (URequest::isPost()) {
+			$target_dir = \sys_get_temp_dir();
+			$target_file = $target_dir . \basename($_FILES["div-sqlFile-file"]["name"]);
+			if (\move_uploaded_file($_FILES["div-sqlFile-file"]["tmp_name"], $target_file)) {
+				$sql = \file_get_contents($target_file);
+				$this->jquery->exec("setAceEditor('sqlx');", true);
+				\preg_match('/USE\s[`|"|\'](.*?)[`|"|\']/m', $sql, $matches);
+				$this->jquery->postFormOnClick('#validate-btn', $this->_getFiles()
+					->getAdminBaseRoute() . "/_createDbFromSql", "frm-sql-content", "#main-content");
+				$this->jquery->renderView('@admin/config/sqlContent.html', [
+					'sql' => $sql,
+					'dbName' => $matches[1] ?? $db
+				]);
+			}
+		}
+	}
+
+	public function _createDbFromSql() {
+		$dbName = URequest::post('dbName');
+		$sql = URequest::post('sql');
+		$isValid = true;
+		if (isset($dbName) && isset($sql)) {
+			$sql = preg_replace('/(USE\s[`|"|\'])(.*?)([`|"|\'])/m', '$1' . $dbName . '$3', $sql);
+			$sql = preg_replace('/(CREATE\sDATABASE\s(?:IF NOT EXISTS){0,1}\s[`|"|\'])(.*?)([`|"|\'])/m', '$1' . $dbName . '$3', $sql);
+			$activeDbOffset = $this->getActiveDb();
+
+			$db = $this->getDbInstance($activeDbOffset);
+			if (! $db->isConnected()) {
+				$db->setDbName('');
+				try {
+					$db->connect();
+				} catch (\Exception $e) {
+					$isValid = false;
+					$this->showSimpleMessage($e->getMessage(), 'error', 'Connection to database: SQL file importation', 'warning', null, 'opMessage');
+				}
+			}
+			if ($isValid) {
+				if ($db->getDbName() !== $dbName) {
+					$config = Startup::$config;
+					DAO::updateDatabaseParams($config, [
+						'dbName' => $dbName
+					], $activeDbOffset);
+					Startup::saveConfig($config);
+					Startup::reloadConfig();
+				}
+				try {
+					$db->beginTransaction();
+					$db->execute($sql);
+					$db->commit();
+					$this->showSimpleMessage($dbName . ' created with success!', 'success', 'SQL file importation', 'success', null, 'opMessage');
+				} catch (\Exception $e) {
+					$db->rollBack();
+					$this->showSimpleMessage($e->getMessage(), 'error', 'SQL file importation', 'warning', null, 'opMessage');
+				}
+			}
+
+			$this->models();
+		}
 	}
 
 	private function _yumlRefresh($url = "/_updateDiagram", $params = "{}", $responseElement = "#diag-class") {

@@ -1,5 +1,5 @@
-// Foundation for Sites by ZURB
-// foundation.zurb.com
+// Foundation for Sites
+// https://get.foundation
 // Licensed under MIT Open Source
 
 ////
@@ -38,8 +38,14 @@ $buttongroup-radius-on-each: true !default;
 
   @if $global-flexbox {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: stretch;
+    flex-grow: 1;
+
+    &::before,
+    &::after {
+      display: none; // Disable clearfix
+    }
   }
   @else {
     font-size: 0;
@@ -72,7 +78,21 @@ $buttongroup-radius-on-each: true !default;
         border-bottom-#{$global-right}-radius: $button-radius;
       }
     }
+  }
+}
 
+/// Make buttons bonded without gap between them. Borders between buttons are merged
+/// @param {String} $selector [$buttongroup-child-selector] - Selector for the buttons inside a button group.
+@mixin button-group-no-gaps(
+  $selector: $buttongroup-child-selector,
+  $border-width: $button-hollow-border-width
+) {
+  #{$selector} {
+    margin-#{$global-right}: rem-calc(-$border-width);
+
+    + #{$selector} {
+      border-#{$global-left}-color: transparent;
+    }
   }
 }
 
@@ -89,13 +109,14 @@ $buttongroup-radius-on-each: true !default;
 
     &::before,
     &::after {
-      display: none;
+      display: none; // Disable clearfix
     }
   }
 
   #{$selector} {
     @if $global-flexbox {
       flex: 1 1 0px; // sass-lint:disable-line zero-unit
+      margin-right: 0;
     }
     @else {
       // One child
@@ -144,7 +165,6 @@ $buttongroup-radius-on-each: true !default;
       margin-bottom: 0;
     }
 
-
     @if not $buttongroup-radius-on-each {
       border-radius: 0;
 
@@ -159,7 +179,6 @@ $buttongroup-radius-on-each: true !default;
         border-bottom-#{$global-right}-radius: $global-radius;
       }
     }
-
   }
 }
 
@@ -210,19 +229,32 @@ $buttongroup-radius-on-each: true !default;
       @include button-group-expand;
     }
 
-    // Colors
-    @each $name, $color in $button-palette {
-      @if $button-fill != hollow {
-        &.#{$name} #{$buttongroup-child-selector} {
-          @include button-style($color, auto, auto);
+    // Solid, hollow & clear styles
+    @each $filling in (solid hollow clear) {
+      $base-selector: if($button-fill == $filling, null, '.#{$filling}');
+
+      &#{$base-selector} {
+        // Do not generate button base styles for the default filling
+        @if($button-fill != $filling) {
+          #{$buttongroup-child-selector} {
+            @include button-fill($filling);
+            @include button-fill-style($filling);
+          }
+        }
+
+        @each $name, $color in $button-palette {
+          $individual-selector: if($button-fill == $filling, null, ' #{$buttongroup-child-selector}.#{$name}');
+
+          &.#{$name} #{$buttongroup-child-selector}, #{$individual-selector} {
+            @include button-fill-style($filling, $color, auto, auto);
+          }
         }
       }
-      @else {
-        &.#{$name} #{$buttongroup-child-selector} {
-          @include button-hollow;
-          @include button-hollow-style($color);
-        }
-      }
+
+    }
+
+    &.no-gaps {
+      @include button-group-no-gaps;
     }
 
     &.stacked,

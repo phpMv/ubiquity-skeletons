@@ -11,8 +11,9 @@ use Ubiquity\exceptions\TransformerException;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.0.1
- *         
+ * @version 1.0.3
+ * @package ubiquity.dev
+ *
  */
 class ModelParser {
 
@@ -36,6 +37,8 @@ class ModelParser {
 
 	protected $fieldNames;
 
+	protected $memberNames;
+
 	protected $fieldTypes = [];
 
 	protected $transformers = [];
@@ -46,7 +49,7 @@ class ModelParser {
 
 	public function parse($modelClass) {
 		$instance = new $modelClass();
-		$this->primaryKeys = Reflexion::getKeyFields($instance);
+		$primaryKeys = Reflexion::getKeyFields($instance);
 		$this->oneToManyMembers = Reflexion::getMembersAnnotationWithAnnotation($modelClass, "@oneToMany");
 		$this->manytoOneMembers = Reflexion::getMembersNameWithAnnotation($modelClass, "@manyToOne");
 		$this->manyToManyMembers = Reflexion::getMembersAnnotationWithAnnotation($modelClass, "@manyToMany");
@@ -61,6 +64,7 @@ class ModelParser {
 			$propName = $property->getName();
 			$fieldName = Reflexion::getFieldName($modelClass, $propName);
 			$this->fieldNames[$propName] = $fieldName;
+			$this->memberNames[$fieldName] = $propName;
 			$nullable = Reflexion::isNullable($modelClass, $propName);
 			$serializable = Reflexion::isSerializable($modelClass, $propName);
 			if ($nullable)
@@ -76,6 +80,9 @@ class ModelParser {
 				$this->accessors[$fieldName] = $accesseur;
 			}
 		}
+		foreach ($primaryKeys as $pk) {
+			$this->primaryKeys[$pk] = $this->fieldNames[$pk] ?? $pk;
+		}
 
 		$this->global["#tableName"] = Reflexion::getTableName($modelClass);
 	}
@@ -85,6 +92,7 @@ class ModelParser {
 		$result["#primaryKeys"] = $this->primaryKeys;
 		$result["#manyToOne"] = $this->manytoOneMembers;
 		$result["#fieldNames"] = $this->fieldNames;
+		$result['#memberNames'] = $this->memberNames;
 		$result["#fieldTypes"] = $this->fieldTypes;
 		$result["#nullable"] = $this->nullableMembers;
 		$result["#notSerializable"] = $this->notSerializableMembers;

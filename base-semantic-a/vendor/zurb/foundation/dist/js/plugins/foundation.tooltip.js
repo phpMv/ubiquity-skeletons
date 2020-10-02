@@ -344,9 +344,6 @@ function (_Plugin) {
         return false;
       }
 
-      var $eleDims = _foundation_util_box__WEBPACK_IMPORTED_MODULE_0__["Box"].GetDimensions($element),
-          $anchorDims = _foundation_util_box__WEBPACK_IMPORTED_MODULE_0__["Box"].GetDimensions($anchor);
-
       if (!this.options.allowOverlap) {
         // restore original position & alignment before checking overlap
         this.position = this.originalPosition;
@@ -356,7 +353,6 @@ function (_Plugin) {
       $element.offset(_foundation_util_box__WEBPACK_IMPORTED_MODULE_0__["Box"].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
 
       if (!this.options.allowOverlap) {
-        var overlaps = {};
         var minOverlap = 100000000; // default coordinates to how we start, in case we can't figure out better
 
         var minCoordinates = {
@@ -578,7 +574,13 @@ function (_Positionable) {
     key: "_getDefaultPosition",
     value: function _getDefaultPosition() {
       // handle legacy classnames
-      var position = this.$element[0].className.match(/\b(top|left|right|bottom)\b/g);
+      var elementClassName = this.$element[0].className;
+
+      if (this.$element[0] instanceof SVGElement) {
+        elementClassName = elementClassName.baseVal;
+      }
+
+      var position = elementClassName.match(/\b(top|left|right|bottom)\b/g);
       return position ? position[0] : 'top';
     }
   }, {
@@ -714,8 +716,11 @@ function (_Positionable) {
     value: function _events() {
       var _this = this;
 
+      var hasTouch = 'ontouchstart' in window || typeof window.ontouchstart !== 'undefined';
       var $template = this.template;
-      var isFocus = false;
+      var isFocus = false; // `disableForTouch: Fully disable the tooltip on touch devices
+
+      if (hasTouch && this.options.disableForTouch) return;
 
       if (!this.options.disableHover) {
         this.$element.on('mouseenter.zf.tooltip', function (e) {
@@ -733,10 +738,14 @@ function (_Positionable) {
         }));
       }
 
+      if (hasTouch) {
+        this.$element.on('tap.zf.tooltip touchend.zf.tooltip', function (e) {
+          _this.isActive ? _this.hide() : _this.show();
+        });
+      }
+
       if (this.options.clickOpen) {
         this.$element.on('mousedown.zf.tooltip', function (e) {
-          e.stopImmediatePropagation();
-
           if (_this.isClick) {//_this.hide();
             // _this.isClick = false;
           } else {
@@ -749,14 +758,7 @@ function (_Positionable) {
         });
       } else {
         this.$element.on('mousedown.zf.tooltip', function (e) {
-          e.stopImmediatePropagation();
           _this.isClick = true;
-        });
-      }
-
-      if (!this.options.disableForTouch) {
-        this.$element.on('tap.zf.tooltip touchend.zf.tooltip', function (e) {
-          _this.isActive ? _this.hide() : _this.show();
         });
       }
 
@@ -821,8 +823,6 @@ function (_Positionable) {
 }(_foundation_positionable__WEBPACK_IMPORTED_MODULE_4__["Positionable"]);
 
 Tooltip.defaults = {
-  disableForTouch: false,
-
   /**
    * Time, in ms, before a tooltip should open on hover.
    * @option
@@ -854,6 +854,16 @@ Tooltip.defaults = {
    * @default false
    */
   disableHover: false,
+
+  /**
+   * Disable the tooltip for touch devices.
+   * This can be useful to make elements with a tooltip on it trigger their
+   * action on the first tap instead of displaying the tooltip.
+   * @option
+   * @type {booelan}
+   * @default false
+   */
+  disableForTouch: false,
 
   /**
    * Optional addtional classes to apply to the tooltip template on init.
@@ -1069,8 +1079,9 @@ Triggers.Listeners.Basic = {
     }
   },
   closeableListener: function closeableListener(e) {
+    var animation = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('closable'); // Only close the first closable element. See https://git.io/zf-7833
+
     e.stopPropagation();
-    var animation = jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('closable');
 
     if (animation !== '') {
       _foundation_util_motion__WEBPACK_IMPORTED_MODULE_2__["Motion"].animateOut(jquery__WEBPACK_IMPORTED_MODULE_0___default()(this), animation, function () {
@@ -1301,7 +1312,7 @@ Triggers.init = function ($, Foundation) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/ncoden/Documents/Documents/Projects/Programmation/Web/2016/Foundation/foundation-sites/js/entries/plugins/foundation.tooltip.js */"./js/entries/plugins/foundation.tooltip.js");
+module.exports = __webpack_require__(/*! /Users/joeworkman/Development/foundation-sites/js/entries/plugins/foundation.tooltip.js */"./js/entries/plugins/foundation.tooltip.js");
 
 
 /***/ }),

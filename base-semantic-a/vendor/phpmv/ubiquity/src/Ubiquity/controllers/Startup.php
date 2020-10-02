@@ -13,25 +13,37 @@ use Ubiquity\views\engine\TemplateEngine;
  * This class is part of Ubiquity
  *
  * @author jcheron <myaddressmail@gmail.com>
- * @version 1.1.4
+ * @version 1.1.7
  *
  */
 class Startup {
 	use StartupConfigTrait;
 	public static $urlParts;
 	public static $templateEngine;
-	private static $controller;
-	private static $action;
-	private static $actionParams;
+	protected static $controller;
+	protected static $action;
+	protected static $actionParams;
 
-	private static function parseUrl(&$url) {
+	protected static function parseUrl(&$url): array {
 		if (! $url) {
-			$url = "_default";
+			$url = '_default';
 		}
-		return self::$urlParts = \explode ( "/", \rtrim ( $url, '/' ) );
+		return self::$urlParts = \explode ( '/', \rtrim ( $url, '/' ) );
 	}
 
-	private static function startTemplateEngine(&$config) {
+	protected static function _getControllerInstance($controllerName): ?object {
+		if (\class_exists ( $controllerName, true )) {
+			$controller = new $controllerName ();
+			// Dependency injection
+			if (isset ( self::$config ['di'] ) && \is_array ( self::$config ['di'] )) {
+				self::injectDependences ( $controller );
+			}
+			return $controller;
+		}
+		return null;
+	}
+
+	protected static function startTemplateEngine(&$config): void {
 		try {
 			$templateEngine = $config ['templateEngine'];
 			$engineOptions = $config ['templateEngineOptions'] ?? array ('cache' => false );
@@ -49,7 +61,17 @@ class Startup {
 	 *
 	 * @param array $config The loaded config array
 	 */
-	public static function run(array &$config) {
+	public static function run(array &$config): void {
+		self::init ( $config );
+		self::forward ( $_GET ['c'] );
+	}
+
+	/**
+	 * Initialize the app with $config array
+	 *
+	 * @param array $config
+	 */
+	public static function init(array &$config): void {
 		self::$config = $config;
 		if (isset ( $config ['templateEngine'] )) {
 			self::startTemplateEngine ( $config );
@@ -57,7 +79,7 @@ class Startup {
 		if (isset ( $config ['sessionName'] )) {
 			USession::start ( $config ['sessionName'] );
 		}
-		self::forward ( $_GET ['c'] );
+		self::$ctrlNS = self::getNS ();
 	}
 
 	/**
@@ -67,12 +89,12 @@ class Startup {
 	 * @param boolean $initialize If true, the **initialize** method of the controller is called
 	 * @param boolean $finalize If true, the **finalize** method of the controller is called
 	 */
-	public static function forward($url, $initialize = true, $finalize = true) {
+	public static function forward($url, $initialize = true, $finalize = true): void {
 		$u = self::parseUrl ( $url );
 		if (\is_array ( Router::getRoutes () ) && ($ru = Router::getRoute ( $url, true, self::$config ['debug'] ?? false)) !== false) {
 			if (\is_array ( $ru )) {
 				if (\is_string ( $ru [0] )) {
-					self::runAction ( $ru, $initialize, $finalize );
+					static::runAction ( $ru, $initialize, $finalize );
 				} else {
 					self::runCallable ( $ru );
 				}
@@ -80,8 +102,8 @@ class Startup {
 				echo $ru; // Displays route response from cache
 			}
 		} else {
-			$u [0] = self::setCtrlNS () . $u [0];
-			self::runAction ( $u, $initialize, $finalize );
+			$u [0] = self::$ctrlNS . $u [0];
+			static::runAction ( $u, $initialize, $finalize );
 		}
 	}
 
@@ -90,12 +112,13 @@ class Startup {
 	 *
 	 * @return TemplateEngine
 	 */
-	public static function getTempateEngineInstance() {
+	public static function getTempateEngineInstance(): ?TemplateEngine {
 		$config = self::$config;
 		if (isset ( $config ['templateEngine'] )) {
 			$templateEngine = $config ['templateEngine'];
 			return new $templateEngine ( [ ] );
 		}
+		return null;
 	}
 
 	/**
@@ -105,37 +128,48 @@ class Startup {
 	 * @param boolean $initialize If true, the **initialize** method of the controller is called
 	 * @param boolean $finalize If true, the **finalize** method of the controller is called
 	 */
-	public static function runAction(array &$u, $initialize = true, $finalize = true) {
-		$ctrl = $u [0];
-		$uSize = \sizeof ( $u );
-		self::$controller = $ctrl;
-		self::$action = ($uSize > 1) ? $u [1] : 'index';
-		self::$actionParams = ($uSize > 2) ? \array_slice ( $u, 2 ) : [ ];
+	public static function runAction(array &$u, $initialize = true, $finalize = true): void {
+		self::$controller = $ctrl = $u [0];
+		self::$action = $action = $u [1] ?? 'index';
+		self::$actionParams = \array_slice ( $u, 2 );
 
 		try {
-			$controller = new $ctrl ();
-			// Dependency injection
-			if (isset ( self::$config ['di'] ) && \is_array ( self::$config ['di'] )) {
-				self::injectDependences ( $controller );
-			}
-			if (! $controller->isValid ( self::$action )) {
-				$controller->onInvalidControl ();
+			if (null !== $controller = self::_getControllerInstance ( $ctrl )) {
+				if (! $controller->isValid ( $action )) {
+					$controller->onInvalidControl ();
+				} else {
+					if ($initialize) {
+						$controller->initialize ();
+					}
+					try {
+						$controller->$action ( ...(self::$actionParams) );
+					} catch ( \Error $e ) {
+						if (! \method_exists ( $controller, $action )) {
+							static::onError ( 404, "This action does not exist on the controller " . $ctrl, $controller );
+						} else {
+							Logger::warn ( 'Startup', $e->getTraceAsString (), 'runAction' );
+							if (self::$config ['debug']) {
+								throw $e;
+							} else {
+								static::onError ( 500, $e->getMessage (), $controller );
+							}
+						}
+					}
+					if ($finalize) {
+						$controller->finalize ();
+					}
+				}
 			} else {
-				if ($initialize) {
-					$controller->initialize ();
-				}
-				try {
-					\call_user_func_array ( [ $controller,self::$action ], self::$actionParams );
-				} catch ( \Error $e ) {
-					Logger::warn ( "Startup", \sprintf ( "The method `%s` doesn't exists on controller `%s`", self::$action, $ctrl ), "runAction" );
-				}
-				if ($finalize) {
-					$controller->finalize ();
-				}
+				Logger::warn ( 'Startup', 'The controller `' . $ctrl . '` doesn\'t exists! <br/>', 'runAction' );
+				static::onError ( 404 );
 			}
-		} catch ( \Error $e ) {
-			self::getHttpInstance ()->header ( 'HTTP/1.0 404 Not Found', '', true, 404 );
-			Logger::warn ( 'Startup', 'The controller `' . $ctrl . '` doesn\'t exists! <br/>', 'runAction' );
+		} catch ( \Error $eC ) {
+			Logger::warn ( 'Startup', $eC->getTraceAsString (), 'runAction' );
+			if (self::$config ['debug']) {
+				throw $eC;
+			} else {
+				static::onError ( 500, $eC->getMessage () );
+			}
 		}
 	}
 
@@ -144,18 +178,16 @@ class Startup {
 	 *
 	 * @param array $u An array containing a callback, and some parameters
 	 */
-	public static function runCallable(array &$u) {
-		self::$actionParams = [ ];
-		if (\sizeof ( $u ) > 1) {
-			self::$actionParams = \array_slice ( $u, 1 );
-		}
+	public static function runCallable(array &$u): void {
+		self::$actionParams = \array_slice ( $u, 1 );
 		if (isset ( self::$config ['di'] )) {
 			$di = self::$config ['di'];
 			if (\is_array ( $di )) {
-				self::$actionParams = \array_merge ( self::$actionParams, $di );
+				self::$actionParams += \array_values($di);
 			}
 		}
-		\call_user_func_array ( $u [0], self::$actionParams );
+		$func = $u [0];
+		$func ( ...(self::$actionParams) );
 	}
 
 	/**
@@ -163,7 +195,7 @@ class Startup {
 	 *
 	 * @param Controller $controller The controller
 	 */
-	public static function injectDependences($controller) {
+	public static function injectDependences($controller): void {
 		$di = DiManager::fetch ( $controller );
 		if ($di !== false) {
 			foreach ( $di as $k => $v ) {
@@ -192,13 +224,29 @@ class Startup {
 	 * @param boolean $finalize If true, the **finalize** method of the controller is called
 	 * @return string
 	 */
-	public static function runAsString(array &$u, $initialize = true, $finalize = true) {
+	public static function runAsString(array &$u, $initialize = true, $finalize = true): string {
 		\ob_start ();
 		self::runAction ( $u, $initialize, $finalize );
 		return \ob_get_clean ();
 	}
 
-	public static function errorHandler($message = "", $code = 0, $severity = 1, $filename = null, int $lineno = 0, $previous = NULL) {
+	public static function onError(int $code, ?string $message = null, $controllerInstance = null) {
+		$onError = self::$config ['onError'] ?? (function ($code, $message = null, $controllerInstance = null) {
+			switch ($code) {
+				case 404 :
+					self::getHttpInstance ()->header ( 'HTTP/1.0 404 Not Found', '', true, 404 );
+					echo ($message ?? "The page you are loocking for doesn't exists!");
+					break;
+
+				case 500 :
+					echo ($message ?? "A server error occurred!");
+					break;
+			}
+		});
+		$onError ( $code, $message, $controllerInstance );
+	}
+
+	public static function errorHandler($message = '', $code = 0, $severity = 1, $filename = null, int $lineno = 0, $previous = NULL) {
 		if (\error_reporting () == 0) {
 			return;
 		}
@@ -212,7 +260,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getController() {
+	public static function getController(): string {
 		return self::$controller;
 	}
 
@@ -221,7 +269,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getControllerSimpleName() {
+	public static function getControllerSimpleName(): string {
 		return (new \ReflectionClass ( self::$controller ))->getShortName ();
 	}
 
@@ -230,7 +278,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getViewNameFileExtension() {
+	public static function getViewNameFileExtension(): string {
 		return "html";
 	}
 
@@ -239,7 +287,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getAction() {
+	public static function getAction(): string {
 		return self::$action;
 	}
 
@@ -248,7 +296,7 @@ class Startup {
 	 *
 	 * @return array
 	 */
-	public static function getActionParams() {
+	public static function getActionParams(): array {
 		return self::$actionParams;
 	}
 
@@ -257,7 +305,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getFrameworkDir() {
+	public static function getFrameworkDir(): string {
 		return \dirname ( __FILE__ );
 	}
 
@@ -266,7 +314,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getApplicationDir() {
+	public static function getApplicationDir(): string {
 		return \dirname ( \ROOT );
 	}
 
@@ -275,7 +323,7 @@ class Startup {
 	 *
 	 * @return string
 	 */
-	public static function getApplicationName() {
+	public static function getApplicationName(): string {
 		return \basename ( \dirname ( \ROOT ) );
 	}
 }

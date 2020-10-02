@@ -3,8 +3,77 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [Unreleased]
-- Nothing
+## [unreleased]
+- nothing
+## [1.2.17] - 2020-09-30
+### Updated
+- add access option (member access) to all-models & create-model cmd
+- add db offset param to info:models command
+- add OS in version command
+## [1.2.16] - 2020-07-28
+### Updated
+- Update client libraries for new projects (Fomantic 2.8.6)
+- Fix session name generation pb (only alphanumeric chars)
+## [1.2.15] - 2020-06-27
+### Added
+- Add `create:command`command
+- support for custom commands
+### Updated
+- move utility classes to `ubiquity-commands` repo
+- Update client libraries for new projects (Fomantic 2.8.5)
+## [1.2.14] - 2020-05-06
+#### Updated
+- Update client libraries for new projects (Fomantic 2.8.4, jQuery 3.5.1)
+- Add port checking for `Ubiquity serve` command
+## [1.2.13] - 2020-03-23
+#### Added
+- roadrunner server command (Thanks @Lapinskas)
+
+`Ubiquity serve -t=roadrunner`
+#### Added
+## [1.2.12] - 2020-01-25
+#### Added
+- Mailer commands (mailer, newMail, sendMail)
+- opcache preloading in project creation
+#### Changed
+- set `help` as default command
+- require php 7.4
+
+## [1.2.11] - 2019-11-18
+#### Changed
+- Update client libraries for new projects (Fomantic 2.8, jQuery 3.4.1, phpMv-ui 2.3)
+- require php 7.2
+
+## [1.2.10] - 2019-10-28
+#### Added
+- Composer create-project
+```
+composer create-project phpmv/ubiquity-project {projectName}
+```
+## [1.2.9] - 2019-09-25
+### Fixed
+- [Cannot set database](https://github.com/phpMv/ubiquity/issues/74)
+- https://github.com/phpMv/ubiquity/issues/72
+- Fix https://github.com/phpMv/ubiquity-devtools/commit/c06b6704126a4bf56b2a6a52c60aa1d40edcfcdb
+### Added
+#### Commands
+- `composer` [cmd]
+ 
+Samples:
+```
+Ubiquity composer update
+Ubiquity composer nodev
+Ubiquity composer optimize
+```
+- `bootstrap` [cmd]
+
+Execute the `cmd` method from the `.ubiquity/_bootstrap.php` file to prepare an environment.
+
+Sample:
+```
+Ubiquity bootstrap prod
+Ubiquity bootstrap dev
+```
 ## [1.2.8] - 2019-08-01
 ### Changed
 - `model` (`create-model`) command

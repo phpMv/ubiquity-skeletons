@@ -62,14 +62,18 @@ class UDateTime {
 
 	/**
 	 *
-	 * @param string $datetime
+	 * @param string|\DateTime $datetime
 	 * @param boolean $full
 	 * @return string
 	 * @see http://stackoverflow.com/questions/1416697/converting-timestamp-to-time-ago-in-php-e-g-1-day-ago-2-days-ago
 	 */
 	public static function elapsed($datetime, $full = false) {
 		$now = new \DateTime ();
-		$ago = new \DateTime ( $datetime );
+		if (! $datetime instanceof \DateTime) {
+			$ago = new \DateTime ( $datetime );
+		} else {
+			$ago = $datetime;
+		}
 		$diff = $now->diff ( $ago );
 
 		$diff->w = floor ( $diff->d / 7 );
@@ -86,7 +90,7 @@ class UDateTime {
 
 		if (! $full)
 			$string = array_slice ( $string, 0, 1 );
-		return $string ? implode ( ', ', $string ) . ' ago' : 'just now';
+		return $string ? implode ( ', ', $string ) . ($diff->invert ? ' ago' : '') : 'just now';
 	}
 }
 
